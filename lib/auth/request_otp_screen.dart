@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'provider/auth_provider.dart';
 import 'enter_otp_screen.dart';
@@ -313,6 +314,19 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                               ),
                             )
                           : const Text('Get OTP'),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          Get.offAllNamed('/landing');
+                        },
+                        child: const Text(
+                          'Browse as guest',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                     const Spacer(),

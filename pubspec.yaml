@@ -40,6 +40,8 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   connectivity_plus: ^6.1.5
   provider: ^6.1.5+1
+  get: ^4.6.6
+  carousel_slider: ^5.1.1
 
 dev_dependencies:
   flutter_test:
