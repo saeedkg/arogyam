@@ -141,10 +141,10 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
-                            children: const [
-                              Text('🇮🇳', style: TextStyle(fontSize: 24)),
-                              SizedBox(width: 8),
-                              Text(
+                            children: [
+                              Image.asset('assets/flag/flag_in.png', width: 28, height: 20, fit: BoxFit.cover),
+                              const SizedBox(width: 8),
+                              const Text(
                                 '+91',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -156,53 +156,48 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: _phoneError != null ? Colors.red.shade50 : Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: _phoneError != null 
-                                    ? Border.all(color: Colors.red.shade300, width: 1)
-                                    : null,
+                              TextField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.number,
+                                maxLength: 10,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  letterSpacing: 1.2,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                child: TextField(
-                                  controller: _phoneController,
-                                  keyboardType: TextInputType.number,
-                                  maxLength: 10,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    letterSpacing: 2,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  counterText: '',
+                                  hintText: '9035XXXXXX',
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black26,
                                     fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2,
                                   ),
-                                  decoration: const InputDecoration(
-                                    isDense: true,
-                                    border: InputBorder.none,
-                                    counterText: '',
-                                    hintText: '9035XXXXXX',
-                                    hintStyle: TextStyle(
-                                      color: Colors.black26,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 2,
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(color: Color(0xFF22C58B), width: 1.6),
+                                  ),
+                                  errorText: _phoneError,
+                                  errorStyle: TextStyle(color: Colors.red.shade600, fontSize: 12),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(color: Colors.red.shade400, width: 1.2),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(color: Colors.red.shade400, width: 1.6),
                                   ),
                                 ),
                               ),
-                              // Always reserve space for error message
-                              SizedBox(
-                                height: _phoneError != null ? 32 : 0,
-                                child: _phoneError != null
-                                    ? Padding(
-                                        padding: const EdgeInsets.only(top: 8, left: 4),
-                                        child: Text(
-                                          _phoneError!,
-                                          style: TextStyle(
-                                            color: Colors.red.shade600,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                              ),
+                              const SizedBox(height: 6),
                             ],
                           ),
                         ),
@@ -284,7 +279,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                       backgroundColor: Colors.red,
                                       duration: Duration(seconds: 3),
                                     ),
-                                  );
+                            );
                                   return;
                                 }
                                 
@@ -296,7 +291,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: (authProvider.isLoading || !_isPhoneValid) 
                             ? Colors.grey 
-                            : Colors.blue,
+                            : const Color(0xFF22C58B),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(

@@ -324,11 +324,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(otpLength, (i) {
                       return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        width: 48,
+                        width: 52,
                         child: KeyboardListener(
                           focusNode: _keyboardFocusNodes[i],
                           onKeyEvent: (event) => _onKeyPressed(event, i),
@@ -338,15 +334,24 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             maxLength: 1,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                            ),
+                             style: const TextStyle(
+                               fontSize: 22,
+                               fontWeight: FontWeight.w700,
+                               letterSpacing: 1.2,
+                             ),
                             decoration: InputDecoration(
                               counterText: '',
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                              filled: true,
+                              fillColor: Colors.white,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: Color(0xFF22C58B), width: 1.5),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             onChanged: (value) => _onChanged(value, i),
                             onSubmitted: (value) => _closeKeyboard(),
@@ -427,7 +432,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: (authProvider.isLoading || _submitted || !_isOtpValid) 
                           ? Colors.grey 
-                          : Colors.blue,
+                          : const Color(0xFF22C58B),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

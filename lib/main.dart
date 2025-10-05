@@ -28,7 +28,7 @@ class ArogyamApp extends StatelessWidget {
           useMaterial3: true,
           textTheme: GoogleFonts.poppinsTextTheme(),
         ),
-        home: const OnboardingScreen(),
+        home: const RequestOtpScreen(),
         getPages: [
           GetPage(name: '/landing', page: () => const LandingPage()),
           GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
