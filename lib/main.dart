@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'auth/provider/auth_provider.dart';
 import 'auth/request_otp_screen.dart';
 import 'landing/ui/landing_page.dart';
+import 'onboarding/onboarding_screen.dart';
 
 void main() {
   runApp(const ArogyamApp());
@@ -24,10 +26,12 @@ class ArogyamApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          textTheme: GoogleFonts.poppinsTextTheme(),
         ),
-        home: const RequestOtpScreen(),
+        home: const OnboardingScreen(),
         getPages: [
           GetPage(name: '/landing', page: () => const LandingPage()),
+          GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
         ],
       ),
     );

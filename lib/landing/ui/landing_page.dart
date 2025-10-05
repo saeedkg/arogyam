@@ -33,6 +33,9 @@ class _LandingPageState extends State<LandingPage> {
       body: _pages[_currentIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
+        elevation: 10,
+        surfaceTintColor: Colors.white,
+        indicatorColor: Colors.blue.withOpacity(0.16),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Appointments'),

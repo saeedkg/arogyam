@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/home_controller.dart';
+import '../../../_shared/ui/app_text.dart';
 import '../../entities/appointment.dart';
 import '../../entities/banner_item.dart';
 import '../../entities/category_item.dart';
@@ -46,12 +47,20 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 16),
                     _NextAppointmentCard(appointment: controller.nextAppointment.value),
                     const SizedBox(height: 16),
+                    _SectionHeader(title: 'Quick actions'),
+                    const SizedBox(height: 8),
                     _QuickActions(),
                     const SizedBox(height: 16),
+                    _SectionHeader(title: 'Highlights'),
+                    const SizedBox(height: 8),
                     _BannerCarousel(banners: controller.banners),
                     const SizedBox(height: 16),
+                  //  _SectionHeader(title: 'Categories'),
+                    const SizedBox(height: 8),
                     _CategoriesGrid(categories: controller.categories),
                     const SizedBox(height: 16),
+                    _SectionHeader(title: 'Top doctors'),
+                    const SizedBox(height: 8),
                     _TopDoctors(doctors: controller.topDoctors),
                   ],
                 );
@@ -60,6 +69,22 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        AppText.titleLarge(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+        const Spacer(),
+        TextButton(onPressed: () {}, child: const Text('See all')),
+      ],
     );
   }
 }
@@ -111,15 +136,12 @@ class _NextAppointmentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Next Appointment', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.blue.shade700)),
+                AppText.label('Next Appointment', color: Colors.blue.shade700),
                 const SizedBox(height: 6),
-                Text(a.doctorName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                Text(a.specialization, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                AppText.titleMedium(a.doctorName),
+                AppText.bodySmall(a.specialization, color: Colors.black54),
                 const SizedBox(height: 8),
-                Text(
-                  '${a.startTime.day}/${a.startTime.month}/${a.startTime.year}  •  ${a.startTime.hour.toString().padLeft(2, '0')}:${a.startTime.minute.toString().padLeft(2, '0')}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black87),
-                ),
+                AppText.bodySmall('${a.startTime.day}/${a.startTime.month}/${a.startTime.year}  •  ${a.startTime.hour.toString().padLeft(2, '0')}:${a.startTime.minute.toString().padLeft(2, '0')}', color: Colors.black87),
               ],
             ),
           ),
@@ -166,7 +188,7 @@ class _QuickActionCard extends StatelessWidget {
             child: Icon(icon, color: Colors.white),
           ),
           const SizedBox(height: 12),
-          Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+          AppText.titleMedium(title,maxLines: 2),
         ],
       ),
     );
@@ -180,26 +202,61 @@ class _BannerCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (banners.isEmpty) return const SizedBox.shrink();
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: CarouselSlider(
-        options: CarouselOptions(height: 160, viewportFraction: 1.0, autoPlay: true),
-        items: banners
-            .map((b) => Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(b.imageUrl, fit: BoxFit.cover),
-                    Container(color: Colors.black26),
-                    Positioned(
-                      left: 16,
-                      bottom: 16,
-                      right: 16,
-                      child: Text(b.title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
-                    )
-                  ],
-                ))
-            .toList(),
-      ),
+    final controller = Get.find<HomeController>();
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: CarouselSlider(
+            options: CarouselOptions(
+              height: 160,
+              viewportFraction: 1.0,
+              autoPlay: true,
+              onPageChanged: (i, _) => controller.bannerIndex.value = i,
+            ),
+            items: banners
+                .map((b) => Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(b.imageUrl, fit: BoxFit.cover),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.black.withOpacity(0.05), Colors.black.withOpacity(0.45)],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 16,
+                          bottom: 16,
+                          right: 16,
+                          child: Text(b.title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800)),
+                        )
+                      ],
+                    ))
+                .toList(),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Obx(() => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                banners.length,
+                (i) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 6,
+                  width: controller.bannerIndex.value == i ? 18 : 6,
+                  decoration: BoxDecoration(
+                    color: controller.bannerIndex.value == i ? Colors.blue : Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            )),
+      ],
     );
   }
 }
@@ -213,7 +270,7 @@ class _CategoriesGrid extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Categories', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+        AppText.titleLarge('Categories'),
         const SizedBox(height: 12),
         GridView.builder(
           shrinkWrap: true,
@@ -223,13 +280,17 @@ class _CategoriesGrid extends StatelessWidget {
           itemBuilder: (context, i) {
             final c = categories[i];
             return Container(
-              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 6))],
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(c.icon, style: const TextStyle(fontSize: 24)),
+                  Text(c.icon, style: const TextStyle(fontSize: 26)),
                   const SizedBox(height: 8),
-                  Text(c.name, style: Theme.of(context).textTheme.labelLarge),
+                  AppText.label(c.name),
                 ],
               ),
             );
@@ -249,8 +310,7 @@ class _TopDoctors extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Top Doctors', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 12),
+
         SizedBox(
           height: 210,
           child: ListView.separated(
@@ -260,17 +320,15 @@ class _TopDoctors extends StatelessWidget {
             itemBuilder: (context, i) {
               final d = doctors[i];
               return Container(
-                width: 160,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 6))
+                width: 180,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 14, offset: const Offset(0, 8))
                 ]),
+                clipBehavior: Clip.antiAlias,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                      child: Image.network(d.imageUrl, height: 110, width: 160, fit: BoxFit.cover),
-                    ),
+                    Image.network(d.imageUrl, height: 120, width: 180, fit: BoxFit.cover),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(
@@ -280,7 +338,7 @@ class _TopDoctors extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(d.specialization, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                           const SizedBox(height: 6),
-                          Row(children: [const Icon(Icons.star, size: 16, color: Colors.amber), const SizedBox(width: 4), Text(d.rating.toString())])
+                          Row(children: [const Icon(Icons.star_rounded, size: 16, color: Colors.amber), const SizedBox(width: 4), Text(d.rating.toString())])
                         ],
                       ),
                     )

@@ -15,6 +15,7 @@ class HomeController extends GetxController {
   final RxList<BannerItem> banners = <BannerItem>[].obs;
   final RxList<Doctor> topDoctors = <Doctor>[].obs;
   final RxBool isLoading = false.obs;
+  final RxInt bannerIndex = 0.obs;
 
   @override
   void onInit() {
