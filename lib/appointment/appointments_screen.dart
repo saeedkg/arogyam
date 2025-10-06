@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../landing/controller/bookings_controller.dart';
 import 'components/appontment_card.dart';
+import 'components/patient_card.dart';
 
 class AppointmentsScreen extends StatelessWidget {
   const AppointmentsScreen({super.key});
@@ -20,7 +21,7 @@ class AppointmentsScreen extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _PatientCard(
+                PatientCard(
                   name: 'Jane Doe',
                   dob: '01/01/1990',
                   id: 'AXY789',
@@ -99,40 +100,7 @@ class _Tabs extends StatelessWidget {
   }
 }
 
-class _PatientCard extends StatelessWidget {
-  final String name;
-  final String dob;
-  final String id;
-  final String imageUrl;
-  final VoidCallback onChange;
-  const _PatientCard({required this.name, required this.dob, required this.id, required this.imageUrl, required this.onChange});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: const Color(0xFFEFF8FF), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFD7EDFB))),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          ClipOval(child: Image.network(imageUrl, width: 48, height: 48, fit: BoxFit.cover)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 4),
-              Text('DOB: $dob\nID: $id', style: const TextStyle(color: Colors.black54, height: 1.2)),
-            ]),
-          ),
-          TextButton(
-            onPressed: onChange,
-            style: TextButton.styleFrom(backgroundColor: const Color(0xFF22C58B), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-            child: const Text('Change Patient'),
-          )
-        ],
-      ),
-    );
-  }
-}
 
 
 
