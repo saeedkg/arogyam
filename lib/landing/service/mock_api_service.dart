@@ -19,11 +19,15 @@ class MockApiService {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     return const [
       CategoryItem(id: 'cat_cardio', name: 'Cardiology', icon: '❤️'),
-      CategoryItem(id: 'cat_gyno', name: 'Gynecology', icon: '🤰'),
+      CategoryItem(id: 'cat_gyno', name: 'dentistry', icon: '🤰'),
       CategoryItem(id: 'cat_general', name: 'General', icon: '🩺'),
-      CategoryItem(id: 'cat_derma', name: 'Dermatology', icon: '🧴'),
-      CategoryItem(id: 'cat_ortho', name: 'Orthopedics', icon: '🦴'),
-      CategoryItem(id: 'cat_ent', name: 'ENT', icon: '👂'),
+      CategoryItem(id: 'cat_derma', name: 'gastroen', icon: '🧴'),
+      CategoryItem(id: 'cat_ortho', name: 'vaccination', icon: '🦴'),
+      CategoryItem(id: 'cat_ent', name: 'laboratory', icon: '👂'),
+      CategoryItem(id: 'cat_ent', name: 'pulmonology', icon: '👂'),
+      CategoryItem(id: 'cat_ent', name: 'neurology', icon: '👂'),
+
+
     ];
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'provider/auth_provider.dart';
@@ -135,10 +136,12 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                          height: 56,
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade300, width: 1.2),
                           ),
                           child: Row(
                             children: [
@@ -146,7 +149,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                               const SizedBox(width: 8),
                               const Text(
                                 '+91',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
@@ -160,6 +163,10 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                 controller: _phoneController,
                                 keyboardType: TextInputType.number,
                                 maxLength: 10,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(10),
+                                ],
                                 style: const TextStyle(
                                   fontSize: 18,
                                   letterSpacing: 1.2,
@@ -183,7 +190,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(color: Color(0xFF22C58B), width: 1.6),
+                                    borderSide: const BorderSide(color: Color(0xFF22C58B), width: 1.8),
                                   ),
                                   errorText: _phoneError,
                                   errorStyle: TextStyle(color: Colors.red.shade600, fontSize: 12),
@@ -216,7 +223,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              activeColor: Colors.blue,
+                              activeColor: const Color(0xFF22C58B),
                             );
                           },
                         ),
@@ -226,9 +233,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    if (authProvider.isLoading)
-                      const Center(child: CircularProgressIndicator()),
+                    const SizedBox(height: 12),
                     if (authProvider.requestOtpError != null)
                       Container(
                         width: double.infinity,
@@ -289,15 +294,16 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                 }
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: (authProvider.isLoading || !_isPhoneValid) 
-                            ? Colors.grey 
-                            : const Color(0xFF22C58B),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          backgroundColor: (authProvider.isLoading || !_isPhoneValid)
+                              ? Colors.grey.shade300
+                              : const Color(0xFF22C58B),
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          foregroundColor: (authProvider.isLoading || !_isPhoneValid)
+                              ? Colors.grey.shade700
+                              : Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                         ),
                         child: authProvider.isLoading 
                           ? const SizedBox(
