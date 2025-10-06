@@ -15,43 +15,43 @@ class PatientCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade200, width: 2),
+              border: Border.all(color: Colors.grey.shade200, width: 1.5),
             ),
             child: ClipOval(
               child: Image.network(
                 imageUrl,
-                width: 56,
-                height: 56,
+                width: 52,
+                height: 52,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.grey.shade100,
+                  color: Colors.grey.shade50,
                   child: Icon(
-                    Icons.person,
+                    Icons.person_outline_rounded,
                     color: Colors.grey.shade400,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,43 +59,38 @@ class PatientCard extends StatelessWidget {
                 Text(
                   name,
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 6),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInfoItem(Icons.cake_rounded, 'DOB: $dob'),
-                    const SizedBox(height: 4),
-                    _buildInfoItem(Icons.badge_rounded, 'ID: $id'),
-                  ],
-                ),
+                const SizedBox(height: 4),
+                _buildInfoItem(Icons.cake_outlined, dob),
+                const SizedBox(height: 2),
+                _buildInfoItem(Icons.badge_outlined, id),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Container(
-            height: 40,
+            height: 36,
             child: OutlinedButton(
               onPressed: onChange,
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF22C58B),
-                side: const BorderSide(color: Color(0xFF22C58B), width: 1.5),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                side: const BorderSide(color: Color(0xFF22C58B), width: 1.2),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: const Text(
-                'Change',
+                'Change Patient',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -110,16 +105,16 @@ class PatientCard extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 14,
-          color: Colors.grey.shade600,
+          size: 13,
+          color: Colors.grey.shade500,
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 13,
+              color: Colors.grey.shade600,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
             maxLines: 1,
