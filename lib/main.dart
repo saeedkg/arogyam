@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'auth/provider/auth_provider.dart';
 import 'auth/request_otp_screen.dart';
-import 'landing/ui/landing_page.dart';
+import 'landing/ui/landing_screen.dart';
 import 'onboarding/onboarding_screen.dart';
 import 'find_doctor/search_doctors_screen.dart';
 import 'appointment/appointments_screen.dart';
