@@ -16,25 +16,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<_OnboardData> _pages = const [
     _OnboardData(
-      title: 'Discover the Most Exemplary Doctors\nin Your Area',
-      subtitle: 'Dynamically empower pandemic scenarios rather than wireless deliverables redefine ethical data before seamless web services.',
+      title: 'Find Trusted Doctors\nNear You',
+      subtitle: 'Connect with certified healthcare professionals in your area for personalized medical care.',
       centerImage: 'https://i.pravatar.cc/300?img=32',
     ),
     _OnboardData(
-      title: 'Book appointments and video consults\nwith top specialists',
-      subtitle: 'Find the right doctor by specialization and availability, then book in minutes from your phone.',
+      title: 'Book Appointments &\nVideo Consults',
+      subtitle: 'Schedule in-person visits or virtual consultations with top specialists in minutes.',
       centerImage: 'https://i.pravatar.cc/300?img=55',
     ),
     _OnboardData(
-      title: 'A doctor–patient video talk about\nseveral health issues',
-      subtitle: 'Dynamically empower pandemic scenarios rather than wireless deliverables redefine ethical data before seamless web services.',
+      title: 'Secure Video\nConsultations',
+      subtitle: 'Have private, secure video calls with doctors to discuss your health concerns.',
       centerImage: 'https://i.pravatar.cc/300?img=58',
     ),
   ];
 
   void _next() {
     if (_current.value < _pages.length - 1) {
-      _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _controller.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeOut);
     } else {
       Get.offAllNamed('/landing');
     }
@@ -43,12 +43,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFF),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
+            // Header with Skip
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 children: [
                   IconButton(
@@ -56,20 +57,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       if (_current.value == 0) {
                         Get.back<void>();
                       } else {
-                        _controller.previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+                        _controller.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    icon: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20,
+                      color: Colors.grey.shade700,
+                    ),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed: () => Get.offAllNamed('/landing'),
-                    child: const Text('Skip'),
+                    child: Text(
+                      'Skip',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
 
+            // Page Content
             Expanded(
               child: PageView.builder(
                 controller: _controller,
@@ -77,61 +90,84 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemCount: _pages.length,
                 itemBuilder: (context, i) {
                   final data = _pages[i];
-                  return Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: Center(
-                          child: _DoctorOrbitIllustration(centerImage: data.centerImage),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        // Illustration
+                        Expanded(
+                          flex: 2,
+                          child: Center(
+                            child: _DoctorOrbitIllustration(centerImage: data.centerImage),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            AppText.titleLarge(
-                              data.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 16),
-                            AppText.bodySmall(
-                              data.subtitle,
-                            ),
-                            const SizedBox(height: 24),
-                          ],
+
+                        // Text Content
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                data.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black87,
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                data.subtitle,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade600,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               ),
             ),
 
-            Obx(() => Row(
+            // Indicators and Button
+            Column(
+              children: [
+                Obx(() => Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     _pages.length,
-                    (i) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
+                        (i) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 4),
-                      height: 6,
-                      width: _current.value == i ? 18 : 6,
+                      height: 4,
+                      width: _current.value == i ? 24 : 8,
                       decoration: BoxDecoration(
-                        color: _current.value == i ? Colors.teal : Colors.grey.shade400,
-                        borderRadius: BorderRadius.circular(8),
+                        color: _current.value == i ? const Color(0xFF22C58B) : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ),
                 )),
 
-            const SizedBox(height: 16),
-            Obx(() {
-              final progress = (_current.value + 1) / _pages.length;
-              return _NextButton(onPressed: _next, progress: progress);
-            }),
-            const SizedBox(height: 16),
+                const SizedBox(height: 32),
+
+                Obx(() {
+                  final progress = (_current.value + 1) / _pages.length;
+                  return _NextButton(onPressed: _next, progress: progress);
+                }),
+
+                const SizedBox(height: 32),
+              ],
+            ),
           ],
         ),
       ),
@@ -163,61 +199,88 @@ class _DoctorOrbitIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 300,
-      height: 300,
+      width: 280,
+      height: 280,
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Background Circle
           Container(
-            width: 220,
-            height: 220,
+            width: 200,
+            height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16)],
+              color: const Color(0xFFF7FAFF),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF22C58B).withOpacity(0.1),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                )
+              ],
             ),
           ),
-          _avatar(url: centerImage, size: 120),
-          // orbit rings
-          _ring(260),
-          _ring(200),
-          // orbiting small avatars
-          _orbitingAvatar(_avatars[0], 140, 0),
-          _orbitingAvatar(_avatars[1], 140, 60),
-          _orbitingAvatar(_avatars[2], 140, 120),
-          _orbitingAvatar(_avatars[3], 140, 180),
-          _orbitingAvatar(_avatars[4], 140, 240),
-          _orbitingAvatar(_avatars[5], 140, 300),
+
+          // Center Doctor
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 12,
+                )
+              ],
+            ),
+            child: ClipOval(
+              child: Image.network(
+                centerImage,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 100,
+                  height: 100,
+                  color: Colors.grey.shade200,
+                  child: Icon(Icons.person, color: Colors.grey.shade400, size: 40),
+                ),
+              ),
+            ),
+          ),
+
+          // Orbiting Doctors
+          ...List.generate(_avatars.length, (index) {
+            final angle = (360 / _avatars.length) * index * math.pi / 180;
+            final radius = 100.0;
+            final x = radius * math.cos(angle);
+            final y = radius * math.sin(angle);
+
+            return Transform.translate(
+              offset: Offset(x, y),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                    )
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.network(
+                    _avatars[index],
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            );
+          }),
         ],
-      ),
-    );
-  }
-
-  Widget _ring(double size) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE6EEFA), width: 2),
-        ),
-      );
-
-  Widget _avatar({required String url, required double size}) => ClipOval(
-        child: Image.network(url, width: size, height: size, fit: BoxFit.cover),
-      );
-
-  Widget _orbitingAvatar(String url, double radius, double angle) {
-    final radians = angle * math.pi / 180.0;
-    final x = radius * math.cos(radians);
-    final y = radius * math.sin(radians);
-    return Transform.translate(
-      offset: Offset(x, y),
-      child: Container(
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8)
-        ]),
-        padding: const EdgeInsets.all(4),
-        child: _avatar(url: url, size: 48),
       ),
     );
   }
@@ -225,37 +288,52 @@ class _DoctorOrbitIllustration extends StatelessWidget {
 
 class _NextButton extends StatelessWidget {
   final VoidCallback onPressed;
-  final double progress; // 0..1
-  const _NextButton({required this.onPressed, this.progress = 0});
+  final double progress;
+  const _NextButton({required this.onPressed, required this.progress});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 68,
-      height: 68,
+      width: 70,
+      height: 70,
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Progress Circle
           SizedBox(
-            width: 68,
-            height: 68,
+            width: 70,
+            height: 70,
             child: CircularProgressIndicator(
               value: progress.clamp(0.0, 1.0),
-              strokeWidth: 4,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.tealAccent.shade400),
-              backgroundColor: Colors.teal.withOpacity(0.15),
+              strokeWidth: 2,
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C58B)),
+              backgroundColor: Colors.grey.shade200,
             ),
           ),
-          FloatingActionButton(
-            onPressed: onPressed,
-            backgroundColor: const Color(0xFF22C58B),
-            elevation: 0,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.arrow_forward, color: Colors.white),
+
+          // Button
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: const Color(0xFF22C58B),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF22C58B).withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: IconButton(
+              onPressed: onPressed,
+              icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 24),
+              padding: EdgeInsets.zero,
+            ),
           ),
         ],
       ),
     );
   }
 }
-
