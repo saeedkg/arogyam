@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
+import '../pages/search_doctors_screen.dart';
 
 class SearchSection extends StatelessWidget {
   const SearchSection();
@@ -8,6 +12,10 @@ class SearchSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      onTap: () {
+        // Navigate to SearchDoctorsScreen using GetX
+        Get.to(() => SearchDoctorsScreen());
+      },
       decoration: InputDecoration(
         hintText: 'Search doctors or specialities',
         hintStyle: TextStyle(color: Colors.grey.shade400),

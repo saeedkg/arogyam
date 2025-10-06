@@ -1,3 +1,4 @@
+import 'package:arogyam/landing/ui/pages/appointments_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
@@ -17,7 +18,7 @@ class _LandingPageState extends State<LandingPage> {
 
   final _pages = const [
     HomePage(),
-    AppointmentsPage(),
+    AppointmentsScreen(),
     ProfilePage(),
   ];
 

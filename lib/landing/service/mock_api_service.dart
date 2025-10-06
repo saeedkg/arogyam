@@ -3,6 +3,8 @@ import '../entities/appointment.dart';
 import '../entities/banner_item.dart';
 import '../entities/category_item.dart';
 import '../entities/doctor.dart';
+import '../entities/doctor_list_item.dart';
+import '../entities/booking.dart';
 
 class MockApiService {
   Future<Appointment?> fetchNextAppointment() async {
@@ -65,6 +67,87 @@ class MockApiService {
         rating: 4.9,
       ),
     ];
+  }
+
+  Future<List<DoctorListItem>> fetchDoctorsList() async {
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    return const [
+      DoctorListItem(
+        id: 'dl1',
+        name: 'Dr. David Patel',
+        specialization: 'Cardiologist',
+        hospital: 'Cardiology Center, USA',
+        imageUrl: 'https://i.pravatar.cc/150?img=14',
+        rating: 5.0,
+        reviews: 1872,
+        favorite: false,
+      ),
+      DoctorListItem(
+        id: 'dl2',
+        name: 'Dr. Jessica Turner',
+        specialization: 'Gynecologist',
+        hospital: "Women's Clinic, Seattle, USA",
+        imageUrl: 'https://i.pravatar.cc/150?img=49',
+        rating: 4.9,
+        reviews: 127,
+        favorite: false,
+      ),
+      DoctorListItem(
+        id: 'dl3',
+        name: 'Dr. Michael Johnson',
+        specialization: 'Orthopedic Surgery',
+        hospital: 'Maple Associates, NY, USA',
+        imageUrl: 'https://i.pravatar.cc/150?img=36',
+        rating: 4.7,
+        reviews: 5223,
+        favorite: true,
+      ),
+      DoctorListItem(
+        id: 'dl4',
+        name: 'Dr. Emily Walker',
+        specialization: 'Pediatrics',
+        hospital: 'Serenity Pediatrics Clinic',
+        imageUrl: 'https://i.pravatar.cc/150?img=5',
+        rating: 5.0,
+        reviews: 405,
+        favorite: false,
+      ),
+    ];
+  }
+
+  Future<List<BookingItem>> fetchBookings(String status) async {
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final now = DateTime.now();
+    final list = [
+      BookingItem(
+        id: 'b1',
+        doctorName: 'Dr. James Robinson',
+        specialization: 'Orthopedic Surgery',
+        clinic: 'Elite Ortho Clinic, USA',
+        imageUrl: 'https://i.pravatar.cc/150?img=40',
+        dateTime: now.add(const Duration(days: 2)),
+        status: 'upcoming',
+      ),
+      BookingItem(
+        id: 'b2',
+        doctorName: 'Dr. Daniel Lee',
+        specialization: 'Gastroenterologist',
+        clinic: 'Digestive Institute, USA',
+        imageUrl: 'https://i.pravatar.cc/150?img=25',
+        dateTime: now.add(const Duration(days: 10)),
+        status: 'upcoming',
+      ),
+      BookingItem(
+        id: 'b3',
+        doctorName: 'Dr. Nathan Harris',
+        specialization: 'Cardiologist',
+        clinic: 'Cardiology Center, USA',
+        imageUrl: 'https://i.pravatar.cc/150?img=11',
+        dateTime: now.subtract(const Duration(days: 5)),
+        status: 'completed',
+      ),
+    ];
+    return list.where((e) => e.status == status).toList();
   }
 }
 

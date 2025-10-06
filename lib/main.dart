@@ -6,6 +6,8 @@ import 'auth/provider/auth_provider.dart';
 import 'auth/request_otp_screen.dart';
 import 'landing/ui/landing_page.dart';
 import 'onboarding/onboarding_screen.dart';
+import 'landing/ui/pages/search_doctors_screen.dart';
+import 'landing/ui/pages/appointments_screen.dart';
 
 void main() {
   runApp(const ArogyamApp());
@@ -32,6 +34,8 @@ class ArogyamApp extends StatelessWidget {
         getPages: [
           GetPage(name: '/landing', page: () => const LandingPage()),
           GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
+          GetPage(name: '/doctors', page: () => const SearchDoctorsScreen()),
+          GetPage(name: '/appointments', page: () => const AppointmentsScreen()),
         ],
       ),
     );
