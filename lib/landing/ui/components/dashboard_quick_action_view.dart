@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_text.dart';
+import '../pages/care_discovery_screen.dart';
+import '../pages/search_doctors_screen.dart';
 
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});
@@ -86,6 +90,8 @@ class _QuickActionCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
+          Get.to(() => CareDiscoveryScreen(entry: 'Find Doctor',));
+
           // Add tap functionality here
         },
         highlightColor: color.withOpacity(0.1),
