@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-import '../pages/search_doctors_screen.dart';
+import '../../../find_doctor/search_doctors_screen.dart';
 
 class SearchSection extends StatelessWidget {
   const SearchSection();

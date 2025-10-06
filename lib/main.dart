@@ -6,10 +6,10 @@ import 'auth/provider/auth_provider.dart';
 import 'auth/request_otp_screen.dart';
 import 'landing/ui/landing_page.dart';
 import 'onboarding/onboarding_screen.dart';
-import 'landing/ui/pages/search_doctors_screen.dart';
+import 'find_doctor/search_doctors_screen.dart';
 import 'appointment/appointments_screen.dart';
 import 'appointment/appointment_detail_screen.dart';
-import 'landing/ui/pages/care_discovery_screen.dart';
+import 'find_doctor/care_discovery_screen.dart';
 
 void main() {
   runApp(const ArogyamApp());

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_text.dart';
-import '../pages/care_discovery_screen.dart';
-import '../pages/search_doctors_screen.dart';
+import '../../../find_doctor/care_discovery_screen.dart';
+import '../../../find_doctor/search_doctors_screen.dart';
 
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});

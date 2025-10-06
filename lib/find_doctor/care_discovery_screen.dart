@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controller/home_controller.dart';
-import '../components/dasbboard_category.dart';
+import '../landing/controller/home_controller.dart';
+import '../landing/ui/components/dasbboard_category.dart';
 
 class CareDiscoveryScreen extends StatelessWidget {
   final String entry;
