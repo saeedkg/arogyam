@@ -7,7 +7,8 @@ import 'auth/request_otp_screen.dart';
 import 'landing/ui/landing_page.dart';
 import 'onboarding/onboarding_screen.dart';
 import 'landing/ui/pages/search_doctors_screen.dart';
-import 'landing/ui/pages/appointments_screen.dart';
+import 'appointment/appointments_screen.dart';
+import 'appointment/appointment_detail_screen.dart';
 
 void main() {
   runApp(const ArogyamApp());
@@ -36,6 +37,10 @@ class ArogyamApp extends StatelessWidget {
           GetPage(name: '/onboarding', page: () => const OnboardingScreen()),
           GetPage(name: '/doctors', page: () => const SearchDoctorsScreen()),
           GetPage(name: '/appointments', page: () => const AppointmentsScreen()),
+          GetPage(name: '/appointment_detail', page: () {
+            final id = Get.arguments as String? ?? 'b1';
+            return AppointmentDetailScreen(bookingId: id);
+          }),
         ],
       ),
     );

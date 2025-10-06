@@ -1,10 +1,11 @@
 import 'dart:async';
-import '../entities/appointment.dart';
+import '../../appointment/entities/appointment.dart';
 import '../entities/banner_item.dart';
 import '../entities/category_item.dart';
 import '../entities/doctor.dart';
 import '../entities/doctor_list_item.dart';
 import '../entities/booking.dart';
+import '../../appointment/entities/booking_detail.dart';
 
 class MockApiService {
   Future<Appointment?> fetchNextAppointment() async {
@@ -148,6 +149,26 @@ class MockApiService {
       ),
     ];
     return list.where((e) => e.status == status).toList();
+  }
+
+  Future<BookingDetail> fetchBookingDetail(String id) async {
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    final now = DateTime.now().add(const Duration(days: 3));
+    return BookingDetail(
+      id: id,
+      doctorName: 'Dr. Sarah Lee',
+      specialization: 'Cardiologist',
+      hospital: 'City General Hospital',
+      imageUrl: 'https://i.pravatar.cc/150?img=28',
+      startTime: DateTime(now.year, now.month, now.day, 10, 0),
+      endTime: DateTime(now.year, now.month, now.day, 10, 30),
+      status: 'Confirmed',
+      prescriptionAvailable: true,
+      prescriptionUrl: 'https://example.com/prescription_dr_sarah_lee_20241123.pdf',
+      amountPaid: 800.0,
+      paymentStatus: 'Paid',
+      transactionId: 'TXN-0123456789',
+    );
   }
 }
 

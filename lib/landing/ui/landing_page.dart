@@ -1,9 +1,8 @@
-import 'package:arogyam/landing/ui/pages/appointments_screen.dart';
+import 'package:arogyam/appointment/appointments_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import 'pages/home_page.dart';
-import 'pages/appointments_page.dart';
 import 'pages/profile_page.dart';
 
 class LandingPage extends StatefulWidget {

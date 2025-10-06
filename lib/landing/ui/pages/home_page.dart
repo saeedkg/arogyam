@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../controller/home_controller.dart';
 import '../../../_shared/ui/app_text.dart';
-import '../../entities/appointment.dart';
+import '../../../appointment/entities/appointment.dart';
 import '../../entities/banner_item.dart';
 import '../../entities/category_item.dart';
 import '../../entities/doctor.dart';

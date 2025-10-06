@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../_shared/ui/app_text.dart';
-import '../../entities/appointment.dart';
+import '../../../appointment/entities/appointment.dart';
 
 class _NextAppointmentCard extends StatelessWidget {
   final Appointment? appointment;
