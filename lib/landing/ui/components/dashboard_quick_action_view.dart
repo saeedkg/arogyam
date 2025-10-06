@@ -16,17 +16,7 @@ class QuickActions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // const Padding(
-          //   padding: EdgeInsets.only(bottom: 16),
-          //   child: Text(
-          //     'Quick Actions',
-          //     style: TextStyle(
-          //       fontSize: 18,
-          //       fontWeight: FontWeight.w700,
-          //       color: Colors.black87,
-          //     ),
-          //   ),
-          // ),
+
           Row(
             children: [
               Expanded(
