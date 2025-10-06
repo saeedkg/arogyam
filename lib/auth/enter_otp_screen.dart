@@ -1,8 +1,7 @@
+import 'package:arogyam/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
-import 'provider/auth_provider.dart';
 import 'dart:async';
 
 class EnterOtpScreen extends StatefulWidget {
@@ -23,7 +22,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   Timer? _timer;
   bool _resending = false;
   bool _hasClearedErrors = false;
-  
+
   // Validation state
   bool _isOtpValid = false;
   bool _isOtpComplete = false;
@@ -61,7 +60,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}' ;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -121,38 +120,35 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
 
   bool _isNetworkError(String? error) {
     if (error == null) return false;
-    return error.toLowerCase().contains('internet') || 
-           error.toLowerCase().contains('network') ||
-           error.toLowerCase().contains('connection') ||
-           error.toLowerCase().contains('offline');
+    return error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('network') ||
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('offline');
   }
 
   String _getErrorMessage(String error) {
     if (_isNetworkError(error)) {
       return 'No internet connection. Please check your network and try again.';
     }
-    // Since provider already extracts the clean message, use it directly
     return error;
   }
 
   IconData _getErrorIcon(String error) {
     if (_isNetworkError(error)) {
-      return Icons.wifi_off;
+      return Icons.wifi_off_rounded;
     }
-    return Icons.error_outline;
+    return Icons.error_outline_rounded;
   }
 
   Future<void> _resendCode(BuildContext context) async {
     setState(() {
       _resending = true;
     });
-    
+
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.resendOtp(widget.phoneNumber.replaceFirst('+91', ''));
-      
-      // AuthProvider will handle the error display automatically
-      
+
       if (authProvider.expiresIn != null) {
         _startTimer(authProvider.expiresIn!);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -181,8 +177,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   Future<void> _submitOtp(BuildContext context) async {
     _closeKeyboard();
     final otp = _controllers.map((c) => c.text).join();
-    
-    // Validate OTP
+
     if (!_isOtpValid) {
       if (!_isOtpComplete) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -203,26 +198,23 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
       }
       return;
     }
-    
+
     setState(() {
       _submitted = true;
     });
-    
+
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final response = await authProvider.verifyOtp(
-        mobile: widget.phoneNumber.replaceFirst('+91', ''), 
+        mobile: widget.phoneNumber.replaceFirst('+91', ''),
         otp: otp,
         context: context,
       );
-      
-      // AuthProvider will handle the error display automatically
-      
+
       if (response != null && response.success == true) {
         if (response.profileComplete == false) {
-
+          // Handle incomplete profile
         } else {
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response.message),
@@ -256,17 +248,18 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = bottomPadding > 0;
+
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
-        // Clear any previous errors when screen is built (only once)
         if (!_hasClearedErrors && authProvider.verifyOtpError != null) {
           _hasClearedErrors = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             authProvider.clearError();
           });
         }
-        
-        // Remove timer start from build
+
         return Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
@@ -277,54 +270,104 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  // Back button
+
+                  // Back Button
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      child: const Icon(
+                        Icons.arrow_back_ios_rounded,
+                        size: 18,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 32),
-                  Text(
-                    '$otpLength digit code',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                    ),
+
+                  // Header Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enter OTP Code',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade900,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "We've sent a 6-digit code to\n${widget.phoneNumber}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Please enter $otpLength digit OTP verification code sent\nto "+widget.phoneNumber,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 24),
+
+                  // Timer
                   if (_remainingSeconds != null)
-                    Text(
-                      _remainingSeconds! > 0
-                          ? 'Expires in ${_formatDuration(_remainingSeconds!)}'
-                          : 'OTP expired',
-                      style: TextStyle(
-                        color: _remainingSeconds! > 0 ? Colors.black54 : Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: _remainingSeconds! > 0 ? Colors.blue.shade50 : Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _remainingSeconds! > 0 ? Icons.access_time_rounded : Icons.error_outline_rounded,
+                            size: 16,
+                            color: _remainingSeconds! > 0 ? Colors.blue.shade700 : Colors.red.shade700,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _remainingSeconds! > 0
+                                ? 'Expires in ${_formatDuration(_remainingSeconds!)}'
+                                : 'OTP expired',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: _remainingSeconds! > 0 ? Colors.blue.shade700 : Colors.red.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 32),
+
+                  // OTP Input Fields
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(otpLength, (i) {
                       return Container(
-                        width: 52,
+                        width: 48,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _controllers[i].text.isNotEmpty
+                                ? const Color(0xFF22C58B)
+                                : Colors.grey.shade300,
+                            width: _controllers[i].text.isNotEmpty ? 1.5 : 1,
+                          ),
+                          color: Colors.grey.shade50,
+                        ),
                         child: KeyboardListener(
                           focusNode: _keyboardFocusNodes[i],
                           onKeyEvent: (event) => _onKeyPressed(event, i),
@@ -334,24 +377,15 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             maxLength: 1,
-                             style: const TextStyle(
-                               fontSize: 22,
-                               fontWeight: FontWeight.w700,
-                               letterSpacing: 1.2,
-                             ),
-                            decoration: InputDecoration(
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                            decoration: const InputDecoration(
                               counterText: '',
-                              filled: true,
-                              fillColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFF22C58B), width: 1.5),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
                             ),
                             onChanged: (value) => _onChanged(value, i),
                             onSubmitted: (value) => _closeKeyboard(),
@@ -361,46 +395,54 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                       );
                     }),
                   ),
-                  const SizedBox(height: 32),
+
+                  const SizedBox(height: 24),
+
+                  // Resend Code Section
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "Having trouble?",
+                      Text(
+                        "Didn't receive code?",
                         style: TextStyle(
-                          color: Colors.black54,
+                          color: Colors.grey.shade600,
                           fontSize: 15,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 8),
                       GestureDetector(
                         onTap: (_remainingSeconds ?? 0) > 0 || _resending ? null : () => _resendCode(context),
                         child: _resending
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
+                            ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey.shade600),
+                          ),
+                        )
                             : Text(
-                                "Resend code",
-                                style: TextStyle(
-                                  color: (_remainingSeconds ?? 0) > 0 ? Colors.grey : Colors.blue,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
+                          "Resend OTP",
+                          style: TextStyle(
+                            color: (_remainingSeconds ?? 0) > 0 ? Colors.grey.shade400 : const Color(0xFF22C58B),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  if (authProvider.verifyOtpError != null)
+
+                  // Error Display
+                  if (authProvider.verifyOtpError != null) ...[
+                    const SizedBox(height: 16),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(top: 16),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red.shade100),
                       ),
                       child: Row(
                         children: [
@@ -409,45 +451,66 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                             color: Colors.red.shade600,
                             size: 20,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               _getErrorMessage(authProvider.verifyOtpError!),
                               style: TextStyle(
                                 color: Colors.red.shade700,
                                 fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: (authProvider.isLoading || _submitted || !_isOtpValid)
-                          ? null
-                          : () => _submitOtp(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: (authProvider.isLoading || _submitted || !_isOtpValid) 
-                          ? Colors.grey 
-                          : const Color(0xFF22C58B),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                  ],
+                  SizedBox(height: 10,),
+                  // Dynamic spacer
+                  if (!isKeyboardVisible) const Spacer(),
+
+                  // Verify Button
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: (authProvider.isLoading || _submitted || !_isOtpValid)
+                              ? null
+                              : () => _submitOtp(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF22C58B),
+                            disabledBackgroundColor: Colors.grey.shade300,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                            shadowColor: Colors.transparent,
+                          ),
+                          child: authProvider.isLoading || _submitted
+                              ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                              : Text(
+                            'Verify & Continue',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      child: authProvider.isLoading || _submitted
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Text('Verify OTP'),
-                    ),
+                      SizedBox(height: isKeyboardVisible ? 16 : 32),
+                    ],
                   ),
                 ],
               ),
@@ -457,4 +520,4 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
       },
     );
   }
-} 
+}
