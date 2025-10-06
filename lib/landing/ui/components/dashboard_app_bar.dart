@@ -4,10 +4,12 @@ class DashboardAppBar extends StatelessWidget {
   const DashboardAppBar({
     super.key,
     this.onNotificationPressed,
+    this.onLocationPressed,
     this.location = 'Seattle, USA',
   });
 
   final VoidCallback? onNotificationPressed;
+  final VoidCallback? onLocationPressed;
   final String location;
 
   @override
@@ -18,36 +20,29 @@ class DashboardAppBar extends StatelessWidget {
       elevation: 0,
       title: Row(
         children: [
-          // Location section
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Location',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  Icon(Icons.location_on_outlined,
-                      size: 16,
-                      color: Colors.grey[700]),
-                  const SizedBox(width: 4),
-                  Text(
-                    location,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
+          // Location section with dropdown
+          GestureDetector(
+            onTap: onLocationPressed,
+            child: Row(
+              children: [
+                Icon(Icons.location_on_outlined,
+                    size: 16,
+                    color: Colors.grey[700]),
+                const SizedBox(width: 4),
+                Text(
+                  location,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Colors.black87,
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(width: 2),
+                Icon(Icons.keyboard_arrow_down_rounded,
+                    size: 20,
+                    color: Colors.grey[600]),
+              ],
+            ),
           ),
           const Spacer(),
           // Notification icon
