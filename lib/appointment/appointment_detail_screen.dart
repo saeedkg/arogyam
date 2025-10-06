@@ -65,16 +65,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header Card with Doctor Info
-                _buildDoctorCard(d),
-                const SizedBox(height: 20),
-
-                // Appointment Details Card
-                _buildAppointmentDetailsCard(d),
-                const SizedBox(height: 20),
-
-                // Prescription Card
-                _buildPrescriptionCard(d),
+                // Combined Appointment & Prescription Card
+                _buildAppointmentPrescriptionCard(d),
                 const SizedBox(height: 20),
 
                 // Payment Summary Card
@@ -82,7 +74,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                 const SizedBox(height: 24),
 
                 // Action Buttons
-                _buildActionButtons(d),
+                _buildActionButtons(),
               ],
             ),
           );
@@ -91,7 +83,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     );
   }
 
-  Widget _buildDoctorCard(BookingDetail d) {
+  Widget _buildAppointmentPrescriptionCard(BookingDetail d) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -107,6 +99,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       ),
       child: Column(
         children: [
+          // Doctor Info Section
           Row(
             children: [
               Container(
@@ -182,256 +175,202 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          const Divider(height: 1, color: Colors.grey),
           const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: _getStatusColor(d.status).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _getStatusColor(d.status).withOpacity(0.2),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Appointment Status',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(d.status),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _getStatusIcon(d.status),
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        d.status,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+
+          // Appointment Details Section
+          _buildAppointmentDetails(d),
+          const SizedBox(height: 20),
+          const Divider(height: 1, color: Colors.grey),
+          const SizedBox(height: 20),
+
+          // Prescription Section
+          _buildPrescriptionSection(d),
         ],
       ),
     );
   }
 
-  Widget _buildAppointmentDetailsCard(BookingDetail d) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+  Widget _buildAppointmentDetails(BookingDetail d) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Appointment Details',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.calendar_month_rounded,
-                  size: 20,
-                  color: Colors.blue.shade700,
-                ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildDetailItem(
+                icon: Icons.calendar_today_rounded,
+                title: 'Date',
+                value: _formatDate(d.startTime),
               ),
-              const SizedBox(width: 12),
-              const Text(
-                'Appointment Details',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildDetailItem(
-            icon: Icons.event_rounded,
-            title: 'Date',
-            value: _formatDate(d.startTime),
-            color: Colors.green,
-          ),
-          const SizedBox(height: 16),
-          _buildDetailItem(
-            icon: Icons.access_time_rounded,
-            title: 'Time',
-            value: '${_formatTime(d.startTime)} - ${_formatTime(d.endTime)}',
-            color: Colors.orange,
-          ),
-          const SizedBox(height: 16),
-          _buildDetailItem(
-            icon: Icons.schedule_rounded,
-            title: 'Duration',
-            value: '${d.endTime.difference(d.startTime).inMinutes} mins',
-            color: Colors.purple,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPrescriptionCard(BookingDetail d) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.medical_services_rounded,
-                  size: 20,
-                  color: Colors.purple.shade700,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Prescription',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: d.prescriptionAvailable ? Colors.green.shade50 : Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    d.prescriptionAvailable ? Icons.check_circle_rounded : Icons.pending_rounded,
-                    size: 20,
-                    color: d.prescriptionAvailable ? Colors.green : Colors.orange,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        d.prescriptionAvailable ? 'Prescription Available' : 'Prescription Pending',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      if (d.prescriptionAvailable && d.prescriptionUrl != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            d.prescriptionUrl!,
-                            style: TextStyle(
-                              color: Colors.blue.shade700,
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildDetailItem(
+                icon: Icons.access_time_rounded,
+                title: 'Time',
+                value: _formatTime(d.startTime),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: _getStatusColor(d.status).withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _getStatusColor(d.status).withOpacity(0.2),
             ),
           ),
-          if (d.prescriptionAvailable && d.prescriptionUrl != null) ...[
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade600,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Status',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w500,
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(d.status),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
                   children: [
-                    Icon(Icons.download_rounded, size: 20),
-                    SizedBox(width: 8),
+                    Icon(
+                      _getStatusIcon(d.status),
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 6),
                     Text(
-                      'Download Prescription',
-                      style: TextStyle(
+                      d.status,
+                      style: const TextStyle(
+                        color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPrescriptionSection(BookingDetail d) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Prescription',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: d.prescriptionAvailable ? Colors.green.shade50 : Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  d.prescriptionAvailable ? Icons.check_circle_rounded : Icons.pending_rounded,
+                  size: 20,
+                  color: d.prescriptionAvailable ? Colors.green : Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      d.prescriptionAvailable ? 'Available' : 'Not Available',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      d.prescriptionAvailable
+                          ? 'Prescription has been issued'
+                          : 'Prescription will be available after consultation',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (d.prescriptionAvailable && d.prescriptionUrl != null) ...[
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade600,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.download_rounded, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Download Prescription',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -452,30 +391,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.receipt_long_rounded,
-                  size: 20,
-                  color: Colors.green.shade700,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Payment Summary',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
+          const Text(
+            'Payment Summary',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 20),
           Container(
@@ -491,21 +413,18 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   'Consultation Fee',
                   '₹ ${d.amountPaid.toStringAsFixed(2)}',
                   Colors.black87,
-                  FontWeight.w600,
                 ),
                 const SizedBox(height: 12),
                 _buildPaymentRow(
                   'Payment Status',
                   d.paymentStatus,
                   _getPaymentStatusColor(d.paymentStatus),
-                  FontWeight.w600,
                 ),
                 const SizedBox(height: 12),
                 _buildPaymentRow(
                   'Transaction ID',
                   d.transactionId,
                   Colors.grey.shade600,
-                  FontWeight.w500,
                 ),
               ],
             ),
@@ -543,7 +462,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons(BookingDetail d) {
+  Widget _buildActionButtons() {
     return Row(
       children: [
         Expanded(
@@ -614,71 +533,72 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     required IconData icon,
     required String title,
     required String value,
-    required Color color,
   }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, size: 20, color: color),
+        Row(
+          children: [
+            Icon(icon, size: 18, color: Colors.grey.shade600),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPaymentRow(String label, String value, Color valueColor, FontWeight fontWeight) {
+  Widget _buildPaymentRow(String label, String value, Color valueColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey.shade600,
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
+        Expanded(
+          flex: 2,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            color: valueColor,
-            fontWeight: fontWeight,
-            fontSize: 14,
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 3,
+          child: Text(
+            value,
+            style: TextStyle(
+              color: valueColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.end,
           ),
         ),
       ],
     );
   }
-
   Widget _buildLoadingState() {
     return Center(
       child: Column(
