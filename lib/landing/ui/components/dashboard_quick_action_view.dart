@@ -7,35 +7,60 @@ class QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _QuickActionCard(
-            icon: Icons.local_hospital,
-            title: 'Hospital\nAppointment',
-            color: const Color(0xFF4DB6AC), // Teal
-            bgColor: const Color(0xFF4DB6AC).withOpacity(0.15),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Text(
+              'Quick Actions',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _QuickActionCard(
-            icon: Icons.video_call,
-            title: 'Video\nConsult',
-            color: const Color(0xFF7E57C2), // Deep purple
-            bgColor: const Color(0xFF7E57C2).withOpacity(0.15),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.local_hospital_rounded,
+                  title: 'Hospital Appointment',
+                  color: const Color(0xFF00BFA5),
+                  gradient: LinearGradient(
+                    colors: [const Color(0xFF00BFA5).withOpacity(0.1), const Color(0xFF00BFA5).withOpacity(0.05)],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.videocam_rounded,
+                  title: 'Video\nConsult',
+                  color: const Color(0xFF7C4DFF),
+                  gradient: LinearGradient(
+                    colors: [const Color(0xFF7C4DFF).withOpacity(0.1), const Color(0xFF7C4DFF).withOpacity(0.05)],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.bolt_rounded,
+                  title: 'Instant\nConsult',
+                  color: const Color(0xFFFF9100),
+                  gradient: LinearGradient(
+                    colors: [const Color(0xFFFF9100).withOpacity(0.1), const Color(0xFFFF9100).withOpacity(0.05)],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _QuickActionCard(
-            icon: Icons.flash_on,
-            title: 'Consult\nNow',
-            color: const Color(0xFFFFB74D), // Soft orange/amber
-            bgColor: const Color(0xFFFFB74D).withOpacity(0.18),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -44,40 +69,82 @@ class _QuickActionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final Color color;
-  final Color bgColor;
+  final Gradient gradient;
 
   const _QuickActionCard({
     required this.icon,
     required this.title,
     required this.color,
-    required this.bgColor,
+    required this.gradient,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
+    return Material(
+      borderRadius: BorderRadius.circular(20),
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.all(10),
-            child: Icon(icon, color: Colors.white, size: 24),
+        onTap: () {
+          // Add tap functionality here
+        },
+        highlightColor: color.withOpacity(0.1),
+        splashColor: color.withOpacity(0.2),
+        child: Container(
+          height: 140,
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade100, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          AppText.titleMedium(
-            title,
-            maxLines: 2,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(10),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 40, // Fixed height for exactly 2 lines
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                    height: 1.2,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
