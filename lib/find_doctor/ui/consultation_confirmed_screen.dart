@@ -25,38 +25,7 @@ class ConsultationConfirmedScreen extends StatelessWidget {
           child: Column(
             children: [
               // Success Icon
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_rounded,
-                  color: Colors.green.shade600,
-                  size: 40,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Success Text
-              Text(
-                'Booking Confirmed',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green.shade700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your consultation has been successfully booked',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
+              // Success Tex
 
               // Doctor Card
               Container(

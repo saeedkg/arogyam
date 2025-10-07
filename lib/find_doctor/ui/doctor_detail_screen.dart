@@ -1,3 +1,4 @@
+import 'package:arogyam/_shared/ui/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/doctor_detail_controller.dart';
@@ -62,7 +63,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: AppColors.teal,
                     disabledBackgroundColor: Colors.grey.shade300,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -181,16 +182,16 @@ class _DoctorProfileCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Doctor Bio
-          Text(
-            d.bio ?? 'Experienced medical professional dedicated to providing quality healthcare services.',
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 14,
-              height: 1.5,
-            ),
-          ),
+          // const SizedBox(height: 16),
+          // // Doctor Bio
+          // Text(
+          //   d.bio ?? 'Experienced medical professional dedicated to providing quality healthcare services.',
+          //   style: TextStyle(
+          //     color: Colors.grey.shade700,
+          //     fontSize: 14,
+          //     height: 1.5,
+          //   ),
+          // ),
           const SizedBox(height: 16),
           // Details Row
           Container(
@@ -379,10 +380,10 @@ class _DateChip extends StatelessWidget {
       child: Container(
         width: 60,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2563EB) : Colors.transparent,
+          color: isSelected ? AppColors.teal : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade300,
+            color: isSelected ? AppColors.teal: Colors.grey.shade300,
           ),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -445,10 +446,10 @@ class _TimeChip extends StatelessWidget {
         width: chipWidth,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2563EB) : Colors.transparent,
+          color: isSelected ? AppColors.teal: Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade300,
+            color: isSelected ? AppColors.teal: Colors.grey.shade300,
           ),
         ),
         child: Text(
