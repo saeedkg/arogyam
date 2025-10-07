@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import '../../../_shared/ui/app_colors.dart';
+import '../_shared/ui/app_colors.dart';
 
 
 

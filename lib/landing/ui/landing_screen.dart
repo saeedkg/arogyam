@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import 'pages/dashboard_screen.dart';
-import 'pages/profile_screen.dart';
+import '../../profile/profile_screen.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
