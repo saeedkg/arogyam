@@ -10,6 +10,8 @@ import 'find_doctor/search_doctors_screen.dart';
 import 'appointment/appointments_screen.dart';
 import 'appointment/appointment_detail_screen.dart';
 import 'find_doctor/care_discovery_screen.dart';
+import 'find_doctor/ui/doctor_detail_screen.dart';
+import 'find_doctor/ui/consultation_confirmed_screen.dart';
 
 void main() {
   runApp(const ArogyamApp());
@@ -47,6 +49,11 @@ class ArogyamApp extends StatelessWidget {
             final entry = args?['entry'] as String? ?? 'Find Care';
             return CareDiscoveryScreen(entry: entry);
           }),
+          GetPage(name: '/doctor_detail', page: () {
+            final id = (Get.arguments as Map<String, dynamic>?)?['id'] as String? ?? 'd1';
+            return DoctorDetailScreen(doctorId: id);
+          }),
+          GetPage(name: '/consultation_confirmed', page: () => const ConsultationConfirmedScreen()),
         ],
       ),
     );

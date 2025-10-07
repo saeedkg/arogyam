@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
 import '../_shared/ui/app_colors.dart';
 
@@ -28,7 +30,7 @@ class UserProfileScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Quick Actions
-            _buildQuickActions(),
+            _buildQuickActions(context),
             const SizedBox(height: 20),
           ],
         ),
@@ -278,7 +280,7 @@ class UserProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
@@ -295,26 +297,26 @@ class UserProfileScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            _buildActionTile('Medical Records', Icons.medical_services_rounded, AppColors.teal),
+            _buildActionTile(context, 'Medical Records', Icons.medical_services_rounded, AppColors.teal),
             _buildDivider(),
-            _buildActionTile('Health Profile', Icons.favorite_rounded, AppColors.roseDust),
+            _buildActionTile(context, 'Health Profile', Icons.favorite_rounded, AppColors.roseDust),
             _buildDivider(),
-            _buildActionTile('Appointments', Icons.calendar_today_rounded, AppColors.mediumSkyBlue),
+            _buildActionTile(context, 'Appointments', Icons.calendar_today_rounded, AppColors.mediumSkyBlue),
             _buildDivider(),
-            _buildActionTile('Payment & Insurance', Icons.payment_rounded, AppColors.sageGreen),
+            _buildActionTile(context, 'Payment & Insurance', Icons.payment_rounded, AppColors.sageGreen),
             _buildDivider(),
-            _buildActionTile('Settings', Icons.settings_rounded, AppColors.peach),
+            _buildActionTile(context, 'Settings', Icons.settings_rounded, AppColors.peach),
             _buildDivider(),
-            _buildActionTile('Help Center', Icons.help_rounded, AppColors.blueBell),
+            _buildActionTile(context, 'Help Center', Icons.help_rounded, AppColors.blueBell),
             _buildDivider(),
-            _buildActionTile('Sign Out', Icons.logout_rounded, AppColors.deepPurple),
+            _buildActionTile(context, 'Sign Out', Icons.logout_rounded, AppColors.deepPurple),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActionTile(String title, IconData icon, Color color) {
+  Widget _buildActionTile(BuildContext context, String title, IconData icon, Color color) {
     return ListTile(
       leading: Container(
         width: 36,
@@ -342,7 +344,11 @@ class UserProfileScreen extends StatelessWidget {
         ),
         child: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey.shade500),
       ),
-      onTap: () {},
+      onTap: () {
+        if (title == 'Sign Out') {
+          _showSignOutDialog(context);
+        }
+      },
     );
   }
 
@@ -350,6 +356,48 @@ class UserProfileScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Divider(height: 1, color: Colors.grey.shade100),
+    );
+  }
+
+  Future<void> _showSignOutDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Sign out?'),
+          content: const Text('Are you sure you want to sign out of your account?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: const StadiumBorder(),
+              ),
+              onPressed: () async {
+                try {
+                  // Attempt to use AuthProvider if available
+                  final provider = context.read<dynamic>();
+                  if (provider != null && provider.runtimeType.toString().contains('AuthProvider')) {
+                    await provider.logout();
+                  }
+                } catch (_) {}
+                Navigator.of(ctx).pop();
+                try {
+                  Get.offAllNamed('/onboarding');
+                } catch (_) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
