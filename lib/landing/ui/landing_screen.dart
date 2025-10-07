@@ -18,7 +18,7 @@ class _LandingPageState extends State<LandingPage> {
   final _pages = const [
     HomePage(),
     AppointmentsScreen(),
-    ProfilePage(),
+    UserProfileScreen(),
   ];
 
   @override
