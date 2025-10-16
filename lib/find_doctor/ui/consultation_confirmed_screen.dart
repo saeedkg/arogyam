@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../consultation/ui/video_call_screen.dart';
+import '../../consultation/utils/permission_handler.dart';
 
 class ConsultationConfirmedScreen extends StatelessWidget {
   const ConsultationConfirmedScreen({super.key});
@@ -101,7 +103,13 @@ class ConsultationConfirmedScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => _joinConsultation(
+                    context,
+                    name: name,
+                    specialization: specialization,
+                    hospital: hospital,
+                    imageUrl: imageUrl,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF20BEE8),
                     foregroundColor: Colors.white,
@@ -271,6 +279,74 @@ class ConsultationConfirmedScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _joinConsultation(BuildContext context, {
+    required String name,
+    required String specialization,
+    required String hospital,
+    required String imageUrl,
+  }) async {
+    // First request permissions
+    final permissionsGranted = await PermissionHandler.requestPermissionsWithDialog(context);
+    
+    if (!permissionsGranted) {
+      return; // User denied permissions or there was an error
+    }
+
+    // Show confirmation dialog
+    final shouldJoin = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Join Consultation'),
+          content: const Text(
+            'You are about to join the video consultation with the doctor. Make sure you have a stable internet connection.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF20BEE8),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Join'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldJoin == true) {
+      _navigateToVideoCall(
+        name: name,
+        specialization: specialization,
+        hospital: hospital,
+        imageUrl: imageUrl,
+      );
+    }
+  }
+
+  void _navigateToVideoCall({
+    required String name,
+    required String specialization,
+    required String hospital,
+    required String imageUrl,
+  }) {
+    Get.to(
+      () => VideoCallScreen(
+        doctorName: name,
+        specialization: specialization,
+        hospital: hospital,
+        doctorImageUrl: imageUrl,
+      ),
+      transition: Transition.rightToLeft,
+      duration: const Duration(milliseconds: 300),
     );
   }
 }
