@@ -190,8 +190,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       // Optional: Pass the DyteDesignTokens object to customize the UI
       designToken: DyteDesignTokens(
         colorToken: DyteColorToken(
-          brandColor: Colors.purple,
-          backgroundColor: Colors.black,
+          brandColor: Colors.blueAccent,
+          backgroundColor: Colors.blue,
           textOnBackground: Colors.white,
           textOnBrand: Colors.white,
         ),
