@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dyte_uikit/dyte_uikit.dart';
 import 'package:get/get.dart';
 import '../service/dyte_service.dart';
+import '../../_shared/ui/app_colors.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final String doctorName;
@@ -79,7 +80,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.backgroundBlack,
       body: SafeArea(
         child: _isLoading
             ? _buildLoadingView()
@@ -96,13 +97,13 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.infoBlue),
           ),
           SizedBox(height: 20),
           Text(
             'Connecting to consultation...',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.white,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -121,14 +122,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           children: [
             const Icon(
               Icons.error_outline,
-              color: Colors.red,
+              color: AppColors.errorRed,
               size: 64,
             ),
             const SizedBox(height: 20),
             Text(
               'Connection Error',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.white,
+                color: AppColors.white,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -136,7 +137,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             Text(
               _errorMessage,
               style: const TextStyle(
-                color: Colors.white70,
+                color: AppColors.white,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -148,16 +149,16 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 ElevatedButton(
                   onPressed: _initializeCall,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.infoBlue,
+                    foregroundColor: AppColors.white,
                   ),
                   child: const Text('Retry'),
                 ),
                 ElevatedButton(
                   onPressed: _endCall,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.errorRed,
+                    foregroundColor: AppColors.white,
                   ),
                   child: const Text('End Call'),
                 ),
@@ -174,7 +175,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       return const Center(
         child: Text(
           'Meeting info not available',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.white),
         ),
       );
     }
@@ -190,10 +191,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       // Optional: Pass the DyteDesignTokens object to customize the UI
       designToken: DyteDesignTokens(
         colorToken: DyteColorToken(
-          brandColor: Colors.blueAccent,
-          backgroundColor: Colors.blue,
-          textOnBackground: Colors.white,
-          textOnBrand: Colors.white,
+          brandColor: AppColors.infoBlue,
+          backgroundColor: AppColors.infoBlue,
+          textOnBackground: AppColors.white,
+          textOnBrand: AppColors.white,
         ),
       ),
     );
@@ -212,8 +213,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     Get.snackbar(
       'Call Ended',
       'Your consultation has ended',
-      backgroundColor: Colors.grey[800],
-      colorText: Colors.white,
+      backgroundColor: AppColors.grey800,
+      colorText: AppColors.white,
       duration: const Duration(seconds: 2),
     );
   }

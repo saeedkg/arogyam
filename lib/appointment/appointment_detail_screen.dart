@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../landing/service/mock_api_service.dart';
+import '../_shared/ui/app_colors.dart';
 import 'entities/booking_detail.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
@@ -302,13 +303,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: d.prescriptionAvailable ? Colors.green.shade50 : Colors.orange.shade50,
+                  color: d.prescriptionAvailable ? Colors.green.shade50 : AppColors.warningOrange,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   d.prescriptionAvailable ? Icons.check_circle_rounded : Icons.pending_rounded,
                   size: 20,
-                  color: d.prescriptionAvailable ? Colors.green : Colors.orange,
+                  color: d.prescriptionAvailable ? Colors.green : AppColors.warningOrange,
                 ),
               ),
               const SizedBox(width: 12),
@@ -346,7 +347,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade600,
+                backgroundColor: AppColors.infoBlue,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -435,8 +436,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             child: OutlinedButton(
               onPressed: () {},
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.blue.shade700,
-                side: BorderSide(color: Colors.blue.shade400, width: 1.5),
+                foregroundColor: AppColors.infoBlue,
+                side: BorderSide(color: AppColors.infoBlue, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -501,7 +502,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF22C58B),
+                backgroundColor: AppColors.primaryGreen,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -656,7 +657,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   _future = _api.fetchBookingDetail(widget.bookingId);
                 }),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade600,
+                  backgroundColor: AppColors.infoBlue,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -681,11 +682,11 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return const Color(0xFF22C58B);
+        return AppColors.primaryGreen;
       case 'completed':
-        return Colors.blue;
+        return AppColors.infoBlue;
       case 'pending':
-        return Colors.orange;
+        return AppColors.warningOrange;
       default:
         return Colors.grey;
     }
@@ -695,9 +696,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     switch (status.toLowerCase()) {
       case 'paid':
       case 'success':
-        return const Color(0xFF22C58B);
+        return AppColors.primaryGreen;
       case 'pending':
-        return Colors.orange;
+        return AppColors.warningOrange;
       case 'failed':
         return Colors.red;
       default:

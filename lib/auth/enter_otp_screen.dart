@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import '../_shared/ui/app_colors.dart';
 
 class EnterOtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -362,8 +363,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: _controllers[i].text.isNotEmpty
-                                ? const Color(0xFF22C58B)
-                                : Colors.grey.shade300,
+                                ? AppColors.primaryGreen
+                                : AppColors.grey300,
                             width: _controllers[i].text.isNotEmpty ? 1.5 : 1,
                           ),
                           color: Colors.grey.shade50,
@@ -424,7 +425,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                             : Text(
                           "Resend OTP",
                           style: TextStyle(
-                            color: (_remainingSeconds ?? 0) > 0 ? Colors.grey.shade400 : const Color(0xFF22C58B),
+                            color: (_remainingSeconds ?? 0) > 0 ? AppColors.grey400 : AppColors.primaryGreen,
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -481,8 +482,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                               ? null
                               : () => _submitOtp(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF22C58B),
-                            disabledBackgroundColor: Colors.grey.shade300,
+                            backgroundColor: AppColors.primaryGreen,
+                            disabledBackgroundColor: AppColors.grey300,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(

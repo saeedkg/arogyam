@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:get/get.dart';
 import '../_shared/ui/app_text.dart';
+import '../_shared/ui/app_colors.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -43,7 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -63,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     icon: Icon(
                       Icons.arrow_back_ios_rounded,
                       size: 20,
-                      color: Colors.grey.shade700,
+                      color: AppColors.grey700,
                     ),
                   ),
                   const Spacer(),
@@ -72,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Text(
                       'Skip',
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: AppColors.grey600,
                         fontWeight: FontWeight.w500,
                         fontSize: 15,
                       ),
@@ -124,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey.shade600,
+                                  color: AppColors.grey600,
                                   height: 1.5,
                                 ),
                               ),
@@ -151,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       height: 4,
                       width: _current.value == i ? 24 : 8,
                       decoration: BoxDecoration(
-                        color: _current.value == i ? const Color(0xFF22C58B) : Colors.grey.shade300,
+                        color: _current.value == i ? AppColors.primaryGreen : AppColors.grey300,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -210,10 +211,10 @@ class _DoctorOrbitIllustration extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFF7FAFF),
+              color: AppColors.backgroundLight,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF22C58B).withOpacity(0.1),
+                  color: AppColors.primaryGreen.withOpacity(0.1),
                   blurRadius: 20,
                   spreadRadius: 2,
                 )
@@ -225,7 +226,7 @@ class _DoctorOrbitIllustration extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
+              border: Border.all(color: AppColors.white, width: 4),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -242,7 +243,7 @@ class _DoctorOrbitIllustration extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 100,
                   height: 100,
-                  color: Colors.grey.shade200,
+                  color: AppColors.grey200,
                   child: Icon(Icons.person, color: Colors.grey.shade400, size: 40),
                 ),
               ),
@@ -261,7 +262,7 @@ class _DoctorOrbitIllustration extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 3),
+                  border: Border.all(color: AppColors.white, width: 3),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.08),
@@ -306,8 +307,8 @@ class _NextButton extends StatelessWidget {
             child: CircularProgressIndicator(
               value: progress.clamp(0.0, 1.0),
               strokeWidth: 2,
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C58B)),
-              backgroundColor: Colors.grey.shade200,
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+              backgroundColor: AppColors.grey200,
             ),
           ),
 
@@ -316,11 +317,11 @@ class _NextButton extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: const Color(0xFF22C58B),
+              color: AppColors.primaryGreen,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF22C58B).withOpacity(0.3),
+                  color: AppColors.primaryGreen.withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -328,7 +329,7 @@ class _NextButton extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: onPressed,
-              icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 24),
+              icon: const Icon(Icons.arrow_forward_rounded, color: AppColors.white, size: 24),
               padding: EdgeInsets.zero,
             ),
           ),

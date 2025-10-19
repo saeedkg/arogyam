@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../_shared/ui/app_colors.dart';
 
 class PatientCard extends StatelessWidget {
   final String name;
@@ -79,8 +80,8 @@ class PatientCard extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onChange,
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF22C58B),
-                side: const BorderSide(color: Color(0xFF22C58B), width: 1.2),
+                foregroundColor: AppColors.primaryGreen,
+                side: const BorderSide(color: AppColors.primaryGreen, width: 1.2),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

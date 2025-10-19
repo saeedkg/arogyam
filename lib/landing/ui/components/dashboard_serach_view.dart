@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
+import '../../../_shared/ui/app_colors.dart';
 import '../../../find_doctor/search_doctors_screen.dart';
 
 class SearchSection extends StatelessWidget {
@@ -44,7 +44,7 @@ class SearchSection extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF22C58B).withOpacity(0.08),
+                    color: AppColors.primaryGreen.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -52,7 +52,7 @@ class SearchSection extends StatelessWidget {
                       'assets/icon_svg/ic_search.svg',
                       width: 20,
                       height: 20,
-                      color: const Color(0xFF22C58B),
+                      color: AppColors.primaryGreen,
                     ),
                   ),
                 ),

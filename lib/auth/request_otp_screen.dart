@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import '../_shared/ui/app_colors.dart';
 import 'provider/auth_provider.dart';
 import 'enter_otp_screen.dart';
 
@@ -107,7 +108,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
 
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -125,7 +126,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade900,
+                          color: AppColors.grey900,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -134,7 +135,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                         "We'll send a verification code to your\nmobile number",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey.shade600,
+                          color: AppColors.grey600,
                           height: 1.4,
                         ),
                       ),
@@ -152,7 +153,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
+                          color: AppColors.grey700,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -163,9 +164,9 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                             height: 56,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
+                              color: AppColors.grey50,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(color: AppColors.grey300),
                             ),
                             child: Row(
                               children: [
@@ -176,7 +177,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade800,
+                                    color: AppColors.grey800,
                                   ),
                                 ),
                               ],
@@ -197,7 +198,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade900,
+                                color: AppColors.grey900,
                                 letterSpacing: 1.0,
                               ),
                               decoration: InputDecoration(
@@ -205,29 +206,29 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                 counterText: '',
                                 hintText: 'Enter 10-digit number',
                                 hintStyle: TextStyle(
-                                  color: Colors.grey.shade400,
+                                  color: AppColors.grey400,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                                 filled: true,
-                                fillColor: Colors.grey.shade50,
+                                fillColor: AppColors.grey50,
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                  borderSide: BorderSide(color: AppColors.grey300),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFF22C58B), width: 1.5),
+                                  borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
                                 ),
                                 errorText: _phoneError,
-                                errorStyle: TextStyle(color: Colors.red.shade600, fontSize: 12),
+                                errorStyle: TextStyle(color: AppColors.errorRed, fontSize: 12),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red.shade400),
+                                  borderSide: BorderSide(color: AppColors.errorRed.withOpacity(0.7)),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+                                  borderSide: BorderSide(color: AppColors.errorRed.withOpacity(0.7), width: 1.5),
                                 ),
                               ),
                             ),
@@ -252,14 +253,14 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: value ? const Color(0xFF22C58B) : Colors.grey.shade400,
+                                color: value ? AppColors.primaryGreen : AppColors.grey400,
                                 width: 1.5,
                               ),
-                              color: value ? const Color(0xFF22C58B) : Colors.transparent,
+                              color: value ? AppColors.primaryGreen : AppColors.transparent,
                             ),
                             child: Theme(
                               data: ThemeData(
-                                unselectedWidgetColor: Colors.transparent,
+                                unselectedWidgetColor: AppColors.transparent,
                               ),
                               child: Checkbox(
                                 value: value,
@@ -267,8 +268,8 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                activeColor: Colors.transparent,
-                                checkColor: Colors.white,
+                                activeColor: AppColors.transparent,
+                                checkColor: AppColors.white,
                                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
@@ -290,15 +291,15 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
+                        color: AppColors.errorRed.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red.shade100),
+                        border: Border.all(color: AppColors.errorRed.withOpacity(0.2)),
                       ),
                       child: Row(
                         children: [
                           Icon(
                               _getErrorIcon(authProvider.requestOtpError!),
-                              color: Colors.red.shade600,
+                              color: AppColors.errorRed,
                               size: 20
                           ),
                           const SizedBox(width: 12),
@@ -306,7 +307,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                             child: Text(
                               _getErrorMessage(authProvider.requestOtpError!),
                               style: TextStyle(
-                                color: Colors.red.shade700,
+                                color: AppColors.errorRed.withOpacity(0.9),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -336,7 +337,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Please accept terms and conditions'),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: AppColors.errorRed,
                                   duration: Duration(seconds: 3),
                                 ),
                               );
@@ -349,15 +350,15 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF22C58B),
-                            disabledBackgroundColor: Colors.grey.shade300,
-                            foregroundColor: Colors.white,
+                            backgroundColor: AppColors.primaryGreen,
+                            disabledBackgroundColor: AppColors.grey300,
+                            foregroundColor: AppColors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             elevation: 0,
-                            shadowColor: Colors.transparent,
+                            shadowColor: AppColors.transparent,
                           ),
                           child: authProvider.isLoading
                               ? SizedBox(
@@ -365,7 +366,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.white),
                             ),
                           )
                               : Text(
@@ -390,7 +391,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600,
+                            color: AppColors.grey600,
                           ),
                         ),
                       ),
@@ -415,7 +416,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
       text: TextSpan(
         style: TextStyle(
           fontSize: 13,
-          color: Colors.grey.shade700,
+          color: AppColors.grey700,
           height: 1.4,
         ),
         children: [
@@ -423,7 +424,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
           TextSpan(
             text: "Terms of Service",
             style: const TextStyle(
-              color: Color(0xFF22C58B),
+              color: AppColors.primaryGreen,
               fontWeight: FontWeight.w600,
             ),
             recognizer: TapGestureRecognizer()
@@ -433,7 +434,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
           TextSpan(
             text: "Privacy Policy",
             style: const TextStyle(
-              color: Color(0xFF22C58B),
+              color: AppColors.primaryGreen,
               fontWeight: FontWeight.w600,
             ),
             recognizer: TapGestureRecognizer()

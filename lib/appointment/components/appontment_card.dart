@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../_shared/ui/app_colors.dart';
 
 class AppointmentCard extends StatelessWidget {
   final String id;
@@ -24,26 +25,26 @@ class AppointmentCard extends StatelessWidget {
   Color get _statusColor {
     switch (status) {
       case 'Confirmed':
-        return const Color(0xFFE8F5E9);
+        return AppColors.confirmedGreen;
       case 'Completed':
-        return const Color(0xFFE3F2FD);
+        return AppColors.pendingBlue;
       case 'Pending':
-        return const Color(0xFFFFF3E0);
+        return AppColors.cancelledOrange;
       default:
-        return const Color(0xFFF5F5F5);
+        return AppColors.defaultGrey;
     }
   }
 
   Color get _statusTextColor {
     switch (status) {
       case 'Confirmed':
-        return const Color(0xFF2E7D32);
+        return AppColors.textDark;
       case 'Completed':
-        return const Color(0xFF1565C0);
+        return AppColors.textBlue;
       case 'Pending':
-        return const Color(0xFFEF6C00);
+        return AppColors.textOrange;
       default:
-        return Colors.black87;
+        return AppColors.grey800;
     }
   }
 
@@ -131,7 +132,7 @@ class AppointmentCard extends StatelessWidget {
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.black87,
+                                    color: AppColors.grey800,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

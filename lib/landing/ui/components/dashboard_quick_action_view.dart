@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_text.dart';
+import '../../../_shared/ui/app_colors.dart';
 import '../../../find_doctor/care_discovery_screen.dart';
 import '../../../find_doctor/search_doctors_screen.dart';
 
@@ -23,9 +24,9 @@ class QuickActions extends StatelessWidget {
                 child: _QuickActionCard(
                   icon: Icons.local_hospital_rounded,
                   title: 'Hospital Appointment',
-                  color: const Color(0xFF00BFA5),
+                  color: AppColors.successGreen,
                   gradient: LinearGradient(
-                    colors: [const Color(0xFF00BFA5).withOpacity(0.1), const Color(0xFF00BFA5).withOpacity(0.05)],
+                    colors: [AppColors.successGreen.withOpacity(0.1), AppColors.successGreen.withOpacity(0.05)],
                   ),
                 ),
               ),
@@ -34,9 +35,9 @@ class QuickActions extends StatelessWidget {
                 child: _QuickActionCard(
                   icon: Icons.videocam_rounded,
                   title: 'Video\nConsult',
-                  color: const Color(0xFF7C4DFF),
+                  color: AppColors.infoBlue,
                   gradient: LinearGradient(
-                    colors: [const Color(0xFF7C4DFF).withOpacity(0.1), const Color(0xFF7C4DFF).withOpacity(0.05)],
+                    colors: [AppColors.infoBlue.withOpacity(0.1), AppColors.infoBlue.withOpacity(0.05)],
                   ),
                 ),
               ),
@@ -45,9 +46,9 @@ class QuickActions extends StatelessWidget {
                 child: _QuickActionCard(
                   icon: Icons.bolt_rounded,
                   title: 'Instant\nConsult',
-                  color: const Color(0xFFFF9100),
+                  color: AppColors.warningOrange,
                   gradient: LinearGradient(
-                    colors: [const Color(0xFFFF9100).withOpacity(0.1), const Color(0xFFFF9100).withOpacity(0.05)],
+                    colors: [AppColors.warningOrange.withOpacity(0.1), AppColors.warningOrange.withOpacity(0.05)],
                   ),
                 ),
               ),

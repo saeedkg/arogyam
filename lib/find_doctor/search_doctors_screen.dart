@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_text.dart';
+import '../_shared/ui/app_colors.dart';
 import '../landing/controller/doctors_controller.dart';
 
 class SearchDoctorsScreen extends StatelessWidget {
@@ -81,7 +82,7 @@ class SearchDoctorsScreen extends StatelessWidget {
                     ),
                     selected: active,
                     onSelected: (_) => c.activeFilter.value = label,
-                    selectedColor: const Color(0xFF22C58B),
+                    selectedColor: AppColors.primaryGreen,
                     backgroundColor: Colors.grey.shade100,
                     checkmarkColor: Colors.white,
                     shape: RoundedRectangleBorder(

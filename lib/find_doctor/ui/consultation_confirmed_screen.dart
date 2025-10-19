@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../consultation/ui/video_call_screen.dart';
 import '../../consultation/utils/permission_handler.dart';
+import '../../_shared/ui/app_colors.dart';
 
 class ConsultationConfirmedScreen extends StatelessWidget {
   const ConsultationConfirmedScreen({super.key});
@@ -33,11 +34,11 @@ class ConsultationConfirmedScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.shade200,
+                      color: AppColors.grey200,
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -65,14 +66,14 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                           Text(
                             specialization,
                             style: TextStyle(
-                              color: Colors.grey.shade600,
+                              color: AppColors.grey600,
                               fontSize: 14,
                             ),
                           ),
                           Text(
                             hospital,
                             style: TextStyle(
-                              color: Colors.grey.shade500,
+                              color: AppColors.grey500,
                               fontSize: 13,
                             ),
                           ),
@@ -82,13 +83,13 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade50,
+                        color: AppColors.successGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         status,
                         style: TextStyle(
-                          color: Colors.green.shade700,
+                          color: AppColors.successGreen,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -111,8 +112,8 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                     imageUrl: imageUrl,
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF20BEE8),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primaryBlue,
+                    foregroundColor: AppColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -134,12 +135,12 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: AppColors.grey200),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.shade100,
+                      color: AppColors.grey100,
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -153,12 +154,12 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
+                            color: AppColors.infoBlue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.folder_open_rounded,
-                            color: Colors.blue.shade600,
+                            color: AppColors.infoBlue,
                             size: 20,
                           ),
                         ),
@@ -175,7 +176,7 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                     Text(
                       'Share prescriptions or lab reports to help your doctor understand your condition better',
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: AppColors.grey600,
                         fontSize: 14,
                         height: 1.4,
                       ),
@@ -189,10 +190,10 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(color: AppColors.grey300),
                             ),
                             child: Material(
-                              color: Colors.transparent,
+                              color: AppColors.transparent,
                               child: InkWell(
                                 onTap: () {},
                                 borderRadius: BorderRadius.circular(12),
@@ -202,14 +203,14 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                                     children: [
                                       Icon(
                                         Icons.cloud_upload_rounded,
-                                        color: Colors.blue.shade600,
+                                        color: AppColors.infoBlue,
                                         size: 24,
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
                                         'Upload File',
                                         style: TextStyle(
-                                          color: Colors.grey.shade700,
+                                          color: AppColors.grey700,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 13,
                                         ),
@@ -226,10 +227,10 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(color: AppColors.grey300),
                             ),
                             child: Material(
-                              color: Colors.transparent,
+                              color: AppColors.transparent,
                               child: InkWell(
                                 onTap: () {},
                                 borderRadius: BorderRadius.circular(12),
@@ -239,14 +240,14 @@ class ConsultationConfirmedScreen extends StatelessWidget {
                                     children: [
                                       Icon(
                                         Icons.camera_alt_rounded,
-                                        color: Colors.green.shade600,
+                                        color: AppColors.successGreen,
                                         size: 24,
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
                                         'Take Photo',
                                         style: TextStyle(
-                                          color: Colors.grey.shade700,
+                                          color: AppColors.grey700,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 13,
                                         ),
@@ -312,8 +313,8 @@ class ConsultationConfirmedScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF20BEE8),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: AppColors.white,
               ),
               child: const Text('Join'),
             ),
