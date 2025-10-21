@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../_shared/routing/routing.dart';
 import '../landing/controller/home_controller.dart';
 import '../landing/ui/components/dasbboard_category.dart';
 
@@ -27,7 +28,7 @@ class CareDiscoveryScreen extends StatelessWidget {
                 fillColor: Colors.grey.shade100,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
               ),
-              onSubmitted: (q) => Get.toNamed('/doctors', arguments: {'query': q}),
+              onSubmitted: (q) => AppNavigation.toDoctors(),
             ),
             const SizedBox(height: 16),
             GetBuilder<HomeController>(

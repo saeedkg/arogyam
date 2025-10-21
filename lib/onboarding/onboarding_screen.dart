@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:get/get.dart';
 import '../_shared/ui/app_text.dart';
 import '../_shared/ui/app_colors.dart';
+import '../_shared/routing/routing.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -37,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_current.value < _pages.length - 1) {
       _controller.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeOut);
     } else {
-      Get.offAllNamed('/landing');
+      AppNavigation.offAllToLanding();
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../_shared/routing/routing.dart';
 import '../landing/controller/bookings_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
@@ -38,7 +39,7 @@ class AppointmentsScreen extends StatelessWidget {
                       //time: _formatTime(b.dateTime),
                   time: "12",
                       status: _statusFromList(b),
-                      onView: () => Get.toNamed('/appointment_detail', arguments: b.id),
+                      onView: () => AppNavigation.toAppointmentDetail(b.id),
                     )),
               ],
             )),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_text.dart';
 import '../_shared/ui/app_colors.dart';
+import '../_shared/routing/routing.dart';
 import '../landing/controller/doctors_controller.dart';
 
 class SearchDoctorsScreen extends StatelessWidget {
@@ -119,7 +120,7 @@ class SearchDoctorsScreen extends StatelessWidget {
                   final d = c.filtered[i];
                   return GestureDetector(
                     onTap: () {
-                      Get.toNamed('/doctor_detail', arguments: {'id': d.id});
+                      AppNavigation.toDoctorDetail(d.id);
                     },
                     child: Container(
                       decoration: BoxDecoration(

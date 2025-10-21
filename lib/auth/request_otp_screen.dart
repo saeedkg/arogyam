@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../_shared/ui/app_colors.dart';
+import '../_shared/routing/routing.dart';
 import 'provider/auth_provider.dart';
 import 'enter_otp_screen.dart';
 
@@ -384,7 +385,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                       TextButton(
                         onPressed: () {
                           FocusScope.of(context).unfocus();
-                          Get.offAllNamed('/landing');
+                          AppNavigation.offAllToLanding();
                         },
                         child: Text(
                           'Browse as guest',

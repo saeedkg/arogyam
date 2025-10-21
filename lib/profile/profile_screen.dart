@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
-
 import '../_shared/ui/app_colors.dart';
+import '../_shared/routing/routing.dart';
 
 
 
@@ -388,7 +388,7 @@ class UserProfileScreen extends StatelessWidget {
                 } catch (_) {}
                 Navigator.of(ctx).pop();
                 try {
-                  Get.offAllNamed('/onboarding');
+                  AppNavigation.offAllToOnboarding();
                 } catch (_) {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }

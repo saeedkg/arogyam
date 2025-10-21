@@ -1,6 +1,7 @@
 import 'package:arogyam/_shared/ui/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../_shared/routing/routing.dart';
 import '../controller/doctor_detail_controller.dart';
 
 class DoctorDetailScreen extends StatefulWidget {
@@ -54,13 +55,13 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                 child: ElevatedButton(
                   onPressed: c.selectedTime.value.isEmpty ? null : () {
                     final date = d.availableDates[c.selectedDateIndex.value];
-                    Get.toNamed('/consultation_confirmed', arguments: {
-                      'name': d.name,
-                      'specialization': d.specialization,
-                      'hospital': d.hospital,
-                      'imageUrl': d.imageUrl,
-                      'status': 'Confirmed',
-                    });
+                    AppNavigation.toConsultationConfirmed(
+                      name: d.name,
+                      specialization: d.specialization,
+                      hospital: d.hospital,
+                      imageUrl: d.imageUrl,
+                      status: 'Confirmed',
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.teal,
