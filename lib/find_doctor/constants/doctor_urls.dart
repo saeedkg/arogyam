@@ -5,6 +5,10 @@ class DoctorUrls {
     // Update this path if your backend differs
     return '${NetworkConfig.baseUrl}/patient/doctors/instant-available';
   }
+
+  static String getDoctorDetailUrl(String id) {
+    return '${NetworkConfig.baseUrl}/patient/doctors/$id';
+  }
 }
 
 
