@@ -57,6 +57,11 @@ class AppNavigation {
     );
   }
 
+  // Navigate to Family Members
+  static void toFamilyMembers() {
+    Get.toNamed(AppRoutes.familyMembers);
+  }
+
   // Navigate and clear all previous routes
   static void offAllToLanding() {
     Get.offAllNamed(AppRoutes.landing);

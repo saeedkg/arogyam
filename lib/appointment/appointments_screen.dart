@@ -27,7 +27,9 @@ class AppointmentsScreen extends StatelessWidget {
                   dob: '01/01/1990',
                   id: 'AXY789',
                   imageUrl: 'https://i.pravatar.cc/150?img=65',
-                  onChange: () {},
+                  onChange: () {
+                    AppNavigation.toFamilyMembers();
+                  },
                 ),
                 const SizedBox(height: 16),
                 ...c.items.map((b) => AppointmentCard(

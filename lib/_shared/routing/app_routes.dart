@@ -8,6 +8,7 @@ import '../../appointment/appointment_detail_screen.dart';
 import '../../find_doctor/care_discovery_screen.dart';
 import '../../find_doctor/ui/doctor_detail_screen.dart';
 import '../../find_doctor/ui/consultation_confirmed_screen.dart';
+import '../../family_members/ui/family_members_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String careDiscovery = '/care_discovery';
   static const String doctorDetail = '/doctor_detail';
   static const String consultationConfirmed = '/consultation_confirmed';
+  static const String familyMembers = '/family_members';
 
   // Get pages
   static final List<GetPage> getPages = [
@@ -63,6 +65,10 @@ class AppRoutes {
     GetPage(
       name: consultationConfirmed,
       page: () => const ConsultationConfirmedScreen(),
+    ),
+    GetPage(
+      name: familyMembers,
+      page: () => const FamilyMembersScreen(),
     ),
   ];
 }
