@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_colors.dart';
 import '../_shared/routing/routing.dart';
+import 'controller/profile_controller.dart';
 
 
 
@@ -12,6 +13,8 @@ class UserProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure controller is available
+    Get.put(ProfileController());
     return Scaffold(
     //  backgroundColor: Colors.grey.shade50,
       body: SingleChildScrollView(
@@ -39,6 +42,7 @@ class UserProfileScreen extends StatelessWidget {
   }
 
   Widget _buildHeaderSection() {
+    final controller = Get.find<ProfileController>();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 60, bottom: 24),
@@ -90,28 +94,34 @@ class UserProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Name with Professional Typography
-          Text(
-            'Alex Johnson',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
-              letterSpacing: -0.5,
-            ),
-          ),
+          // Name with Professional Typography (from profile)
+          Obx(() {
+            final name = controller.profile.value?.name;
+            return Text(
+              name ?? '—',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+                letterSpacing: -0.5,
+              ),
+            );
+          }),
 
           const SizedBox(height: 4),
 
-          // Professional Subtitle
-          Text(
-            'Premium Member • Since 2023',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          // Subtitle: show phone from profile
+          Obx(() {
+            final phone = controller.profile.value?.mobile;
+            return Text(
+              phone ?? '',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            );
+          }),
         ],
       ),
     );

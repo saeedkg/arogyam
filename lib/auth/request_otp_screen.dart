@@ -1,3 +1,4 @@
+import 'package:arogyam/auth/user_management/service/auth_token_provider.dart';
 import 'package:arogyam/auth/user_management/service/current_user_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
   bool _isPhoneValid = false;
 
   @override
-  void initState() async {
+  void initState()  {
     super.initState();
      _checkLoginAndNavigate();
     _phoneController.addListener(_validatePhone);
@@ -474,16 +475,24 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
   void _checkLoginAndNavigate() async {
     final provider = CurrentUserProvider();
     final isLoggedIn = await provider.isLoggedIn();
+    // if(isLoggedIn){
+    //   AuthTokenProvider accessTokenProvider = AuthTokenProvider();
+    //   print("--");
+    //  print( await accessTokenProvider.getToken());
+    //
+    // }
 
     if (!mounted) return;
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => (isLoggedIn ) ? const LandingPage() : const RequestOtpScreen(),
-      ),
-          (Route<dynamic> route) => false, // removes all previous routes
-    );
+    if (isLoggedIn) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LandingPage()),
+            (Route<dynamic> route) => false, // removes all previous routes
+      );
+    } else {
+      // Stay on the current screen (do nothing)
+    }
 
 
   }
