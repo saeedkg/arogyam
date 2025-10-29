@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import '../entities/doctor_list_item.dart';
-import '../service/mock_api_service.dart';
+import '../service/doctors_api_service.dart';
 
 class DoctorsController extends GetxController {
-  final MockApiService api;
-  DoctorsController({MockApiService? api}) : api = api ?? MockApiService();
+  final DoctorsApiService api;
+  DoctorsController({DoctorsApiService? api}) : api = api ?? DoctorsApiService();
 
   final RxBool isLoading = false.obs;
   final RxList<DoctorListItem> allDoctors = <DoctorListItem>[].obs;
