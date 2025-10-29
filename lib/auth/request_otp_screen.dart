@@ -1,3 +1,4 @@
+import 'package:arogyam/auth/user_management/service/current_user_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../_shared/ui/app_colors.dart';
 import '../_shared/routing/routing.dart';
+import '../landing/ui/landing_screen.dart';
 import 'provider/auth_provider.dart';
 import 'enter_otp_screen.dart';
 
@@ -26,8 +28,9 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
   bool _isPhoneValid = false;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
+     _checkLoginAndNavigate();
     _phoneController.addListener(_validatePhone);
   }
 
@@ -466,5 +469,22 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
 
   void _navigateToPrivacyPolicy(BuildContext context) {
     // Navigation logic for privacy policy
+  }
+
+  void _checkLoginAndNavigate() async {
+    final provider = CurrentUserProvider();
+    final isLoggedIn = await provider.isLoggedIn();
+
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => (isLoggedIn ) ? const LandingPage() : const RequestOtpScreen(),
+      ),
+          (Route<dynamic> route) => false, // removes all previous routes
+    );
+
+
   }
 }
