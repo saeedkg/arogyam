@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../controller/family_members_controller.dart';
+import 'add_family_member_sheet.dart';
 
 class FamilyMembersBottomSheet extends StatefulWidget {
   const FamilyMembersBottomSheet({super.key});
@@ -46,7 +47,7 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
                     ),
                   ),
                   IconButton(
-                    onPressed: _showAddMemberSheet,
+                    onPressed: _openAddMember,
                     icon: const Icon(Icons.person_add_alt_1_rounded),
                     color: AppColors.primaryGreen,
                     tooltip: 'Add',
@@ -67,7 +68,7 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (c.members.isEmpty) {
-                    return _EmptyState(onAdd: _showAddMemberSheet);
+                    return _EmptyState(onAdd: _openAddMember);
                   }
                   return ListView.separated(
                     padding: const EdgeInsets.only(bottom: 16, top: 8),
@@ -92,77 +93,9 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
     );
   }
 
-  void _showAddMemberSheet() {
-    final nameCtrl = TextEditingController();
-    final relationCtrl = TextEditingController();
-    final dobCtrl = TextEditingController(); // yyyy-MM-dd
-    final genderCtrl = TextEditingController();
-    final bloodCtrl = TextEditingController();
-
+  void _openAddMember() {
     Get.bottomSheet(
-      SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-            top: 8,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 5,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-              const Text('Add Family Member', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 12),
-              _field('Name', nameCtrl),
-              const SizedBox(height: 10),
-              _field('Relation', relationCtrl, hint: 'spouse/child/self'),
-              const SizedBox(height: 10),
-              _field('Date of Birth', dobCtrl, hint: 'yyyy-MM-dd'),
-              const SizedBox(height: 10),
-              _field('Gender', genderCtrl, hint: 'male/female'),
-              const SizedBox(height: 10),
-              _field('Blood Group', bloodCtrl, hint: 'A+'),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final ok = await c.addMember(
-                      name: nameCtrl.text.trim(),
-                      relation: relationCtrl.text.trim(),
-                      dateOfBirth: dobCtrl.text.trim(),
-                      gender: genderCtrl.text.trim(),
-                      bloodGroup: bloodCtrl.text.trim(),
-                    );
-                    if (!mounted) return;
-                    if (ok) {
-                      Get.back();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text('Add'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      const AddFamilyMemberSheet(),
       isScrollControlled: true,
       backgroundColor: const Color(0xFFFFFFFF),
       shape: const RoundedRectangleBorder(
@@ -171,21 +104,6 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
     );
   }
 
-  Widget _field(String label, TextEditingController ctrl, {String? hint}) {
-    return TextField(
-      controller: ctrl,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-        focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12)), borderSide: BorderSide(color: AppColors.primaryGreen, width: 1.5)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      ),
-    );
-  }
 }
 
 class _EmptyState extends StatelessWidget {
