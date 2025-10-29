@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../_shared/ui/app_colors.dart';
+import '../landing/ui/landing_screen.dart';
 
 class EnterOtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -213,9 +214,13 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
       );
 
       if (response != null && response.success == true) {
-        if (response.profileComplete == false) {
-          // Handle incomplete profile
-        } else {
+         {
+          authProvider.resetAuthState();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LandingPage()),
+                (route) => false,
+          );
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response.message),
@@ -223,6 +228,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
             ),
           );
         }
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

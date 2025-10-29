@@ -33,8 +33,8 @@ class UserLocalRepository {
           ? {
               'id': user.userProfile!.id,
               'name': user.userProfile!.name,
-              'email': user.userProfile!.email,
-              'mobile': user.userProfile!.mobile,
+             // 'phone': user.userProfile!.email,
+              'phone': user.userProfile!.mobile,
             }
           : null,
       'token': user.token,

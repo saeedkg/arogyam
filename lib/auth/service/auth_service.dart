@@ -25,7 +25,7 @@ class AuthService {
      var url = AuthUrls.getOtPUrl();
      var apiRequest = APIRequest(url);
      apiRequest.addParameters({
-       'mobile': phoneNumber,
+       'phone': phoneNumber,
      });
 
      try {
@@ -40,8 +40,11 @@ class AuthService {
        // }
        
        // Extract expires_in from the response data
+
        if (apiResponse.data != null && apiResponse.data['expires_in'] != null) {
-         return apiResponse.data['expires_in'] as int;
+         final expiresInRaw = apiResponse.data['expires_in'];
+         final expiresIn = int.tryParse(expiresInRaw.toString()) ?? 0;
+         return expiresIn;
        } else {
          throw Exception('expires_in not found in response');
        }
@@ -76,7 +79,7 @@ class AuthService {
     var url = AuthUrls.getVerifyOtpUrl();
     var apiRequest = APIRequest(url);
     apiRequest.addParameters({
-      'mobile': mobile,
+      'phone': mobile,
       'otp': otp,
       if (name != null) 'name': name,
       if (email != null) 'email': email,

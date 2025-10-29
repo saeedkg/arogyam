@@ -6,7 +6,7 @@ class VerifyOtpResponse {
   final bool success;
   final String message;
   final bool userExists;
-  final bool profileComplete;
+  //final bool? profileComplete;
   // final UserProfile? userProfile;
   // final String? token;
   final User? user;
@@ -15,19 +15,20 @@ class VerifyOtpResponse {
     required this.success,
     required this.message,
     required this.userExists,
-    required this.profileComplete,
+   // required this.profileComplete,
      this.user,
     // this.token,
   });
 
   factory VerifyOtpResponse.fromJson(Map<String, dynamic> json) {
+    final data = (json['data'] as Map<String, dynamic>?);
     return VerifyOtpResponse(
       success: json['success'] as bool,
       message: json['message'] as String,
-      userExists: json['user_exists'] as bool,
-      profileComplete: json['profile_complete'] as bool,
-      user: json['user'] != null ? User.fromJson(json) : null,
-      //token: json['token'] as String?,
+      userExists: !(data?['is_new_user'] as bool? ?? false),
+      // profileComplete: json['profile_complete'] as bool,
+      user: (data != null && data['user'] != null) ? User.fromJson(data) : null,
+      // token: data?['access_token'] as String?,
     );
   }
 } 

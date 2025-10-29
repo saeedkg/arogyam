@@ -330,7 +330,7 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
                         child: ElevatedButton(
                           onPressed: (authProvider.isLoading || !_isPhoneValid)
                               ? null
-                              : () {
+                              : () async {
                             final phone = _phoneController.text.trim();
 
                             if (!_checkboxValue.value) {
@@ -347,7 +347,20 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
 
                             if (_isPhoneValid) {
                               hasNavigated.value = false;
-                              authProvider.requestOtp(phone);
+                              await authProvider.requestOtp(phone);
+
+                              if (authProvider.requestOtpError == null && authProvider.expiresIn != null && !authProvider.isLoading && !hasNavigated.value) {
+                                hasNavigated.value = true;
+                                if (!mounted) return;
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EnterOtpScreen(
+                                      phoneNumber: "+91 "+_phoneController.text.trim(),
+                                    ),
+                                  ),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

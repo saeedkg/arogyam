@@ -1,3 +1,4 @@
+import 'package:arogyam/auth/request_otp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,7 +29,7 @@ class ArogyamApp extends StatelessWidget {
           useMaterial3: true,
           textTheme: GoogleFonts.poppinsTextTheme(),
         ),
-        home: const OnboardingScreen(),
+        home: const RequestOtpScreen(),
         getPages: AppRoutes.getPages,
       ),
     );

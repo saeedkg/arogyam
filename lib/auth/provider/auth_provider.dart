@@ -53,7 +53,7 @@ class AuthProvider extends ChangeNotifier {
     _verifyOtpResponse = null;
     notifyListeners();
     try {
-      final response = await _authService.verifyOtp(mobile: mobile, otp: otp);
+      final response = await _authService.verifyOtp(mobile: mobile, otp: otp,name: "saeed");
       _verifyOtpResponse = response;
       if (verifyOtpResponse?.user != null) {
        await _newUserAdder.addUser(_verifyOtpResponse!.user!);
