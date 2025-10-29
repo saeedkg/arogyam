@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import '../../family_members/ui/family_members_screen.dart';
 import 'app_routes.dart';
 
 class AppNavigation {
@@ -59,7 +61,14 @@ class AppNavigation {
 
   // Navigate to Family Members
   static void toFamilyMembers() {
-    Get.toNamed(AppRoutes.familyMembers);
+    Get.bottomSheet(
+      const FamilyMembersBottomSheet(),
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFFFFFFFF),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    );
   }
 
   // Navigate and clear all previous routes

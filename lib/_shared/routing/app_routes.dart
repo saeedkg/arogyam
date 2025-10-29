@@ -68,7 +68,7 @@ class AppRoutes {
     ),
     GetPage(
       name: familyMembers,
-      page: () => const FamilyMembersScreen(),
+      page: () => const FamilyMembersBottomSheet(),
     ),
   ];
 }
