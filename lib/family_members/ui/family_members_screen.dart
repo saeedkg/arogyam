@@ -16,77 +16,89 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height * 0.5;
+    final maxHeight = MediaQuery.of(context).size.height * 0.6;
     return SafeArea(
       top: false,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxHeight),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Drag handle
-              Container(
-                width: 48,
-                height: 5,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(3),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // --- Handle Bar ---
+                Container(
+                  width: 48,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
                 ),
-              ),
 
-              // Header row
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Select Patient',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                // --- Header Row ---
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Select Patient',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: _openAddMember,
-                    icon: const Icon(Icons.person_add_alt_1_rounded),
-                    color: AppColors.primaryGreen,
-                    tooltip: 'Add',
-                  ),
-                  IconButton(
-                    onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close_rounded),
-                  ),
-                ],
-              ),
+                    IconButton(
+                      onPressed: _openAddMember,
+                      icon: const Icon(Icons.person_add_alt_1_rounded),
+                      color: AppColors.primaryGreen,
+                      tooltip: 'Add member',
+                    ),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close_rounded),
+                      color: Colors.grey.shade600,
+                      tooltip: 'Close',
+                    ),
+                  ],
+                ),
 
-              const SizedBox(height: 4),
+                const Divider(height: 12),
 
-              // Content
-              Expanded(
-                child: Obx(() {
-                  if (c.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (c.members.isEmpty) {
-                    return _EmptyState(onAdd: _openAddMember);
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 16, top: 8),
-                    itemBuilder: (_, i) {
-                      final m = c.members[i];
-                      return _FamilyCard(
-                        name: m.name,
-                        relation: m.relation,
-                        dob: m.dateOfBirth,
-                        onTap: () => Get.back(result: m),
-                      );
-                    },
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemCount: c.members.length,
-                  );
-                }),
-              ),
-            ],
+                // --- Content ---
+                Expanded(
+                  child: Obx(() {
+                    if (c.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (c.members.isEmpty) {
+                      return _EmptyState(onAdd: _openAddMember);
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 16, top: 8),
+                      itemBuilder: (_, i) {
+                        final m = c.members[i];
+                        return _FamilyCard(
+                          name: m.name,
+                          relation: m.relation,
+                          dob: m.dateOfBirth,
+                          onTap: () => Get.back(result: m),
+                        );
+                      },
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemCount: c.members.length,
+                    );
+                  }),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -97,13 +109,12 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
     Get.bottomSheet(
       const AddFamilyMemberSheet(),
       isScrollControlled: true,
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
     );
   }
-
 }
 
 class _EmptyState extends StatelessWidget {
@@ -113,34 +124,59 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: AppColors.primaryGreen.withOpacity(0.08),
-              shape: BoxShape.circle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                color: AppColors.primaryGreen.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.group_rounded,
+                  color: AppColors.primaryGreen, size: 38),
             ),
-            child: const Icon(Icons.group_rounded, color: AppColors.primaryGreen, size: 34),
-          ),
-          const SizedBox(height: 12),
-          const Text('No family members yet', style: TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          Text('Add a member to book on their behalf', style: TextStyle(color: Colors.grey.shade600)),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: onAdd,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.primaryGreen, width: 1.2),
-              foregroundColor: AppColors.primaryGreen,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            const SizedBox(height: 14),
+            const Text(
+              'No Family Members Yet',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
             ),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Add Member'),
-          ),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              'Add a member to book appointments on their behalf.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 13.5,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add_rounded, size: 20),
+              label: const Text(
+                'Add Member',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryGreen,
+                side: const BorderSide(color: AppColors.primaryGreen, width: 1.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -151,58 +187,103 @@ class _FamilyCard extends StatelessWidget {
   final String relation;
   final String dob;
   final VoidCallback onTap;
-  const _FamilyCard({required this.name, required this.relation, required this.dob, required this.onTap});
+  const _FamilyCard({
+    required this.name,
+    required this.relation,
+    required this.dob,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: Colors.white,
       borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
-              child: Text(
-                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        splashColor: AppColors.primaryGreen.withOpacity(0.1),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(relation, style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.w500)),
-                      const SizedBox(width: 6),
-                      Container(width: 4, height: 4, decoration: BoxDecoration(color: Colors.grey.shade400, shape: BoxShape.circle)),
-                      const SizedBox(width: 6),
-                      Text(dob, style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.w500)),
-                    ],
+            ],
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: AppColors.primaryGreen,
                   ),
-                ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.black26),
-          ],
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          relation,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          width: 4,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade400,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          dob,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.black26,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-
