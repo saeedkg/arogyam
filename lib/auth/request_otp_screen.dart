@@ -475,12 +475,12 @@ class _RequestOtpScreenState extends State<RequestOtpScreen> {
   void _checkLoginAndNavigate() async {
     final provider = CurrentUserProvider();
     final isLoggedIn = await provider.isLoggedIn();
-    // if(isLoggedIn){
-    //   AuthTokenProvider accessTokenProvider = AuthTokenProvider();
-    //   print("--");
-    //  print( await accessTokenProvider.getToken());
-    //
-    // }
+    if(isLoggedIn){
+      AuthTokenProvider accessTokenProvider = AuthTokenProvider();
+      print("--");
+     print( await accessTokenProvider.getToken());
+
+    }
 
     if (!mounted) return;
 
