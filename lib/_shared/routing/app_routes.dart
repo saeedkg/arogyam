@@ -9,7 +9,7 @@ import '../../find_doctor/care_discovery_screen.dart';
 import '../../find_doctor/ui/doctor_detail_screen.dart';
 import '../../find_doctor/ui/consultation_confirmed_screen.dart';
 import '../../family_members/ui/family_members_screen.dart';
-import '../../landing/ui/instant_consult_screen.dart';
+import '../../instant_consultation/ui/instant_consult_screen.dart';
 
 class AppRoutes {
   // Route names
