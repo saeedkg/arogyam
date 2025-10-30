@@ -7,6 +7,12 @@ import '../../../_shared/ui/app_colors.dart';
 import '../../../find_doctor/care_discovery_screen.dart';
 import '../../../find_doctor/search_doctors_screen.dart';
 
+enum QuickActionType {
+  hospitalAppointment,
+  videoConsult,
+  instantConsult,
+}
+
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});
 
@@ -28,6 +34,7 @@ class QuickActions extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [AppColors.successGreen.withOpacity(0.1), AppColors.successGreen.withOpacity(0.05)],
                   ),
+                  type: QuickActionType.hospitalAppointment,
                 ),
               ),
               const SizedBox(width: 12),
@@ -39,6 +46,7 @@ class QuickActions extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [AppColors.infoBlue.withOpacity(0.1), AppColors.infoBlue.withOpacity(0.05)],
                   ),
+                  type: QuickActionType.videoConsult,
                 ),
               ),
               const SizedBox(width: 12),
@@ -50,6 +58,7 @@ class QuickActions extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [AppColors.warningOrange.withOpacity(0.1), AppColors.warningOrange.withOpacity(0.05)],
                   ),
+                  type: QuickActionType.instantConsult,
                 ),
               ),
             ],
@@ -65,12 +74,14 @@ class _QuickActionCard extends StatelessWidget {
   final String title;
   final Color color;
   final Gradient gradient;
+  final QuickActionType type;
 
   const _QuickActionCard({
     required this.icon,
     required this.title,
     required this.color,
     required this.gradient,
+    required this.type,
   });
 
   @override
@@ -81,9 +92,17 @@ class _QuickActionCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
-          Get.to(() => CareDiscoveryScreen(entry: 'Find Doctor',));
-
-          // Add tap functionality here
+          switch (type) {
+            case QuickActionType.videoConsult:
+              Get.to(() => const SearchDoctorsScreen());
+              break;
+            case QuickActionType.instantConsult:
+              Get.to(() => CareDiscoveryScreen(entry: 'Find Care'));
+              break;
+            case QuickActionType.hospitalAppointment:
+              // Add Hospital Appointment functionality here
+              break;
+          }
         },
         highlightColor: color.withOpacity(0.1),
         splashColor: color.withOpacity(0.2),

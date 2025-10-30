@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../_shared/ui/app_colors.dart';
-import '../../../find_doctor/search_doctors_screen.dart';
+import '../../../find_doctor/care_discovery_screen.dart';
 
 class SearchSection extends StatelessWidget {
   const SearchSection();
@@ -12,7 +12,7 @@ class SearchSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => SearchDoctorsScreen());
+        Get.to(() => CareDiscoveryScreen(entry: 'Find Care'));
       },
       child: Container(
         decoration: BoxDecoration(
