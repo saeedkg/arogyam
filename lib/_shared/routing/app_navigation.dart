@@ -71,6 +71,11 @@ class AppNavigation {
     );
   }
 
+  // Navigate to Instant Consult
+  static void toInstantConsult() {
+    Get.toNamed(AppRoutes.instantConsult);
+  }
+
   // Navigate and clear all previous routes
   static void offAllToLanding() {
     Get.offAllNamed(AppRoutes.landing);

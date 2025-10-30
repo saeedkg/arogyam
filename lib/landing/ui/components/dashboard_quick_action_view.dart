@@ -6,6 +6,7 @@ import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../find_doctor/care_discovery_screen.dart';
 import '../../../find_doctor/search_doctors_screen.dart';
+import '../../../_shared/routing/routing.dart';
 
 enum QuickActionType {
   hospitalAppointment,
@@ -97,7 +98,7 @@ class _QuickActionCard extends StatelessWidget {
               Get.to(() => const SearchDoctorsScreen());
               break;
             case QuickActionType.instantConsult:
-              Get.to(() => CareDiscoveryScreen(entry: 'Find Care'));
+              AppNavigation.toInstantConsult();
               break;
             case QuickActionType.hospitalAppointment:
               // Add Hospital Appointment functionality here
