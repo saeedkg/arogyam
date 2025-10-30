@@ -116,22 +116,22 @@ class HealthRecordsService {
     );
   }
 
-  final dummyHealthRecords = [
-    HealthRecord(
-      id: '1',
-      title: 'Blood Test Report',
-      category: 'Lab Report',
-      notes: 'Routine blood test, all parameters normal.',
-      date: DateTime(2025, 10, 20),
-      fileUrl: 'https://example.com/files/blood_test_report.pdf',
-    ),
-    HealthRecord(
-      id: '2',
-      title: 'X-Ray Chest',
-      category: 'Radiology',
-      notes: 'Mild congestion observed. Follow-up advised.',
-      date: DateTime(2025, 9, 12),
-      fileUrl: 'https://example.com/files/xray_chest.png',
-    ),
-  ];
+  // final dummyHealthRecords = [
+  //   HealthRecord(
+  //     id: '1',
+  //     title: 'Blood Test Report',
+  //     category: 'Lab Report',
+  //     notes: 'Routine blood test, all parameters normal.',
+  //     date: DateTime(2025, 10, 20),
+  //     fileUrl: 'https://example.com/files/blood_test_report.pdf',
+  //   ),
+  //   HealthRecord(
+  //     id: '2',
+  //     title: 'X-Ray Chest',
+  //     category: 'Radiology',
+  //     notes: 'Mild congestion observed. Follow-up advised.',
+  //     date: DateTime(2025, 9, 12),
+  //     fileUrl: 'https://example.com/files/xray_chest.png',
+  //   ),
+  // ];
 }

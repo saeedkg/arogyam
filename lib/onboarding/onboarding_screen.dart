@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../_shared/ui/app_text.dart';
 import '../_shared/ui/app_colors.dart';
 import '../_shared/routing/routing.dart';
+import '../main.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -34,11 +35,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
   ];
 
-  void _next() {
+  void _next() async {
     if (_current.value < _pages.length - 1) {
       _controller.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeOut);
     } else {
-      AppNavigation.offAllToLanding();
+      await setOnboardingCompleted();
+      AppNavigation.offAllToRequestOtpScreen();
     }
   }
 
@@ -70,7 +72,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   const Spacer(),
                   TextButton(
-                    onPressed: () => Get.offAllNamed('/landing'),
+                    onPressed: () async {
+                      await setOnboardingCompleted();
+                      AppNavigation.offAllToRequestOtpScreen();
+                    },
                     child: Text(
                       'Skip',
                       style: TextStyle(
