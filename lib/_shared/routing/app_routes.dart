@@ -11,6 +11,7 @@ import '../../find_doctor/ui/doctor_detail_screen.dart';
 import '../../find_doctor/ui/consultation_confirmed_screen.dart';
 import '../../family_members/ui/family_members_screen.dart';
 import '../../instant_consultation/ui/instant_consult_screen.dart';
+import '../../booking/ui/doctor_booking_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String familyMembers = '/family_members';
   static const String instantConsult = '/instant_consult';
   static const String healthRecords = '/health_records';
+  static const String doctorBooking = '/doctor_booking';
 
   // Get pages
   static final List<GetPage> getPages = [
@@ -81,6 +83,13 @@ class AppRoutes {
     GetPage(
       name: healthRecords,
       page: () => const HealthRecordsScreen(),
+    ),
+    GetPage(
+      name: doctorBooking,
+      page: () {
+        final id = (Get.arguments as Map<String, dynamic>?)?['id'] as String? ?? 'd1';
+        return DoctorBookingScreen(doctorId: id);
+      },
     ),
   ];
 }

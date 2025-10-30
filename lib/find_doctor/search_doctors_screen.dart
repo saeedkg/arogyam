@@ -120,7 +120,7 @@ class SearchDoctorsScreen extends StatelessWidget {
                   final d = c.filtered[i];
                   return GestureDetector(
                     onTap: () {
-                      AppNavigation.toDoctorDetail(d.id);
+                      AppNavigation.toDoctorBooking(d.id);
                     },
                     child: Container(
                       decoration: BoxDecoration(

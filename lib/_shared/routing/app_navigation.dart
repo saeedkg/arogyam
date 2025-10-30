@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../family_members/ui/family_members_screen.dart';
 import 'app_routes.dart';
 import '../../auth/request_otp_screen.dart';
+import '../../booking/ui/doctor_booking_screen.dart';
 
 class AppNavigation {
   // Navigate to Landing
@@ -80,6 +81,11 @@ class AppNavigation {
   // Navigate to Health Records
   static void toHealthRecords() {
     Get.toNamed(AppRoutes.healthRecords);
+  }
+
+  // Navigate to Doctor Booking
+  static void toDoctorBooking(String doctorId) {
+    Get.toNamed(AppRoutes.doctorBooking, arguments: {'id': doctorId});
   }
 
   // Navigate and clear all previous routes
