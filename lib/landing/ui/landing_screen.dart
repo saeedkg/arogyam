@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import 'pages/dashboard_screen.dart';
 import '../../profile/profile_screen.dart';
+import '../../health_records/ui/health_records_screen.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -18,6 +19,7 @@ class _LandingPageState extends State<LandingPage> {
   final _pages = const [
     HomePage(),
     AppointmentsScreen(),
+    HealthRecordsScreen(),
     UserProfileScreen(),
   ];
 
@@ -39,6 +41,7 @@ class _LandingPageState extends State<LandingPage> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Appointments'),
+          NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder), label: 'Records'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
         ],
         onDestinationSelected: (i) => setState(() => _currentIndex = i),

@@ -76,6 +76,11 @@ class AppNavigation {
     Get.toNamed(AppRoutes.instantConsult);
   }
 
+  // Navigate to Health Records
+  static void toHealthRecords() {
+    Get.toNamed(AppRoutes.healthRecords);
+  }
+
   // Navigate and clear all previous routes
   static void offAllToLanding() {
     Get.offAllNamed(AppRoutes.landing);
