@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../auth/request_otp_screen.dart';
+import '../../health_records/ui/health_records_screen.dart';
 import '../../landing/ui/landing_screen.dart';
 import '../../onboarding/onboarding_screen.dart';
 import '../../find_doctor/search_doctors_screen.dart';
@@ -10,7 +11,6 @@ import '../../find_doctor/ui/doctor_detail_screen.dart';
 import '../../find_doctor/ui/consultation_confirmed_screen.dart';
 import '../../family_members/ui/family_members_screen.dart';
 import '../../instant_consultation/ui/instant_consult_screen.dart';
-import '../../health_records/ui/health_records_list_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -80,7 +80,7 @@ class AppRoutes {
     ),
     GetPage(
       name: healthRecords,
-      page: () => const HealthRecordsListScreen(),
+      page: () => const HealthRecordsScreen(),
     ),
   ];
 }

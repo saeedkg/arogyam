@@ -54,11 +54,12 @@ class HealthRecordsScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showUploadDialog(context),
         backgroundColor: AppColors.primaryGreen,
-        icon: const Icon(Icons.upload_file_rounded),
+        icon: const Icon(Icons.upload_file_rounded,color: Colors.white,),
         label: const Text(
           'Add Record',
           style: TextStyle(
             fontWeight: FontWeight.w600,
+            color: Colors.white,
             fontSize: 16,
           ),
         ),
@@ -238,13 +239,8 @@ class _HealthRecordCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
+  String _formatDate(DateTime d) => '${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.month-1]} ${d.day}, \'${d.year%100}';
+
 }
 
 class _UploadRecordDialog extends StatefulWidget {
