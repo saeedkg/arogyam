@@ -3,7 +3,7 @@ class BookingResponse {
   final String doctorName;
   final DateTime scheduledAt;
   final String status;
-  final String totalAmount;
+  final dynamic totalAmount;
 
   BookingResponse({
     required this.id,

@@ -113,7 +113,7 @@ class NetworkRequestExecutor implements NetworkAdapter {
         options: Options(
           method: method,
           headers: apiRequest.headers,
-          validateStatus: (status) => status == 200,
+          validateStatus: (status) => status == 200 || status == 201,
         ),
       );
       return _processResponse(response, apiRequest);
