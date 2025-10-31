@@ -6,6 +6,7 @@ import '../../find_doctor/controller/doctor_detail_controller.dart';
 import '../../find_doctor/entities/doctor_detail.dart';
 import '../entities/appointment_booking_request.dart';
 import '../entities/booking_response.dart';
+import '../../consultation_pending/ui/pending_consultation_screen.dart';
 
 class DoctorBookingScreen extends StatefulWidget {
   final String doctorId;
@@ -83,13 +84,14 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
                         if (bookingController.bookingResult.value != null) {
                           final result = bookingController.bookingResult.value!;
                           Get.back(); // Return to previous screen
-                          Get.toNamed('/consultation_confirmed', arguments: {
-                            'name': result.doctorName,
-                            'specialization': d.specialization,
-                            'hospital': d.hospital,
-                            'imageUrl': d.imageUrl,
-                            'status': result.status,
-                          });
+                          Get.to(() => PendingConsultationScreen(appointmentId: result.id));
+                          // Get.toNamed('/consultation_confirmed', arguments: {
+                          //   'name': result.doctorName,
+                          //   'specialization': d.specialization,
+                          //   'hospital': d.hospital,
+                          //   'imageUrl': d.imageUrl,
+                          //   'status': result.status,
+                          // });
                         } else if (bookingController.bookingError.value != null) {
                           showDialog(
                             context: context,
