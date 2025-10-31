@@ -368,6 +368,8 @@ class _AvailabilitySection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+
+          // 👇 No Obx here — only wrap each chip individually
           SizedBox(
             height: 70,
             child: ListView.separated(
@@ -376,16 +378,25 @@ class _AvailabilitySection extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (_, index) {
                 final date = doctor.availableDates[index];
-                final isSelected = controller.selectedDateIndex.value == index;
-                return _DateChip(
-                  date: date,
-                  isSelected: isSelected,
-                  onTap: () => controller.selectedDateIndex.value = index,
-                );
+                return Obx(() {
+                  final isSelected =
+                      controller.selectedDateIndex.value == index;
+                  return _DateChip(
+                    date: date,
+                    isSelected: isSelected,
+                    onTap: () {
+                      controller.selectedDateIndex.value = index;
+                      controller.selectedTime.value = ''; // optional reset
+                    },
+                  );
+                });
               },
             ),
           ),
+
           const SizedBox(height: 20),
+
+          // ✅ This Obx is fine since it directly uses reactive vars
           Obx(() => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -401,12 +412,15 @@ class _AvailabilitySection extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: controller.timesForSelectedDate.map((time) {
-                  final isSelected = controller.selectedTime.value == time;
+                children:
+                controller.timesForSelectedDate.map((time) {
+                  final isSelected =
+                      controller.selectedTime.value == time;
                   return _TimeChip(
                     time: time,
                     isSelected: isSelected,
-                    onTap: () => controller.selectedTime.value = time,
+                    onTap: () =>
+                    controller.selectedTime.value = time,
                   );
                 }).toList(),
               ),
@@ -417,6 +431,8 @@ class _AvailabilitySection extends StatelessWidget {
     );
   }
 }
+
+
 
 class _DateChip extends StatelessWidget {
   final DateTime date;
