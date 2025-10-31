@@ -1,29 +1,31 @@
-class Appointment {
+class AppointmentDetail {
   final int id;
   final String doctorName;
-  final String doctorImage;
-  final String specialization;
+  final String doctorEmail;
+  final String bio;
+  final String qualifications;
   final DateTime scheduledAt;
   final String status;
 
-  Appointment({
+  AppointmentDetail({
     required this.id,
     required this.doctorName,
-    required this.doctorImage,
-    required this.specialization,
+    required this.doctorEmail,
+    required this.bio,
+    required this.qualifications,
     required this.scheduledAt,
     required this.status,
   });
 
-  factory Appointment.fromJson(Map<String, dynamic> json) {
+  factory AppointmentDetail.fromJson(Map<String, dynamic> json) {
     final doctor = json['doctor'] ?? {};
     final user = doctor['user'] ?? {};
-
-    return Appointment(
+    return AppointmentDetail(
       id: json['id'] ?? 0,
-      doctorName: user['name'] ?? 'Unknown Doctor',
-      doctorImage: 'https://i.pravatar.cc/150?img=${doctor['id'] ?? 1}',
-      specialization: (doctor['qualifications'] != null &&
+      doctorName: user['name'] ?? '',
+      doctorEmail: user['email'] ?? '',
+      bio: doctor['bio'] ?? '',
+      qualifications: (doctor['qualifications'] != null &&
           doctor['qualifications'] is List)
           ? (doctor['qualifications'] as List).join(', ')
           : '',

@@ -11,11 +11,14 @@ class MockApiService {
   Future<Appointment?> fetchNextAppointment() async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
     return Appointment(
-      id: 'apt_1',
+      id: 1,
       doctorName: 'Dr. A. Mukherjee',
+      doctorImage: 'https://i.pravatar.cc/150?img=12',
       specialization: 'Cardiology',
-      startTime: DateTime.now().add(const Duration(hours: 4)),
+      scheduledAt: DateTime.now().add(const Duration(hours: 4)),
+      status: 'upcoming',
     );
+
   }
 
   Future<List<CategoryItem>> fetchCategories() async {

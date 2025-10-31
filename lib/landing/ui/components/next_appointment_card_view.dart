@@ -35,7 +35,7 @@ class _NextAppointmentCard extends StatelessWidget {
                 AppText.titleMedium(a.doctorName),
                 AppText.bodySmall(a.specialization, color: Colors.black54),
                 const SizedBox(height: 8),
-                AppText.bodySmall('${a.startTime.day}/${a.startTime.month}/${a.startTime.year}  •  ${a.startTime.hour.toString().padLeft(2, '0')}:${a.startTime.minute.toString().padLeft(2, '0')}', color: Colors.black87),
+               // AppText.bodySmall('${a.startTime.day}/${a.startTime.month}/${a.startTime.year}  •  ${a.startTime.hour.toString().padLeft(2, '0')}:${a.startTime.minute.toString().padLeft(2, '0')}', color: Colors.black87),
               ],
             ),
           ),
