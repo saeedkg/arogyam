@@ -49,6 +49,27 @@ class AppText {
         overflow: overflow,
         softWrap: softWrap,
       );
+
+  static Text labelMedium(
+      String text, {
+        Color? color,
+        FontWeight? fontWeight,
+        int? maxLines,
+        TextAlign? textAlign,
+      }) {
+    return Text(
+      text,
+      maxLines: maxLines,
+      textAlign: textAlign,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 14,
+        color: color ?? Colors.black87,
+        fontWeight: fontWeight ?? FontWeight.w500,
+      ),
+    );
+  }
+
 }
 
 

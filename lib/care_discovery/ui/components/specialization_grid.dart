@@ -4,29 +4,57 @@ import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../common_services/entities/specialization.dart';
 
-class SpecializationGrid extends StatelessWidget {
+class SpecializationGrid extends StatefulWidget {
   final List<Specialization> specializations;
   const SpecializationGrid({super.key, required this.specializations});
 
   @override
+  State<SpecializationGrid> createState() => _SpecializationGridState();
+}
+
+class _SpecializationGridState extends State<SpecializationGrid> {
+  bool _showAll = false;
+
+  @override
   Widget build(BuildContext context) {
+    final visibleCount = _showAll
+        ? widget.specializations.length
+        : (widget.specializations.length > 8 ? 8 : widget.specializations.length);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText.titleLarge('Categories'),
+        // Header row with "Categories" and "See all"
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            AppText.titleLarge('Categories'),
+            if (widget.specializations.length > 8)
+              GestureDetector(
+                onTap: () => setState(() => _showAll = !_showAll),
+                child: AppText.labelMedium(
+                  _showAll ? 'See less' : 'See all',
+                  color: AppColors.primaryGreen,
+                 // fontWeight: FontWeight.w600,
+                ),
+              ),
+          ],
+        ),
         const SizedBox(height: 12),
+
+        // Grid
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
+          itemCount: visibleCount,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             childAspectRatio: .90,
           ),
-          itemCount: specializations.length,
           itemBuilder: (context, i) {
-            final s = specializations[i];
+            final s = widget.specializations[i];
             final bgColor = _getCategoryColor(s.name);
 
             return Column(
@@ -38,7 +66,7 @@ class SpecializationGrid extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 6),
                         ),
@@ -46,7 +74,6 @@ class SpecializationGrid extends StatelessWidget {
                     ),
                     child: Stack(
                       children: [
-                        // 🌙 Glossy ellipse overlay (top-left)
                         Positioned(
                           top: -90,
                           left: -90,
@@ -54,13 +81,11 @@ class SpecializationGrid extends StatelessWidget {
                             height: 120,
                             width: 120,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
+                              color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(25),
                             ),
                           ),
                         ),
-                  
-                        // 🌿 Icon and Text
                         Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
