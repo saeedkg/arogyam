@@ -97,6 +97,7 @@ class DoctorListWidget extends StatelessWidget {
 
 - `id` (int): Unique identifier
 - `name` (String): Doctor name
+- `imageUrl` (String): Doctor profile image URL (defaults to empty string)
 - `qualifications` (List<String>): List of qualifications (e.g., MBBS, MD)
 - `consultationFee` (double): Consultation fee amount
 - `totalConsultations` (int): Total number of consultations

@@ -1,6 +1,7 @@
 class Doctor {
   final int id;
   final String name;
+  final String imageUrl;
   final List<String> qualifications;
   final double consultationFee;
   final int totalConsultations;
@@ -10,6 +11,7 @@ class Doctor {
   Doctor({
     required this.id,
     required this.name,
+    this.imageUrl = '',
     required this.qualifications,
     required this.consultationFee,
     required this.totalConsultations,
@@ -22,6 +24,7 @@ class Doctor {
     return Doctor(
       id: json['id'] ?? 0,
       name: user['name'] ?? '',
+      imageUrl: json['image_url'] ?? user['avatar'] ?? '',
       qualifications: (json['qualifications'] is List)
           ? List<String>.from(json['qualifications'])
           : [],

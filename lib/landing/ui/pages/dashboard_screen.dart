@@ -1,13 +1,7 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../controller/home_controller.dart';
 import '../../../_shared/ui/app_text.dart';
-import '../../../appointment/entities/appointment.dart';
-import '../../entities/banner_item.dart';
-import '../../entities/category_item.dart';
-import '../../entities/doctor.dart';
 import '../components/banner_carousal.dart';
 import '../components/dasbboard_category.dart';
 import '../components/dashboard_app_bar.dart';
