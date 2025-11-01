@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../family_members/ui/family_members_screen.dart';
 import 'app_routes.dart';
 import '../../auth/request_otp_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
+import '../../doctor_detail/ui/doctor_detail_bottom_sheet.dart';
 
 class AppNavigation {
   // Navigate to Landing
@@ -38,7 +40,14 @@ class AppNavigation {
 
   // Navigate to Doctor Detail
   static void toDoctorDetail(String doctorId) {
-    Get.toNamed(AppRoutes.doctorDetail, arguments: {'id': doctorId});
+    Get.bottomSheet(
+      DoctorDetailBottomSheet(doctorId: doctorId),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+    );
   }
 
   // Navigate to Consultation Confirmed
