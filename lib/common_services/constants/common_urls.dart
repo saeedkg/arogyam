@@ -3,7 +3,7 @@ import '../../_shared/constants/network_config.dart';
 class CommonUrls {
   /// Fetch list of specializations
   static String getSpecializationsUrl() {
-    return '${NetworkConfig.baseUrl}/specializations';
+    return '${NetworkConfig.baseUrl}/doctors/specializations';
   }
 
   /// Fetch list of doctors
