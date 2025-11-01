@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../_shared/ui/app_colors.dart';
-import '../../../care_discovery/care_discovery_screen.dart';
+import '../../../care_discovery/ui/care_discovery_screen.dart';
 
 class SearchSection extends StatelessWidget {
   const SearchSection();

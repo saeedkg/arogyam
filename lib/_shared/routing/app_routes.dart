@@ -6,7 +6,7 @@ import '../../onboarding/onboarding_screen.dart';
 import '../../find_doctor/search_doctors_screen.dart';
 import '../../appointment/appointments_screen.dart';
 import '../../appointment/appointment_detail_screen.dart';
-import '../../care_discovery/care_discovery_screen.dart';
+import '../../care_discovery/ui/care_discovery_screen.dart';
 import '../../find_doctor/ui/doctor_detail_screen.dart';
 import '../../find_doctor/ui/consultation_confirmed_screen.dart';
 import '../../family_members/ui/family_members_screen.dart';

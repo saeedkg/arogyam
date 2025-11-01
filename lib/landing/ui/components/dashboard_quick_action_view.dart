@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/ui/app_colors.dart';
-import '../../../care_discovery/care_discovery_screen.dart';
+import '../../../care_discovery/ui/care_discovery_screen.dart';
 import '../../../find_doctor/search_doctors_screen.dart';
 import '../../../_shared/routing/routing.dart';
 
