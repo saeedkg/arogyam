@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../landing/service/mock_api_service.dart';
 import '../_shared/ui/app_colors.dart';
 import 'entities/booking_detail.dart';
+import 'service/appointment_service.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -13,13 +13,13 @@ class AppointmentDetailScreen extends StatefulWidget {
 }
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
-  final _api = MockApiService();
+  final _api = AppointmentService();
   Future<BookingDetail>? _future;
 
   @override
   void initState() {
     super.initState();
-    _future = _api.fetchBookingDetail(widget.bookingId);
+    _future = _api.getAppointmentDetail(widget.bookingId);
   }
 
   @override
@@ -654,7 +654,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               height: 48,
               child: ElevatedButton(
                 onPressed: () => setState(() {
-                  _future = _api.fetchBookingDetail(widget.bookingId);
+                  _future = _api.getAppointmentDetail(widget.bookingId);
                 }),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.infoBlue,
