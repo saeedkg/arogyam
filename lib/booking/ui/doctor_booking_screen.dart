@@ -19,7 +19,7 @@ class DoctorBookingScreen extends StatefulWidget {
 class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
   final c = Get.put(DoctorDetailController());
   final bookingController = Get.put(BookingController());
-  String? selectedFamilyMemberId; // This can be set from patient selection later
+  String? selectedFamilyMemberId; // can be set from patient selection later
 
   @override
   void initState() {
@@ -38,6 +38,80 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
       ),
+
+      // ✅ Fixed bottom button
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(16),
+        child: Obx(() => ElevatedButton(
+          onPressed: c.selectedTime.value.isEmpty || bookingController.isBooking.value
+              ? null
+              : () async {
+            final d = c.detail.value!;
+            final scheduledDate = d.availableDates[c.selectedDateIndex.value];
+            final slot = c.selectedTime.value;
+            final dateStr = "${scheduledDate.toIso8601String().substring(0, 10)}T${_parseTimeTo24Hr(slot)}:00Z";
+            final scheduledAt = DateTime.parse(dateStr).toUtc();
+
+            final req = AppointmentBookingRequest(
+              doctorId: d.id,
+              scheduledAt: scheduledAt,
+              type: "online",
+              paymentMode: "online",
+              paymentMethod: "online",
+              symptoms: "Chest pain and shortness of breath",
+              notes: "First consultation",
+              patientId: selectedFamilyMemberId,
+            );
+
+            await bookingController.book(req);
+
+            if (bookingController.bookingResult.value != null) {
+              final result = bookingController.bookingResult.value!;
+              Get.back();
+              Get.to(() => PendingConsultationScreen(appointmentId: result.id));
+            } else if (bookingController.bookingError.value != null) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Booking Failed"),
+                  content: Text(bookingController.bookingError.value!),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Close")),
+                  ],
+                ),
+              );
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.teal,
+            disabledBackgroundColor: Colors.grey.shade300,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: bookingController.isBooking.value
+              ? const SizedBox(
+            height: 18,
+            width: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          )
+              : const Text(
+            'Book Appointment',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        )),
+      ),
+
       body: Obx(() {
         if (c.isLoading.value || c.detail.value == null) {
           return const Center(child: CircularProgressIndicator());
@@ -51,78 +125,13 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
               const SizedBox(height: 24),
               _AvailabilitySection(controller: c, doctor: d),
               const SizedBox(height: 24),
-              // Patient selection placeholder
               _PatientSelection(
                 selectedId: selectedFamilyMemberId,
                 onTap: () {
                   // TODO: Open FamilyMembers flow and set selectedFamilyMemberId
                 },
               ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: Obx(() => ElevatedButton(
-                  onPressed: c.selectedTime.value.isEmpty || bookingController.isBooking.value
-                      ? null
-                      : () async {
-                        final d = c.detail.value!;
-                        final scheduledDate = d.availableDates[c.selectedDateIndex.value];
-                        final slot = c.selectedTime.value;
-                        final dateStr = "${scheduledDate.toIso8601String().substring(0,10)}T${_parseTimeTo24Hr(slot)}:00Z";
-                        final scheduledAt = DateTime.parse(dateStr).toUtc();
-                        final req = AppointmentBookingRequest(
-                          doctorId: d.id,
-                          scheduledAt: scheduledAt,
-                          type: "online",
-                          paymentMode: "online",
-                          paymentMethod: "online",
-                          symptoms: "Chest pain and shortness of breath",
-                          notes: "First consultation",
-                          patientId: selectedFamilyMemberId,
-                        );
-                        await bookingController.book(req);
-                        if (bookingController.bookingResult.value != null) {
-                          final result = bookingController.bookingResult.value!;
-                          Get.back(); // Return to previous screen
-                          Get.to(() => PendingConsultationScreen(appointmentId: result.id));
-                          // Get.toNamed('/consultation_confirmed', arguments: {
-                          //   'name': result.doctorName,
-                          //   'specialization': d.specialization,
-                          //   'hospital': d.hospital,
-                          //   'imageUrl': d.imageUrl,
-                          //   'status': result.status,
-                          // });
-                        } else if (bookingController.bookingError.value != null) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Booking Failed"),
-                              content: Text(bookingController.bookingError.value!),
-                              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close"))],
-                            ),
-                          );
-                        }
-                      },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.teal,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: bookingController.isBooking.value
-                      ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text(
-                          'Book Appointment',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                )),
-              ),
+              const SizedBox(height: 80), // space before bottom button
             ],
           ),
         );
@@ -130,7 +139,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
     );
   }
 
-  // Convert '09:56 AM' to '09:56' for UTC iso string concat
+  // Convert '09:56 AM' to '09:56'
   String _parseTimeTo24Hr(String t) {
     final reg = RegExp(r"(\d{1,2}):(\d{2}) ([AP]M)");
     final match = reg.firstMatch(t);
@@ -143,6 +152,10 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
     return "${hour.toString().padLeft(2, '0')}:$minute";
   }
 }
+
+// ========================
+// COMPONENTS
+// ========================
 
 class _PatientSelection extends StatelessWidget {
   final String? selectedId;
@@ -293,12 +306,7 @@ class _DetailItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final Color color;
-
-  const _DetailItem({
-    required this.icon,
-    required this.title,
-    required this.color,
-  });
+  const _DetailItem({required this.icon, required this.title, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -329,11 +337,7 @@ class _DetailItem extends StatelessWidget {
 class _AvailabilitySection extends StatelessWidget {
   final DoctorDetailController controller;
   final dynamic doctor;
-
-  const _AvailabilitySection({
-    required this.controller,
-    required this.doctor,
-  });
+  const _AvailabilitySection({required this.controller, required this.doctor});
 
   @override
   Widget build(BuildContext context) {
@@ -355,10 +359,7 @@ class _AvailabilitySection extends StatelessWidget {
         children: [
           const Text(
             'Select Date & Time',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 20),
           Text(
@@ -370,8 +371,6 @@ class _AvailabilitySection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-
-          // 👇 No Obx here — only wrap each chip individually
           SizedBox(
             height: 70,
             child: ListView.separated(
@@ -381,24 +380,20 @@ class _AvailabilitySection extends StatelessWidget {
               itemBuilder: (_, index) {
                 final date = doctor.availableDates[index];
                 return Obx(() {
-                  final isSelected =
-                      controller.selectedDateIndex.value == index;
+                  final isSelected = controller.selectedDateIndex.value == index;
                   return _DateChip(
                     date: date,
                     isSelected: isSelected,
                     onTap: () {
                       controller.selectedDateIndex.value = index;
-                      controller.selectedTime.value = ''; // optional reset
+                      controller.selectedTime.value = '';
                     },
                   );
                 });
               },
             ),
           ),
-
           const SizedBox(height: 20),
-
-          // ✅ This Obx is fine since it directly uses reactive vars
           Obx(() => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -414,15 +409,12 @@ class _AvailabilitySection extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children:
-                controller.timesForSelectedDate.map((time) {
-                  final isSelected =
-                      controller.selectedTime.value == time;
+                children: controller.timesForSelectedDate.map((time) {
+                  final isSelected = controller.selectedTime.value == time;
                   return _TimeChip(
                     time: time,
                     isSelected: isSelected,
-                    onTap: () =>
-                    controller.selectedTime.value = time,
+                    onTap: () => controller.selectedTime.value = time,
                   );
                 }).toList(),
               ),
@@ -434,18 +426,11 @@ class _AvailabilitySection extends StatelessWidget {
   }
 }
 
-
-
 class _DateChip extends StatelessWidget {
   final DateTime date;
   final bool isSelected;
   final VoidCallback onTap;
-
-  const _DateChip({
-    required this.date,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _DateChip({required this.date, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -457,7 +442,7 @@ class _DateChip extends StatelessWidget {
           color: isSelected ? AppColors.teal : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.teal: Colors.grey.shade300,
+            color: isSelected ? AppColors.teal : Colors.grey.shade300,
           ),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -496,19 +481,13 @@ class _TimeChip extends StatelessWidget {
   final String time;
   final bool isSelected;
   final VoidCallback onTap;
-
-  const _TimeChip({
-    required this.time,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _TimeChip({required this.time, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final chipWidth = screenWidth * 0.24;
-    final fontSize = screenWidth < 360 ? 12.0 :
-    screenWidth < 400 ? 12.0 : 13.0;
+    final fontSize = screenWidth < 360 ? 12.0 : screenWidth < 400 ? 12.0 : 13.0;
 
     return GestureDetector(
       onTap: onTap,
@@ -516,10 +495,10 @@ class _TimeChip extends StatelessWidget {
         width: chipWidth,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.teal: Colors.transparent,
+          color: isSelected ? AppColors.teal : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? AppColors.teal: Colors.grey.shade300,
+            color: isSelected ? AppColors.teal : Colors.grey.shade300,
           ),
         ),
         child: Text(
