@@ -7,6 +7,7 @@ import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../entities/doctor_list_item.dart';
 import '../../find_doctor/constants/doctor_urls.dart';
+import '../../common_services/constants/common_urls.dart';
 
 class DoctorsApiService {
   final NetworkAdapter _networkAdapter;
@@ -39,6 +40,36 @@ class DoctorsApiService {
           throw ServerSentException(message, errorCode);
         }
         throw ServerSentException('Failed to load doctors', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  Future<List<DoctorListItem>> fetchDoctorsBySpecialization(String specialization) async {
+    final url = CommonUrls.getDoctorsBySpecializationUrl(specialization);
+    final apiRequest = APIRequest(url);
+    try {
+      final apiResponse = await _networkAdapter.get(apiRequest);
+      if (apiResponse.data is Map<String, dynamic>) {
+        final map = apiResponse.data as Map<String, dynamic>;
+        final list = (map['data'] as List<dynamic>? ?? const []);
+        return list.map((e) => _mapToListItem(e as Map<String, dynamic>)).toList();
+      }
+      throw Exception('Invalid response');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to load doctors by specialization', exception.httpCode);
       } else {
         rethrow;
       }

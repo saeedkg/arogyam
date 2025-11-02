@@ -21,6 +21,7 @@ class DoctorsController extends GetxController {
   final RxString query = ''.obs;
   final RxString activeFilter = 'All'.obs;
   final RxList<String> filters = <String>['All'].obs;
+  String? _pendingFilter;
 
   @override
   void onInit() {
@@ -28,7 +29,7 @@ class DoctorsController extends GetxController {
     load();
     loadSpecializations();
     ever(query, (_) => _apply());
-    ever(activeFilter, (_) => _apply());
+    ever(activeFilter, (_) => loadDoctorsByFilter());
   }
 
   Future<void> load() async {
@@ -36,7 +37,24 @@ class DoctorsController extends GetxController {
     try {
       final items = await api.fetchDoctorsList();
       allDoctors.assignAll(items);
-      _apply();
+      filtered.assignAll(items);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loadDoctorsByFilter() async {
+    isLoading.value = true;
+    try {
+      if (activeFilter.value == 'All') {
+        final items = await api.fetchDoctorsList();
+        allDoctors.assignAll(items);
+        _apply();
+      } else {
+        final items = await api.fetchDoctorsBySpecialization(activeFilter.value);
+        allDoctors.assignAll(items);
+        _apply();
+      }
     } finally {
       isLoading.value = false;
     }
@@ -52,6 +70,12 @@ class DoctorsController extends GetxController {
 
       // Update filters with 'All' + specialization names
       filters.assignAll(['All', ...specializationNames]);
+      
+      // If there was a preselected category waiting, apply it now
+      if (_pendingFilter != null && filters.contains(_pendingFilter)) {
+        activeFilter.value = _pendingFilter!;
+        _pendingFilter = null;
+      }
     } catch (e) {
       // If API fails, fall back to default filters
       filters.assignAll(['All', 'General', 'Cardiologist', 'Dentist']);
@@ -62,17 +86,18 @@ class DoctorsController extends GetxController {
 
   void _apply() {
     final q = query.value.toLowerCase();
-    final f = activeFilter.value;
     filtered.assignAll(allDoctors.where((d) {
       final matchesQuery = q.isEmpty || d.name.toLowerCase().contains(q) || d.specialization.toLowerCase().contains(q);
-      final matchesFilter = f == 'All' || d.specialization.toLowerCase().contains(f.toLowerCase());
-      return matchesQuery && matchesFilter;
+      return matchesQuery;
     }));
   }
 
   // Method to set active filter from outside (for category navigation)
   void setActiveFilter(String filter) {
-    if (filters.contains(filter)) {
+    if (isLoadingSpecializations.value || filters.length <= 1) {
+      // Still loading or filters not loaded yet, store for later
+      _pendingFilter = filter;
+    } else if (filters.contains(filter)) {
       activeFilter.value = filter;
     }
   }
