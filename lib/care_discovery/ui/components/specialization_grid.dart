@@ -5,7 +5,7 @@ import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../common_services/entities/specialization.dart';
-import '../../../find_doctor/search_doctors_screen.dart';
+import '../../../find_doctor/ui/speciality_doctors_screen.dart';
 
 class SpecializationGrid extends StatefulWidget {
   final List<Specialization> specializations;
@@ -62,7 +62,7 @@ class _SpecializationGridState extends State<SpecializationGrid> {
 
             return GestureDetector(
               onTap: () {
-                Get.to(() => SearchDoctorsScreen(preselectedCategory: s.name));
+                Get.to(() => SpecialityDoctorsScreen(category: s.name));
               },
               child: Column(
                 children: [
