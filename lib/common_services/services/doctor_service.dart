@@ -12,8 +12,13 @@ class DoctorService {
       : _networkAdapter = networkAdapter ?? AROGYAMAPI();
 
   /// Fetch list of all doctors
-  Future<List<Doctor>> fetchDoctors() async {
-    final apiRequest = APIRequest(CommonUrls.getDoctorsUrl());
+  Future<List<Doctor>> fetchDoctors({String? specialization}) async {
+    final APIRequest apiRequest;
+    if (specialization != null) {
+      apiRequest = APIRequest(CommonUrls.getDoctorsBySpecializationUrl(specialization));
+    } else {
+      apiRequest = APIRequest(CommonUrls.getDoctorsUrl());
+    }
     try {
       final res = await _networkAdapter.get(apiRequest);
       final data = res.data;

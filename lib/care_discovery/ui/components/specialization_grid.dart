@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../common_services/entities/specialization.dart';
+import '../../../find_doctor/search_doctors_screen.dart';
 
 class SpecializationGrid extends StatefulWidget {
   final List<Specialization> specializations;
@@ -57,61 +60,66 @@ class _SpecializationGridState extends State<SpecializationGrid> {
             final s = widget.specializations[i];
             final bgColor = _getCategoryColor(s.name);
 
-            return Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: bgColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: -90,
-                          left: -90,
-                          child: Container(
-                            height: 120,
-                            width: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(25),
+            return GestureDetector(
+              onTap: () {
+                Get.to(() => SearchDoctorsScreen(preselectedCategory: s.name));
+              },
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: -90,
+                            left: -90,
+                            child: Container(
+                              height: 120,
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
                             ),
                           ),
-                        ),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                _getCategoryIconPath(s.name),
-                                height: 36,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  _getCategoryIconPath(s.name),
+                                  height: 36,
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                            ],
+                                const SizedBox(height: 8),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                AppText.label(
-                  s.name,
-                  maxLines: 1,
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  AppText.label(
+                    s.name,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             );
           },
         ),

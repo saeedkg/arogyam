@@ -3,14 +3,26 @@ import 'package:get/get.dart';
 import '../_shared/ui/app_text.dart';
 import '../_shared/ui/app_colors.dart';
 import '../_shared/routing/routing.dart';
-import '../landing/controller/doctors_controller.dart';
+import 'controller/doctors_controller.dart';
 
 class SearchDoctorsScreen extends StatelessWidget {
-  const SearchDoctorsScreen({super.key});
+  final String? preselectedCategory;
+
+  const SearchDoctorsScreen({super.key, this.preselectedCategory});
 
   @override
   Widget build(BuildContext context) {
     final c = Get.put(DoctorsController());
+
+    print(preselectedCategory);
+
+    // Set preselected category if provided
+    if (preselectedCategory != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        c.setActiveFilter(preselectedCategory!);
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -65,7 +77,21 @@ class SearchDoctorsScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Filter Chips
-            SizedBox(
+            c.isLoadingSpecializations.value
+                ? SizedBox(
+              height: 44,
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+                  ),
+                ),
+              ),
+            )
+                : SizedBox(
               height: 44,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,

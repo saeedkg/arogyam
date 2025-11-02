@@ -10,4 +10,7 @@ class CommonUrls {
   static String getDoctorsUrl() {
     return '${NetworkConfig.baseUrl}/doctors/featured';
   }
+  static String getDoctorsBySpecializationUrl(String specialization) {
+    return '${NetworkConfig.baseUrl}/doctors/specialization/$specialization';
+  }
 }
