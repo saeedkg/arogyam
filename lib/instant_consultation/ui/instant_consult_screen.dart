@@ -6,6 +6,7 @@ import '../../appointment/components/patient_card.dart';
 import '../controller/instant_consult_controller.dart';
 import '../entities/instant_doctor.dart';
 import 'doctors_selection_bottom_sheet.dart';
+import '../../_shared/patient/current_patient_controller.dart';
 
 class InstantConsultScreen extends StatelessWidget {
   const InstantConsultScreen({super.key});
@@ -13,6 +14,7 @@ class InstantConsultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(InstantConsultController());
+    final currentPatientController = Get.put(CurrentPatientController());
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -77,15 +79,21 @@ class InstantConsultScreen extends StatelessWidget {
                     }),
                     const SizedBox(height: 32),
                     // Patient Card
-                    PatientCard(
-                      name: 'Jane Doe',
-                      dob: '01/01/1990',
-                      id: 'AXY789',
-                      imageUrl: 'https://i.pravatar.cc/150?img=65',
-                      onChange: () {
-                        AppNavigation.toFamilyMembers();
-                      },
-                    ),
+                    Obx(() {
+                      final p = currentPatientController.current.value;
+                      return PatientCard(
+                        name: p?.name ?? 'Patient',
+                        dob: p?.dateOfBirth ?? '',
+                        id: p?.id ?? '',
+                        imageUrl: 'https://i.pravatar.cc/150?img=65',
+                        onChange: () {
+                          AppNavigation.toFamilyMembers();
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            currentPatientController.refreshFromPrefs();
+                          });
+                        },
+                      );
+                    }),
                     const SizedBox(height: 32),
                     // Payment Details Section
                     Text(

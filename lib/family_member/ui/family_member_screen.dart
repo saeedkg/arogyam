@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/patient/current_patient_controller.dart';
+import '../../_shared/patient/current_patient.dart';
 import '../controller/family_member_controller.dart';
 import 'add_family_member_sheet.dart';
 
@@ -13,6 +15,7 @@ class FamilyMembersBottomSheet extends StatefulWidget {
 
 class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
   final c = Get.put(FamilyMemberController());
+  final currentPatientController = Get.put(CurrentPatientController());
 
   @override
   Widget build(BuildContext context) {

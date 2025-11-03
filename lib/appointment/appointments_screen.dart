@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/routing/routing.dart';
+import '../_shared/patient/current_patient_controller.dart';
 import 'controler/appointments_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
@@ -11,6 +12,7 @@ class AppointmentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.put(AppointmentsController());
+    final currentPatientController = Get.put(CurrentPatientController());
 
     return Scaffold(
       appBar: AppBar(
@@ -32,15 +34,23 @@ class AppointmentsScreen extends StatelessWidget {
             : ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            PatientCard(
-              name: 'Jane Doe',
-              dob: '01/01/1990',
-              id: 'AXY789',
-              imageUrl: 'https://i.pravatar.cc/150?img=65',
-              onChange: () {
-                AppNavigation.toFamilyMembers();
-              },
-            ),
+            Obx(() {
+              final p = currentPatientController.current.value;
+              return PatientCard(
+                name: p?.name ?? 'Patient',
+                dob: p?.dateOfBirth ?? '',
+                id: p?.id ?? '',
+                imageUrl: 'https://i.pravatar.cc/150?img=65',
+                onChange: () async {
+                  // Open family members; after close, refresh current patient from prefs
+                  AppNavigation.toFamilyMembers();
+                  // Give time for bottom sheet to close and selection to be saved
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    currentPatientController.refreshFromPrefs();
+                  });
+                },
+              );
+            }),
             const SizedBox(height: 16),
             ...c.appointments.map(
                   (b) => AppointmentCard(

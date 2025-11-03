@@ -21,7 +21,7 @@ class FamilyMember {
     final dobRaw = json['date_of_birth'] as String?;
     final dob = dobRaw != null && dobRaw.length >= 10 ? dobRaw.substring(0, 10) : (dobRaw ?? '');
     return FamilyMember(
-      id: '${json['id']}',
+      id: '${json['id']??"self"}',//  comes id null for the account holder  Because id generate when creating add family member so by default member dont have id, so its comes as null// also by deafault user no need
       name: json['name'] as String? ?? '',
       relation: (json['relationship'] as String?) ?? (json['relation'] as String?) ?? '',
       dateOfBirth: dob,
