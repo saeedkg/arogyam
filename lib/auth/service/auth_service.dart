@@ -1,4 +1,8 @@
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
 import '../../network/entities/api_request.dart';
 import '../../network/exceptions/api_exception.dart';
 import '../../network/exceptions/network_failure_exception.dart';
@@ -42,6 +46,17 @@ class AuthService {
        // Extract expires_in from the response data
 
        if (apiResponse.data != null && apiResponse.data['expires_in'] != null) {
+         final otp = apiResponse.data['otp']; // optional: extract OTP if available
+         Get.snackbar(
+           'Success',
+           'OTP sent successfully! $otp',
+           snackPosition: SnackPosition.BOTTOM,
+           backgroundColor: Colors.green,
+           colorText: Colors.white,
+           margin: const EdgeInsets.all(12),
+           duration: const Duration(seconds: 2),
+         );
+
          final expiresInRaw = apiResponse.data['expires_in'];
          final expiresIn = int.tryParse(expiresInRaw.toString()) ?? 0;
          return expiresIn;

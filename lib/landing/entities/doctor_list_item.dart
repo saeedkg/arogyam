@@ -7,6 +7,12 @@ class DoctorListItem {
   final double rating;
   final int reviews;
   final bool favorite;
+  final bool isOnline;
+  final int experience;
+  final String education;
+  final String consultationFee;
+  final bool availableToday;
+
 
   const DoctorListItem({
     required this.id,
@@ -17,6 +23,12 @@ class DoctorListItem {
     required this.rating,
     required this.reviews,
     this.favorite = false,
+    this.isOnline=true,
+    this.experience=5,
+    this.education="MBBAS",
+    this.consultationFee="50O",
+    this.availableToday=true
+
   });
 }
 

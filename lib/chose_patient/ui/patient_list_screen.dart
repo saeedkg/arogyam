@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../controller/family_members_controller.dart';
-import 'add_family_member_sheet.dart';
+import '../controller/chose_patient_controller.dart';
+import 'add_patient_sheet.dart';
 
-class FamilyMembersBottomSheet extends StatefulWidget {
-  const FamilyMembersBottomSheet({super.key});
+class PatientListBottomSheet extends StatefulWidget {
+  const PatientListBottomSheet({super.key});
 
   @override
-  State<FamilyMembersBottomSheet> createState() => _FamilyMembersBottomSheetState();
+  State<PatientListBottomSheet> createState() => _PatientListBottomSheetState();
 }
 
-class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
-  final c = Get.put(FamilyMembersController());
+class _PatientListBottomSheetState extends State<PatientListBottomSheet> {
+  final c = Get.put(ChosePatientController());
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +107,7 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
 
   void _openAddMember() {
     Get.bottomSheet(
-      const AddFamilyMemberSheet(),
+      const AddPatientSheet(),
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(

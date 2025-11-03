@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../family_members/ui/family_members_screen.dart';
+import '../../chose_patient/ui/patient_list_screen.dart';
 import 'app_routes.dart';
 import '../../auth/request_otp_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
@@ -73,7 +73,7 @@ class AppNavigation {
   // Navigate to Family Members
   static void toFamilyMembers() {
     Get.bottomSheet(
-      const FamilyMembersBottomSheet(),
+      const PatientListBottomSheet(),
       isScrollControlled: true,
       backgroundColor: const Color(0xFFFFFFFF),
       shape: const RoundedRectangleBorder(

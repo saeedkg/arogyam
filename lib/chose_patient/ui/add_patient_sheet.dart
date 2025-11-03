@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../controller/family_members_controller.dart';
+import '../controller/chose_patient_controller.dart';
 
-class AddFamilyMemberSheet extends StatefulWidget {
-  const AddFamilyMemberSheet({super.key});
+class AddPatientSheet extends StatefulWidget {
+  const AddPatientSheet({super.key});
 
   @override
-  State<AddFamilyMemberSheet> createState() => _AddFamilyMemberSheetState();
+  State<AddPatientSheet> createState() => _AddPatientSheetState();
 }
 
-class _AddFamilyMemberSheetState extends State<AddFamilyMemberSheet> {
+class _AddPatientSheetState extends State<AddPatientSheet> {
   final nameCtrl = TextEditingController();
   final dobCtrl = TextEditingController();
 
@@ -149,7 +149,7 @@ class _AddFamilyMemberSheetState extends State<AddFamilyMemberSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ctrl = Get.find<FamilyMembersController>();
+    final ctrl = Get.find<ChosePatientController>();
     final ok = await ctrl.addMember(
       name: nameCtrl.text.trim(),
       relation: relation!,

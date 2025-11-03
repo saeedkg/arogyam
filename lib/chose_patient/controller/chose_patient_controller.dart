@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
-import '../entities/family_member.dart';
-import '../service/family_service.dart';
+import '../entities/Patient.dart';
+import '../service/patient_service.dart';
 
-class FamilyMembersController extends GetxController {
-  final FamilyService _service;
-  FamilyMembersController({FamilyService? service}) : _service = service ?? FamilyService();
+class ChosePatientController extends GetxController {
+  final PatientService _service;
+  ChosePatientController({PatientService? service}) : _service = service ?? PatientService();
 
   final isLoading = false.obs;
   final error = RxnString();
-  final members = <FamilyMember>[].obs;
+  final members = <Patient>[].obs;
 
   @override
   void onInit() {
@@ -37,7 +37,7 @@ class FamilyMembersController extends GetxController {
     required String bloodGroup,
   }) async {
     try {
-      final created = await _service.addFamilyMember(FamilyMember(
+      final created = await _service.addFamilyMember(Patient(
         id: '0',
         name: name,
         relation: relation,

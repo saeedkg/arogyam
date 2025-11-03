@@ -41,6 +41,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
 
       // ✅ Fixed bottom button
       bottomNavigationBar: SafeArea(
+
         minimum: const EdgeInsets.all(16),
         child: Obx(() => ElevatedButton(
           onPressed: c.selectedTime.value.isEmpty || bookingController.isBooking.value
@@ -85,7 +86,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.teal,
+            backgroundColor: AppColors.primaryGreen,
             disabledBackgroundColor: Colors.grey.shade300,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -439,10 +440,10 @@ class _DateChip extends StatelessWidget {
       child: Container(
         width: 60,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.teal : Colors.transparent,
+          color: isSelected ? AppColors.primaryGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.teal : Colors.grey.shade300,
+            color: isSelected ? AppColors.primaryGreen : Colors.grey.shade300,
           ),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -495,10 +496,10 @@ class _TimeChip extends StatelessWidget {
         width: chipWidth,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.teal : Colors.transparent,
+          color: isSelected ? AppColors.primaryGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? AppColors.teal : Colors.grey.shade300,
+            color: isSelected ? AppColors.primaryGreen : Colors.grey.shade300,
           ),
         ),
         child: Text(

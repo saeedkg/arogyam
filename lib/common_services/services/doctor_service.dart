@@ -19,6 +19,7 @@ class DoctorService {
     } else {
       apiRequest = APIRequest(CommonUrls.getDoctorsUrl());
     }
+
     try {
       final res = await _networkAdapter.get(apiRequest);
       final data = res.data;

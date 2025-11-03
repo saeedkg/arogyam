@@ -90,7 +90,7 @@ class DoctorsApiService {
       id: '${json['id']}',
       name: (user != null ? (user['name'] as String?) : null) ?? 'Doctor',
       specialization: specializationName,
-      hospital: '',
+      hospital: 'Calicut',
       imageUrl: 'https://i.pravatar.cc/150?img=10',
       rating: rating,
       reviews: reviews,
