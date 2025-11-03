@@ -6,6 +6,7 @@ class FamilyMember {
   final String gender;
   final String bloodGroup;
   final String? profileImage;
+  final bool?  isPrimary ;
 
   const FamilyMember({
     required this.id,
@@ -15,6 +16,7 @@ class FamilyMember {
     required this.gender,
     required this.bloodGroup,
     this.profileImage,
+     this.isPrimary
   });
 
   factory FamilyMember.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class FamilyMember {
       gender: json['gender'] as String? ?? '',
       bloodGroup: json['blood_group'] as String? ?? '',
       profileImage: json['profile_image'] as String?,
+      isPrimary:  json["is_primary"]
     );
   }
 
