@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../../auth/request_otp_screen.dart';
-import '../../chose_patient/ui/patient_list_screen.dart';
+import '../../family_member/ui/family_member_screen.dart';
 import '../../health_records/ui/health_records_screen.dart';
 import '../../landing/ui/landing_screen.dart';
 import '../../onboarding/onboarding_screen.dart';
@@ -74,7 +74,7 @@ class AppRoutes {
     ),
     GetPage(
       name: familyMembers,
-      page: () => const PatientListBottomSheet(),
+      page: () => const FamilyMembersBottomSheet(),
     ),
     GetPage(
       name: instantConsult,

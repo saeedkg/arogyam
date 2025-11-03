@@ -1,6 +1,6 @@
 import '../../_shared/constants/network_config.dart';
 
-class PatientUrls {
+class FamilyMemberUrls {
   static String getFamilyMembersUrl() {
     return '${NetworkConfig.baseUrl}/patient/family-members';
   }

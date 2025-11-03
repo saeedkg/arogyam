@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../controller/chose_patient_controller.dart';
-import 'add_patient_sheet.dart';
+import '../controller/family_member_controller.dart';
+import 'add_family_member_sheet.dart';
 
-class PatientListBottomSheet extends StatefulWidget {
-  const PatientListBottomSheet({super.key});
+class FamilyMembersBottomSheet extends StatefulWidget {
+  const FamilyMembersBottomSheet({super.key});
 
   @override
-  State<PatientListBottomSheet> createState() => _PatientListBottomSheetState();
+  State<FamilyMembersBottomSheet> createState() => _FamilyMembersBottomSheetState();
 }
 
-class _PatientListBottomSheetState extends State<PatientListBottomSheet> {
-  final c = Get.put(ChosePatientController());
+class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
+  final c = Get.put(FamilyMemberController());
 
   @override
   Widget build(BuildContext context) {

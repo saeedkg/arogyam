@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../controller/chose_patient_controller.dart';
+import '../controller/family_member_controller.dart';
 
 class AddPatientSheet extends StatefulWidget {
   const AddPatientSheet({super.key});
@@ -149,7 +149,7 @@ class _AddPatientSheetState extends State<AddPatientSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ctrl = Get.find<ChosePatientController>();
+    final ctrl = Get.find<FamilyMemberController>();
     final ok = await ctrl.addMember(
       name: nameCtrl.text.trim(),
       relation: relation!,

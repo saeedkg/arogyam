@@ -5,20 +5,20 @@ import '../../network/exceptions/api_exception.dart';
 import '../../network/exceptions/http_exception.dart';
 import '../../network/exceptions/network_failure_exception.dart';
 import '../../network/exceptions/server_sent_exception.dart';
-import '../constants/chose_patient_urls.dart';
-import '../entities/Patient.dart';
+import '../constants/family_member_url.dart';
+import '../entities/FamilyMember.dart';
 
-class PatientService {
+class FamilyMemberService {
   final NetworkAdapter _networkAdapter;
-  PatientService({NetworkAdapter? networkAdapter}) : _networkAdapter = networkAdapter ?? AROGYAMAPI();
+  FamilyMemberService({NetworkAdapter? networkAdapter}) : _networkAdapter = networkAdapter ?? AROGYAMAPI();
 
-  Future<List<Patient>> getFamilyMembers() async {
-    final apiRequest = APIRequest(PatientUrls.getFamilyMembersUrl());
+  Future<List<FamilyMember>> getFamilyMembers() async {
+    final apiRequest = APIRequest(FamilyMemberUrls.getFamilyMembersUrl());
     try {
       final response = await _networkAdapter.get(apiRequest);
       final map = response.data as Map<String, dynamic>;
       final list = (map['data'] as List<dynamic>? ?? const []);
-      return list.map((e) => Patient.fromJson(e as Map<String, dynamic>)).toList();
+      return list.map((e) => FamilyMember.fromJson(e as Map<String, dynamic>)).toList();
     } on NetworkFailureException {
       throw NetworkFailureException();
     } on APIException catch (exception) {
@@ -38,14 +38,14 @@ class PatientService {
     }
   }
 
-  Future<Patient> addFamilyMember(Patient member) async {
-    final apiRequest = APIRequest(PatientUrls.getFamilyMembersUrl());
+  Future<FamilyMember> addFamilyMember(FamilyMember member) async {
+    final apiRequest = APIRequest(FamilyMemberUrls.getFamilyMembersUrl());
     apiRequest.addParameters(member.toCreatePayload());
     try {
       final response = await _networkAdapter.post(apiRequest);
       final map = response.data as Map<String, dynamic>;
       final data = (map['data'] as Map<String, dynamic>);
-      return Patient.fromJson(data);
+      return FamilyMember.fromJson(data);
     } on NetworkFailureException {
       throw NetworkFailureException();
     } on APIException catch (exception) {

@@ -1,4 +1,4 @@
-class Patient {
+class FamilyMember {
   final String id;
   final String name;
   final String relation;
@@ -7,7 +7,7 @@ class Patient {
   final String bloodGroup;
   final String? profileImage;
 
-  const Patient({
+  const FamilyMember({
     required this.id,
     required this.name,
     required this.relation,
@@ -17,10 +17,10 @@ class Patient {
     this.profileImage,
   });
 
-  factory Patient.fromJson(Map<String, dynamic> json) {
+  factory FamilyMember.fromJson(Map<String, dynamic> json) {
     final dobRaw = json['date_of_birth'] as String?;
     final dob = dobRaw != null && dobRaw.length >= 10 ? dobRaw.substring(0, 10) : (dobRaw ?? '');
-    return Patient(
+    return FamilyMember(
       id: '${json['id']}',
       name: json['name'] as String? ?? '',
       relation: (json['relationship'] as String?) ?? (json['relation'] as String?) ?? '',
