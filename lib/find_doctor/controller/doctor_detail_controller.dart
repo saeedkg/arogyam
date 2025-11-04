@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../entities/doctor_detail.dart';
+import '../entities/time_slot.dart';
 import '../service/doctor_booking_service.dart';
 
 class DoctorDetailController extends GetxController {
@@ -7,9 +8,11 @@ class DoctorDetailController extends GetxController {
   DoctorDetailController({DoctorBookingService? service}) : service = service ?? DoctorBookingService();
 
   final RxBool isLoading = false.obs;
+  final RxBool isLoadingSlots = false.obs;
   final Rxn<DoctorDetail> detail = Rxn<DoctorDetail>();
   final RxInt selectedDateIndex = 0.obs;
   final RxString selectedTime = ''.obs;
+  final RxList<TimeSlot> availableSlots = <TimeSlot>[].obs;
 
   Future<void> load(String id) async {
     isLoading.value = true;
@@ -18,16 +21,35 @@ class DoctorDetailController extends GetxController {
       detail.value = d;
       selectedDateIndex.value = 0;
       selectedTime.value = '';
+      // Load slots for the first date
+      if (d.availableDates.isNotEmpty) {
+        await loadSlotsForSelectedDate();
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
-  List<String> get timesForSelectedDate {
+  Future<void> loadSlotsForSelectedDate() async {
     final d = detail.value;
-    if (d == null) return [];
+    if (d == null) return;
+    
     final date = d.availableDates[selectedDateIndex.value];
-    return d.timeSlots['${date.year}-${date.month}-${date.day}'] ?? [];
+    final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    
+    isLoadingSlots.value = true;
+    try {
+      final response = await service.fetchDoctorSlots(d.id, dateStr);
+      availableSlots.value = response.slots.where((slot) => slot.isAvailable).toList();
+    } catch (e) {
+      availableSlots.value = [];
+    } finally {
+      isLoadingSlots.value = false;
+    }
+  }
+
+  List<String> get timesForSelectedDate {
+    return availableSlots.map((slot) => slot.startTime).toList();
   }
 }
 

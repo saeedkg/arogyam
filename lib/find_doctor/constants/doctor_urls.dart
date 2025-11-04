@@ -10,6 +10,10 @@ class DoctorUrls {
   static String getDoctorDetailUrl(String id) {
     return '${NetworkConfig.baseUrl}/patient/doctors/$id';
   }
+
+  static String getDoctorSlotsUrl(String id, String date) {
+    return '${NetworkConfig.baseUrl}/patient/doctors/$id/slots?date=$date';
+  }
 }
 
 

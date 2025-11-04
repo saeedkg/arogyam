@@ -10,7 +10,6 @@ class DoctorDetail {
   final int experienceYears;
   final int fee;
   final List<DateTime> availableDates; // first 4 days
-  final Map<String, List<String>> timeSlots; // key: yyyy-MM-dd, value: times like '09:00 AM'
 
   const DoctorDetail({
     required this.id,
@@ -24,7 +23,6 @@ class DoctorDetail {
     required this.experienceYears,
     required this.fee,
     required this.availableDates,
-    required this.timeSlots,
   });
 }
 

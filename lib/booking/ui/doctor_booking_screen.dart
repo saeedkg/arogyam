@@ -3,9 +3,7 @@ import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
-import '../../find_doctor/entities/doctor_detail.dart';
 import '../entities/appointment_booking_request.dart';
-import '../entities/booking_response.dart';
 import '../../consultation_pending/ui/pending_consultation_screen.dart';
 
 class DoctorBookingScreen extends StatefulWidget {
@@ -388,6 +386,7 @@ class _AvailabilitySection extends StatelessWidget {
                     onTap: () {
                       controller.selectedDateIndex.value = index;
                       controller.selectedTime.value = '';
+                      controller.loadSlotsForSelectedDate();
                     },
                   );
                 });
@@ -395,32 +394,53 @@ class _AvailabilitySection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Obx(() => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Available Slots',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+          Obx(() {
+            if (controller.isLoadingSlots.value) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: controller.timesForSelectedDate.map((time) {
-                  final isSelected = controller.selectedTime.value == time;
-                  return _TimeChip(
-                    time: time,
-                    isSelected: isSelected,
-                    onTap: () => controller.selectedTime.value = time,
-                  );
-                }).toList(),
-              ),
-            ],
-          )),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Available Slots',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                controller.timesForSelectedDate.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          'No slots available for this date',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      )
+                    : Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: controller.timesForSelectedDate.map((time) {
+                          final isSelected = controller.selectedTime.value == time;
+                          return _TimeChip(
+                            time: time,
+                            isSelected: isSelected,
+                            onTap: () => controller.selectedTime.value = time,
+                          );
+                        }).toList(),
+                      ),
+              ],
+            );
+          }),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../entities/doctor_detail.dart';
+import '../entities/time_slot.dart';
 import '../../network/entities/api_request.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
@@ -27,7 +28,15 @@ class DoctorBookingService {
     return true;
   }
 
-  String _key(DateTime d) => '${d.year}-${d.month}-${d.day}';
+  Future<SlotsResponse> fetchDoctorSlots(String doctorId, String date) async {
+    final url = DoctorUrls.getDoctorSlotsUrl(doctorId, date);
+    final apiRequest = APIRequest(url);
+
+    final apiResponse = await _networkAdapter.get(apiRequest);
+    return SlotsResponse.fromJson(apiResponse.data as Map<String, dynamic>);
+  }
+
+
 
   DoctorDetail _mapToDoctorDetail(Map<String, dynamic> json) {
     final id = '${json['id']}';
@@ -55,28 +64,9 @@ class DoctorBookingService {
             : null)
             ?.round() ?? 0;
 
-    // Build availability for next 4 days from weekly_availability
+    // Build availability for next 7 days
     final now = DateTime.now();
-    final days = List<DateTime>.generate(4, (i) => DateTime(now.year, now.month, now.day + i));
-    final Map<String, List<String>> timeSlots = {};
-    final weekly = json['weekly_availability'] as Map<String, dynamic>? ?? {};
-    for (final d in days) {
-      final weekdayKey = _weekdayKey(d.weekday);
-      final dayInfo = weekly[weekdayKey] as Map<String, dynamic>?;
-      final slots = <String>[];
-      if (dayInfo != null && dayInfo['is_available'] == true) {
-        final ranges = (dayInfo['slots'] as List<dynamic>? ?? const []);
-        for (final r in ranges) {
-          final rm = r as Map<String, dynamic>;
-          final start = DateTime.tryParse(rm['start_time'] as String? ?? '');
-          final end = DateTime.tryParse(rm['end_time'] as String? ?? '');
-          if (start != null && end != null) {
-            slots.addAll(_generateSlots(start, end, 15));
-          }
-        }
-      }
-      timeSlots[_key(d)] = slots;
-    }
+    final days = List<DateTime>.generate(7, (i) => DateTime(now.year, now.month, now.day + i));
 
     return DoctorDetail(
       id: id,
@@ -90,46 +80,7 @@ class DoctorBookingService {
       experienceYears: experienceYears,
       fee: fee,
       availableDates: days,
-      timeSlots: timeSlots,
     );
-  }
-
-  List<String> _generateSlots(DateTime start, DateTime end, int intervalMinutes) {
-    final list = <String>[];
-    var t = start;
-    while (!t.isAfter(end)) {
-      list.add(_formatTime(t));
-      t = t.add(Duration(minutes: intervalMinutes));
-    }
-    return list;
-  }
-
-  String _formatTime(DateTime dt) {
-    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
-    return '${hour.toString().padLeft(2, '0')}:$minute $ampm';
-  }
-
-  String _weekdayKey(int weekday) {
-    switch (weekday) {
-      case DateTime.monday:
-        return 'monday';
-      case DateTime.tuesday:
-        return 'tuesday';
-      case DateTime.wednesday:
-        return 'wednesday';
-      case DateTime.thursday:
-        return 'thursday';
-      case DateTime.friday:
-        return 'friday';
-      case DateTime.saturday:
-        return 'saturday';
-      case DateTime.sunday:
-        return 'sunday';
-      default:
-        return 'monday';
-    }
   }
 }
 
