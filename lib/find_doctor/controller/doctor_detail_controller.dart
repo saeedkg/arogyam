@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import '../entities/doctor_detail.dart';
 import '../entities/time_slot.dart';
-import '../service/doctor_booking_service.dart';
+import '../service/doctor_find_service.dart';
 
 class DoctorDetailController extends GetxController {
   final DoctorBookingService service;
