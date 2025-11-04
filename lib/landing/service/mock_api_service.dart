@@ -3,7 +3,7 @@ import '../../appointment/entities/appointment.dart';
 import '../entities/banner_item.dart';
 import '../entities/category_item.dart';
 import '../entities/doctor.dart';
-import '../entities/doctor_list_item.dart';
+import '../../find_doctor/entities/doctor_list_item.dart';
 import '../entities/booking.dart';
 import '../../appointment/entities/booking_detail.dart';
 

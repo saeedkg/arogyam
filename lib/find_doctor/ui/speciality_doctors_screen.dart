@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/routing.dart';
 import '../controller/doctors_controller.dart';
-import '../../landing/entities/doctor_list_item.dart';
+import '../entities/doctor_list_item.dart';
 import 'components/doctor_card.dart';
 
 class SpecialityDoctorsScreen extends StatefulWidget {

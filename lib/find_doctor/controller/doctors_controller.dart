@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import '../../common_services/entities/specialization.dart';
 import '../../common_services/services/specialization_service.dart';
-import '../../landing/entities/doctor_list_item.dart';
-import '../../landing/service/doctors_api_service.dart';
+import '../entities/doctor_list_item.dart';
+import '../service/doctors_api_service.dart';
 
 class DoctorsController extends GetxController {
   final DoctorsApiService api;

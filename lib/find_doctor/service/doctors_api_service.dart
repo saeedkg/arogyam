@@ -6,7 +6,7 @@ import '../../network/exceptions/server_sent_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../entities/doctor_list_item.dart';
-import '../../find_doctor/constants/doctor_urls.dart';
+import '../constants/doctor_urls.dart';
 import '../../common_services/constants/common_urls.dart';
 
 class DoctorsApiService {

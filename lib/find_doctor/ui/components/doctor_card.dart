@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../_shared/routing/app_navigation.dart';
-import '../../../landing/entities/doctor_list_item.dart';
+import '../../entities/doctor_list_item.dart';
 
 class DoctorCard extends StatelessWidget {
   final DoctorListItem doctor;
