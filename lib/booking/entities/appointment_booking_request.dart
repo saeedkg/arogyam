@@ -22,7 +22,7 @@ class AppointmentBookingRequest {
   Map<String, dynamic> toJson() {
     return {
       'doctor_id': doctorId,
-      'scheduled_at': scheduledAt.toUtc().toIso8601String(),
+      'scheduled_at': scheduledAt.toIso8601String(),
       'type': type,
       'payment_mode': paymentMode,
       'payment_method': paymentMethod,

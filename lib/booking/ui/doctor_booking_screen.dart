@@ -42,14 +42,12 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
 
         minimum: const EdgeInsets.all(16),
         child: Obx(() => ElevatedButton(
-          onPressed: c.selectedTime.value.isEmpty || bookingController.isBooking.value
+          onPressed: c.selectedSlot.value == null || bookingController.isBooking.value
               ? null
               : () async {
             final d = c.detail.value!;
-            final scheduledDate = d.availableDates[c.selectedDateIndex.value];
-            final slot = c.selectedTime.value;
-            final dateStr = "${scheduledDate.toIso8601String().substring(0, 10)}T${_parseTimeTo24Hr(slot)}:00Z";
-            final scheduledAt = DateTime.parse(dateStr).toUtc();
+            final selectedSlot = c.selectedSlot.value!;
+            final scheduledAt = DateTime.parse(selectedSlot.datetime);
 
             final req = AppointmentBookingRequest(
               doctorId: d.id,
@@ -136,19 +134,6 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         );
       }),
     );
-  }
-
-  // Convert '09:56 AM' to '09:56'
-  String _parseTimeTo24Hr(String t) {
-    final reg = RegExp(r"(\d{1,2}):(\d{2}) ([AP]M)");
-    final match = reg.firstMatch(t);
-    if (match == null) return '09:00';
-    int hour = int.parse(match.group(1)!);
-    final minute = match.group(2);
-    final ampm = match.group(3);
-    if (ampm == 'PM' && hour != 12) hour += 12;
-    if (ampm == 'AM' && hour == 12) hour = 0;
-    return "${hour.toString().padLeft(2, '0')}:$minute";
   }
 }
 
@@ -386,6 +371,7 @@ class _AvailabilitySection extends StatelessWidget {
                     onTap: () {
                       controller.selectedDateIndex.value = index;
                       controller.selectedTime.value = '';
+                      controller.selectedSlot.value = null;
                       controller.loadSlotsForSelectedDate();
                     },
                   );
@@ -429,12 +415,15 @@ class _AvailabilitySection extends StatelessWidget {
                     : Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: controller.timesForSelectedDate.map((time) {
-                          final isSelected = controller.selectedTime.value == time;
+                        children: controller.availableSlots.map((slot) {
+                          final isSelected = controller.selectedSlot.value?.startTime == slot.startTime;
                           return _TimeChip(
-                            time: time,
+                            time: slot.startTime,
                             isSelected: isSelected,
-                            onTap: () => controller.selectedTime.value = time,
+                            onTap: () {
+                              controller.selectedTime.value = slot.startTime;
+                              controller.selectedSlot.value = slot;
+                            },
                           );
                         }).toList(),
                       ),

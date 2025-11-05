@@ -12,6 +12,7 @@ class DoctorDetailController extends GetxController {
   final Rxn<DoctorDetail> detail = Rxn<DoctorDetail>();
   final RxInt selectedDateIndex = 0.obs;
   final RxString selectedTime = ''.obs;
+  final Rxn<TimeSlot> selectedSlot = Rxn<TimeSlot>();
   final RxList<TimeSlot> availableSlots = <TimeSlot>[].obs;
 
   Future<void> load(String id) async {
@@ -21,6 +22,7 @@ class DoctorDetailController extends GetxController {
       detail.value = d;
       selectedDateIndex.value = 0;
       selectedTime.value = '';
+      selectedSlot.value = null;
       // Load slots for the first date
       if (d.availableDates.isNotEmpty) {
         await loadSlotsForSelectedDate();
