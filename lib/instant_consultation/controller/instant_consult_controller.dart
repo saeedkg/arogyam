@@ -10,6 +10,9 @@ class InstantConsultController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxList<InstantDoctor> availableDoctors = <InstantDoctor>[].obs;
+  final RxBool isBooking = false.obs;
+  final RxnString bookingError = RxnString();
+  final Rxn<dynamic> bookingResult = Rxn();
 
   @override
   void onInit() {
@@ -24,6 +27,28 @@ class InstantConsultController extends GetxController {
       availableDoctors.assignAll(doctors);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> bookInstant({
+    required String? patientId,
+    required String symptoms,
+    required String notes,
+  }) async {
+    isBooking.value = true;
+    bookingError.value = null;
+    bookingResult.value = null;
+    try {
+      final result = await api.bookInstantAppointment(
+        patientId: patientId,
+        symptoms: symptoms,
+        notes: notes,
+      );
+      bookingResult.value = result;
+    } catch (e) {
+      bookingError.value = e.toString();
+    } finally {
+      isBooking.value = false;
     }
   }
 }

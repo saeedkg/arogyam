@@ -4,6 +4,7 @@ import '../../consultation/ui/video_call_screen.dart';
 import '../../consultation/utils/permission_handler.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../controller/pending_consultation_controller.dart';
+import '../entities/pending_consultation.dart';
 
 class PendingConsultationScreen extends StatefulWidget {
   final String appointmentId;
@@ -110,18 +111,21 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _joinConsultation(context, cons.id),
+                    onPressed: cons.canJoin && cons.authToken != null && cons.meetingRoomName != null
+                        ? () => _joinConsultation(context, cons)
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       foregroundColor: AppColors.white,
+                      disabledBackgroundColor: Colors.grey.shade300,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Join Instant Consultation',
-                      style: TextStyle(
+                    child: Text(
+                      cons.canJoin ? 'Join Instant Consultation' : 'Not ready to join',
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -136,9 +140,16 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
     );
   }
 
-  Future<void> _joinConsultation(BuildContext context, String consultationId) async {
+  Future<void> _joinConsultation(BuildContext context, PendingConsultation cons) async {
     final permissionsGranted = await PermissionHandler.requestPermissionsWithDialog(context);
     if (!permissionsGranted) return;
+
+    if (cons.authToken == null || cons.meetingRoomName == null || cons.participantId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to join: Missing join credentials')),
+      );
+      return;
+    }
 
     final shouldJoin = await showDialog<bool>(
       context: context,
@@ -156,13 +167,16 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
       ),
     );
 
-    if (shouldJoin == true && c.consultation.value != null) {
-      final cons = c.consultation.value!;
+    if (shouldJoin == true) {
+      // Use the join details from consultation
       Get.to(() => VideoCallScreen(
         doctorName: cons.doctorName,
         specialization: cons.doctorSpecialization,
         hospital: '',
         doctorImageUrl: cons.doctorImageUrl,
+        authToken: cons.authToken,
+        roomName: cons.meetingRoomName,
+        participantId: cons.participantId,
       ));
     }
   }

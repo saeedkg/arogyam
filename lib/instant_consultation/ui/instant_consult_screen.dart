@@ -7,6 +7,7 @@ import '../controller/instant_consult_controller.dart';
 import '../entities/instant_doctor.dart';
 import 'doctors_selection_bottom_sheet.dart';
 import '../../_shared/patient/current_patient_controller.dart';
+import '../../consultation_pending/ui/pending_consultation_screen.dart';
 
 class InstantConsultScreen extends StatelessWidget {
   const InstantConsultScreen({super.key});
@@ -15,6 +16,7 @@ class InstantConsultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(InstantConsultController());
     final currentPatientController = Get.put(CurrentPatientController());
+    final controller = Get.find<InstantConsultController>();
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -196,27 +198,69 @@ class InstantConsultScreen extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Navigate to next screen or process payment
-                      // AppNavigation.toConsultationConfirmed();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGreen,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Proceed to Payment',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  child: Obx(() => ElevatedButton(
+                        onPressed: controller.isBooking.value
+                            ? null
+                            : () async {
+                                if (controller.availableDoctors.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('No doctors available right now')),
+                                  );
+                                  return;
+                                }
+
+                                final currentPatient = currentPatientController.current.value;
+                                final String? patientId = currentPatient?.id;
+                                await controller.bookInstant(
+                                  patientId: patientId,
+                                  symptoms: 'Chest pain and shortness of breath',
+                                  notes: 'First consultation',
+                                );
+
+                                if (controller.bookingResult.value != null) {
+                                  final result = controller.bookingResult.value!;
+                                  Get.to(() => PendingConsultationScreen(appointmentId: result.id));
+                                } else if (controller.bookingError.value != null) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Booking Failed'),
+                                      content: Text(controller.bookingError.value!),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('Close'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryGreen,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: controller.isBooking.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Book Instant Consultation',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      )),
                 ),
               ),
             ),

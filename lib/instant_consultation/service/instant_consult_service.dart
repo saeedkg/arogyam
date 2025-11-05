@@ -8,6 +8,8 @@ import '../../network/services/network_adapter.dart';
 import '../constants/instant_consult_urls.dart';
 import '../entities/instant_doctor.dart';
 import '../entities/detailed_instant_doctor.dart';
+import '../../booking/constants/booking_urls.dart';
+import '../../booking/entities/booking_response.dart';
 
 class InstantConsultService {
   final NetworkAdapter _networkAdapter;
@@ -95,6 +97,46 @@ class InstantConsultService {
       imageUrl: imageUrl,
       rating: rating,
     );
+  }
+
+  Future<BookingResponse> bookInstantAppointment({
+    required String? patientId,
+    required String symptoms,
+    required String notes,
+  }) async {
+    final url = BookingUrls.bookAppointmentUrl();
+    final apiRequest = APIRequest(url);
+    apiRequest.addParameters({
+      'type': 'instant',
+      'payment_mode': 'online',
+      'payment_method': 'online',
+      'symptoms': symptoms,
+      'notes': notes,
+      if (patientId != null && patientId.isNotEmpty) 'patient_id': patientId,
+    });
+    try {
+      final res = await _networkAdapter.post(apiRequest);
+      if (res.data is Map<String, dynamic>) {
+        return BookingResponse.fromJson(res.data as Map<String, dynamic>);
+      }
+      throw Exception('Invalid response');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to book instant consultation', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
   }
 }
 

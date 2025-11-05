@@ -9,6 +9,9 @@ class VideoCallScreen extends StatefulWidget {
   final String specialization;
   final String hospital;
   final String doctorImageUrl;
+  final String? authToken;
+  final String? roomName;
+  final String? participantId;
 
   const VideoCallScreen({
     super.key,
@@ -16,6 +19,9 @@ class VideoCallScreen extends StatefulWidget {
     required this.specialization,
     required this.hospital,
     required this.doctorImageUrl,
+    this.authToken,
+    this.roomName,
+    this.participantId,
   });
 
   @override
@@ -40,17 +46,18 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         _errorMessage = '';
       });
 
-      // Generate demo room and auth token
-      final roomName = DyteService.generateRoomName();
-      final authToken = DyteService.generateAuthToken(
+      // Use provided credentials or generate demo room and auth token
+      final roomName = widget.roomName ?? DyteService.generateRoomName();
+      final authToken = widget.authToken ?? DyteService.generateAuthToken(
         roomName: roomName,
-        participantName: 'Patient',
+        participantName: widget.participantId ?? 'Patient',
       );
+      final participantName = widget.participantId ?? 'Patient';
 
       final success = await _dyteService.initializeMeeting(
         authToken: authToken,
         roomName: roomName,
-        participantName: 'Patient',
+        participantName: participantName,
       );
 
       if (success) {
