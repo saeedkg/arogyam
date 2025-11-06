@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dyte_uikit/dyte_uikit.dart';
 
 class DyteMeetingPage extends StatelessWidget {
   final Widget uiKit; // Store the passed UI Kit widget
