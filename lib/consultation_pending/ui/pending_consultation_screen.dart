@@ -92,7 +92,7 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.successGreen.withOpacity(0.1),
+                          color: AppColors.successGreen.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -142,15 +142,18 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
 
   Future<void> _joinConsultation(BuildContext context, PendingConsultation cons) async {
     final permissionsGranted = await PermissionHandler.requestPermissionsWithDialog(context);
-    if (!permissionsGranted) return;
+    if (!permissionsGranted || !mounted) return;
 
     if (cons.authToken == null || cons.meetingRoomName == null || cons.participantId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to join: Missing join credentials')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to join: Missing join credentials')),
+        );
+      }
       return;
     }
 
+    if (!mounted) return;
     final shouldJoin = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -167,7 +170,7 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
       ),
     );
 
-    if (shouldJoin == true) {
+    if (shouldJoin == true && mounted) {
       // Use the join details from consultation
       Get.to(() => VideoCallScreen(
         doctorName: cons.doctorName,

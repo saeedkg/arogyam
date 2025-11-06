@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:dyte_uikit/dyte_uikit.dart';
 import 'package:get/get.dart';
 import '../service/dyte_service.dart';
 import '../../_shared/ui/app_colors.dart';
+import 'dyte_meeting_page.dart';
 
-class VideoCallScreen extends StatefulWidget {
+class VideoCallScreen extends StatelessWidget {
   final String doctorName;
   final String specialization;
   final String hospital;
@@ -25,204 +25,97 @@ class VideoCallScreen extends StatefulWidget {
   });
 
   @override
-  State<VideoCallScreen> createState() => _VideoCallScreenState();
-}
-
-class _VideoCallScreenState extends State<VideoCallScreen> {
-  final DyteService _dyteService = DyteService();
-  bool _isLoading = true;
-  String _errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeCall();
-  }
-
-  Future<void> _initializeCall() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = '';
-      });
-
-      // Use provided credentials or generate demo room and auth token
-      final roomName = widget.roomName ?? DyteService.generateRoomName();
-      final authToken = widget.authToken ?? DyteService.generateAuthToken(
-        roomName: roomName,
-        participantName: widget.participantId ?? 'Patient',
-      );
-      final participantName = widget.participantId ?? 'Patient';
-
-      final success = await _dyteService.initializeMeeting(
-        authToken: authToken,
-        roomName: roomName,
-        participantName: participantName,
-      );
-
-      if (success) {
-        setState(() {
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Failed to join the consultation';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error initializing call: $e';
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _dyteService.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundBlack,
-      body: SafeArea(
-        child: _isLoading
-            ? _buildLoadingView()
-            : _errorMessage.isNotEmpty
-                ? _buildErrorView()
-                : _buildCallView(),
-      ),
-    );
-  }
-
-  Widget _buildLoadingView() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.infoBlue),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Connecting to consultation...',
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorView() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              color: AppColors.errorRed,
-              size: 64,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Connection Error',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              _errorMessage,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    // Validate auth token
+    if (authToken == null || authToken!.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.backgroundBlack,
+        appBar: AppBar(
+          title: const Text('Video Consultation'),
+          backgroundColor: Colors.transparent,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: _initializeCall,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.infoBlue,
-                    foregroundColor: AppColors.white,
-                  ),
-                  child: const Text('Retry'),
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColors.errorRed,
+                  size: 64,
                 ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Unable to Join',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Missing authentication token. Please try again.',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: _endCall,
+                  onPressed: () => Get.back(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.errorRed,
+                    backgroundColor: AppColors.primaryBlue,
                     foregroundColor: AppColors.white,
                   ),
-                  child: const Text('End Call'),
+                  child: const Text('Go Back'),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCallView() {
-    if (_dyteService.meetingInfo == null) {
-      return const Center(
-        child: Text(
-          'Meeting info not available',
-          style: TextStyle(color: AppColors.white),
+          ),
         ),
       );
     }
 
-    // Use Dyte UI Kit for the meeting interface
-    // final uiKit = DyteUIKit(
-    //   meetingInfo: _dyteService.meetingInfo!,
-    //   clientContext: context,
-    // );
 
-    final uikitInfo = DyteUIKitInfo(
-      _dyteService.meetingInfo!,
-      // Optional: Pass the DyteDesignTokens object to customize the UI
-      designToken: DyteDesignTokens(
-        colorToken: DyteColorToken(
-          brandColor: AppColors.infoBlue,
-          backgroundColor: AppColors.infoBlue,
-          textOnBackground: AppColors.white,
-          textOnBrand: AppColors.white,
-        ),
+    return Scaffold(
+      body: DyteService.buildMeetingUI(
+        authToken: authToken!,
+        brandColor: AppColors.primaryBlue,
+        backgroundColor: AppColors.backgroundBlack,
       ),
     );
 
-    final uiKit = DyteUIKitBuilder.build(uiKitInfo: uikitInfo,
-     // skipSetupScreen: true, // optional argument, to skip the setup screen, defaults to false
-    );
-
-    return uiKit;
-  }
-
-  void _endCall() {
-    Get.back();
-    
-    // Show call ended dialog
-    Get.snackbar(
-      'Call Ended',
-      'Your consultation has ended',
-      backgroundColor: AppColors.grey800,
-      colorText: AppColors.white,
-      duration: const Duration(seconds: 2),
-    );
+    //   return Scaffold(
+    //       body: Center(
+    //         child: Container(
+    //           child:MaterialButton(
+    //             color: Colors.black,
+    //             onPressed: () {
+    //               Navigator.push(
+    //                 context,
+    //                 MaterialPageRoute(builder: (context) {
+    //
+    //                   Widget  uiKit= DyteService.buildMeetingUI(
+    //                     authToken: authToken!,
+    //                     brandColor: AppColors.primaryBlue,
+    //                     backgroundColor: AppColors.backgroundBlack,
+    //                   );
+    //
+    //                   return DyteMeetingPage(uiKit);
+    //                 }),
+    //               );
+    //               // DyteUIKit.loadUI();
+    //             },
+    //             child: const Text(
+    //               "Load UIKit",
+    //               style: TextStyle(color: Colors.white),
+    //             ),
+    //           ),
+    //         ),
+    //       ));
+    // }
   }
 }

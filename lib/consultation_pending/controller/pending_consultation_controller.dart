@@ -15,9 +15,6 @@ class PendingConsultationController extends GetxController {
     error.value = null;
     try {
       consultation.value = await service.getPendingConsultation(appointmentId);
-      print(consultation.value?.canJoin);
-      print(consultation.value?.authToken);
-      print(consultation.value?.doctorName);
     } catch (e) {
       error.value = e.toString();
     } finally {
