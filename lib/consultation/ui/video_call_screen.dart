@@ -80,12 +80,12 @@ class VideoCallScreen extends StatelessWidget {
 
 
     return Scaffold(
-      // body: DyteService.buildMeetingUI(
-      //   authToken: authToken!,
-      // //  authToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJZCI6ImE1MDI5ODdlLTc5ZTUtNDY2NS1iYWFkLWI0NjY1YjliM2VmYyIsIm1lZXRpbmdJZCI6ImJiYmRlMzgwLTlmMmEtNDU0Yy04Y2I2LWRhODI5NDcxOTQ0NiIsInBhcnRpY2lwYW50SWQiOiJhYWEyZTFmZS03MGZmLTQ4MmUtOWIxNi1hYWM0OGE1NmM5ODkiLCJwcmVzZXRJZCI6IjI1NmUxOGJhLWJmZDItNDVkYS1iZjA5LWIyZjVmMTJlY2E1MCIsImlhdCI6MTc2MjQyNjM5NSwiZXhwIjoxNzcxMDY2Mzk1fQ.aTya8u8IL_MCVLlpY1bml3p_gledFWoHZooSYBxu3X1PI1jUsQ3aERNmXBUDp1UE1-8ub3-7v-QVwBezfnyhavWannQK7pR8_Q5Su5iKarQmPcC4eGoLhEyA59qHKLIwqyh8h6w_xTBN-hkk81dOoQ0sBrBu81FI4JY1duCHYFHTajD0nw6j-qFVkGccIbQciN64rz-hInLLq86zenPwLv-_eT8nVy-h6gto7k9KwJwgED3XrBQeR0bcwO-oePaBiTqmSIB48jTz4s1Ga_KUR93NFcktYbYLgmhJwkWpjoZPGJwVeoWyhCEsBkZMipYShnLl47GtZgFw0FJGIZdcFA",
-      //   brandColor: AppColors.primaryBlue,
-      //   backgroundColor: AppColors.backgroundBlack,
-      // ),
+      body: DyteService.buildMeetingUI(
+        authToken: authToken!,
+      //  authToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJZCI6ImE1MDI5ODdlLTc5ZTUtNDY2NS1iYWFkLWI0NjY1YjliM2VmYyIsIm1lZXRpbmdJZCI6ImJiYmRlMzgwLTlmMmEtNDU0Yy04Y2I2LWRhODI5NDcxOTQ0NiIsInBhcnRpY2lwYW50SWQiOiJhYWEyZTFmZS03MGZmLTQ4MmUtOWIxNi1hYWM0OGE1NmM5ODkiLCJwcmVzZXRJZCI6IjI1NmUxOGJhLWJmZDItNDVkYS1iZjA5LWIyZjVmMTJlY2E1MCIsImlhdCI6MTc2MjQyNjM5NSwiZXhwIjoxNzcxMDY2Mzk1fQ.aTya8u8IL_MCVLlpY1bml3p_gledFWoHZooSYBxu3X1PI1jUsQ3aERNmXBUDp1UE1-8ub3-7v-QVwBezfnyhavWannQK7pR8_Q5Su5iKarQmPcC4eGoLhEyA59qHKLIwqyh8h6w_xTBN-hkk81dOoQ0sBrBu81FI4JY1duCHYFHTajD0nw6j-qFVkGccIbQciN64rz-hInLLq86zenPwLv-_eT8nVy-h6gto7k9KwJwgED3XrBQeR0bcwO-oePaBiTqmSIB48jTz4s1Ga_KUR93NFcktYbYLgmhJwkWpjoZPGJwVeoWyhCEsBkZMipYShnLl47GtZgFw0FJGIZdcFA",
+        brandColor: AppColors.primaryBlue,
+        backgroundColor: AppColors.backgroundBlack,
+      ),
     );
 
     //   return Scaffold(
