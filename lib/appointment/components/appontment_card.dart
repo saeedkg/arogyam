@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../entities/appointment_status.dart';
 
 class AppointmentCard extends StatelessWidget {
   final String id;
@@ -8,7 +9,8 @@ class AppointmentCard extends StatelessWidget {
   final String specialization;
   final String date;
   final String time;
-  final String status; // Confirmed, Pending, Completed
+  final AppointmentStatus status;
+  final String type;
   final VoidCallback onView;
 
   const AppointmentCard({
@@ -19,17 +21,20 @@ class AppointmentCard extends StatelessWidget {
     required this.date,
     required this.time,
     required this.status,
+    required this.type,
     required this.onView,
   });
 
   Color get _statusColor {
     switch (status) {
-      case 'Confirmed':
+      case AppointmentStatus.confirmed:
         return AppColors.confirmedGreen;
-      case 'Completed':
+      case AppointmentStatus.completed:
         return AppColors.pendingBlue;
-      case 'Pending':
+      case AppointmentStatus.pending:
         return AppColors.cancelledOrange;
+      case AppointmentStatus.cancelled:
+        return AppColors.errorRed;
       default:
         return AppColors.defaultGrey;
     }
@@ -37,12 +42,14 @@ class AppointmentCard extends StatelessWidget {
 
   Color get _statusTextColor {
     switch (status) {
-      case 'Confirmed':
+      case AppointmentStatus.confirmed:
         return AppColors.textDark;
-      case 'Completed':
+      case AppointmentStatus.completed:
         return AppColors.textBlue;
-      case 'Pending':
+      case AppointmentStatus.pending:
         return AppColors.textOrange;
+      case AppointmentStatus.cancelled:
+        return AppColors.errorRed;
       default:
         return AppColors.grey800;
     }
@@ -50,12 +57,14 @@ class AppointmentCard extends StatelessWidget {
 
   IconData get _statusIcon {
     switch (status) {
-      case 'Confirmed':
+      case AppointmentStatus.confirmed:
         return Icons.check_circle_outline;
-      case 'Completed':
+      case AppointmentStatus.completed:
         return Icons.verified_outlined;
-      case 'Pending':
+      case AppointmentStatus.pending:
         return Icons.pending_outlined;
+      case AppointmentStatus.cancelled:
+        return Icons.cancel_outlined;
       default:
         return Icons.info_outline;
     }
@@ -173,7 +182,7 @@ class AppointmentCard extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  status,
+                                  status.displayName,
                                   style: TextStyle(
                                     color: _statusTextColor,
                                     fontWeight: FontWeight.w600,

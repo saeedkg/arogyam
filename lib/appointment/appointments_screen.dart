@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/routing/routing.dart';
 import '../_shared/patient/current_patient_controller.dart';
+import '../_shared/consultation/consultation_flow_manager.dart';
 import 'controler/appointments_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
+import 'entities/appointment_status.dart';
 
 class AppointmentsScreen extends StatelessWidget {
   const AppointmentsScreen({super.key});
@@ -59,10 +61,18 @@ class AppointmentsScreen extends StatelessWidget {
                 name: b.doctorName,
                 specialization: b.specialization,
                 date: _formatDate(b.scheduledAt),
-                time: "12", // placeholder, same as before
-                status: _statusFromList(),
-                onView: () =>
-                    AppNavigation.toAppointmentDetail(b.id.toString()),
+                time: _formatTime(b.scheduledAt),
+                status: b.status,
+                type: b.type,
+                onView: () {
+                  // If status is confirmed and type is instant, go to pending consultation screen
+                  if (b.status == AppointmentStatus.confirmed && b.type == 'instant') {
+                    ConsultationFlowManager.instance.navigateToPendingConsultation(b.id.toString());
+                  } else {
+                    // Otherwise, go to appointment detail screen
+                    AppNavigation.toAppointmentDetail(b.id.toString());
+                  }
+                },
               ),
             ),
           ],
@@ -72,7 +82,13 @@ class AppointmentsScreen extends StatelessWidget {
   }
 
   String _formatDate(DateTime dt) {
-    return '${_month(dt.month)} ${dt.day}, ${dt.year} - ${_pad(dt.hour)}.${_pad(dt.minute)} ${dt.hour >= 12 ? 'PM' : 'AM'}';
+    return '${_month(dt.month)} ${dt.day}, ${dt.year}';
+  }
+
+  String _formatTime(DateTime dt) {
+    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final amPm = dt.hour >= 12 ? 'PM' : 'AM';
+    return '${_pad(hour)}:${_pad(dt.minute)} $amPm';
   }
 
   String _pad(int n) => n.toString().padLeft(2, '0');
@@ -81,11 +97,6 @@ class AppointmentsScreen extends StatelessWidget {
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ][m - 1];
-
-  String _statusFromList() {
-    // You can later add tab logic here if needed
-    return 'Confirmed';
-  }
 }
 
 class _Tabs extends StatelessWidget {

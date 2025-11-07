@@ -1,10 +1,13 @@
+import 'appointment_status.dart';
+
 class Appointment {
   final int id;
   final String doctorName;
   final String doctorImage;
   final String specialization;
   final DateTime scheduledAt;
-  final String status;
+  final AppointmentStatus status;
+  final String type; // instant, online, offline
 
   Appointment({
     required this.id,
@@ -13,6 +16,7 @@ class Appointment {
     required this.specialization,
     required this.scheduledAt,
     required this.status,
+    required this.type,
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -29,7 +33,8 @@ class Appointment {
           : '',
       scheduledAt:
       DateTime.tryParse(json['scheduled_at'] ?? '') ?? DateTime.now(),
-      status: json['status'] ?? '',
+      status: AppointmentStatus.fromString(json['status'] ?? ''),
+      type: json['type'] ?? 'online',
     );
   }
 }

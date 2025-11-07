@@ -39,7 +39,7 @@ class HomeController extends GetxController {
     isLoading.value = true;
     try {
       final results = await Future.wait([
-        api.fetchNextAppointment(),
+      //  api.fetchNextAppointment(),
         specializationService.fetchSpecializations(),
         api.fetchBanners(),
         doctorService.fetchDoctors(),

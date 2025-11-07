@@ -8,18 +8,21 @@ import '../entities/booking.dart';
 import '../../appointment/entities/booking_detail.dart';
 
 class MockApiService {
-  Future<Appointment?> fetchNextAppointment() async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    return Appointment(
-      id: 1,
-      doctorName: 'Dr. A. Mukherjee',
-      doctorImage: 'https://i.pravatar.cc/150?img=12',
-      specialization: 'Cardiology',
-      scheduledAt: DateTime.now().add(const Duration(hours: 4)),
-      status: 'upcoming',
-    );
-
-  }
+  // Future<Appointment?> fetchNextAppointment() async {
+  //   await Future<void>.delayed(const Duration(milliseconds: 500));
+  //   return Appointment(
+  //     id: 1,
+  //     doctorName: 'Dr. A. Mukherjee',
+  //     doctorImage: 'https://i.pravatar.cc/150?img=12',
+  //     specialization: 'Cardiology',
+  //     scheduledAt: DateTime.now().add(const Duration(hours: 4)),
+  //     status: 'upcoming',
+  //
+  //
+  //
+  //   );
+  //
+  // }
 
   Future<List<CategoryItem>> fetchCategories() async {
     await Future<void>.delayed(const Duration(milliseconds: 300));

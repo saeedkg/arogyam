@@ -18,8 +18,10 @@ class AppointmentDetail {
   });
 
   factory AppointmentDetail.fromJson(Map<String, dynamic> json) {
-    final doctor = json['doctor'] ?? {};
-    final user = doctor['user'] ?? {};
+    final appointmentJson = json['data']['appointment'];
+
+    final doctor = appointmentJson['doctor'] ?? {};
+    final user = appointmentJson['user'] ?? {};
     return AppointmentDetail(
       id: json['id'] ?? 0,
       doctorName: user['name'] ?? '',
