@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../user_management/service/new_user_adder.dart';
 import '../service/auth_service.dart';
+import '../service/logout_service.dart';
 import '../entities/verify_otp_response.dart';
 import '../../network/exceptions/server_sent_exception.dart';
 
@@ -154,23 +155,30 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     
     try {
+      // Call logout API
       final success = await _authService.logout();
-      if (success) {
-        // Clear all auth state after successful logout
-        resetAuthState();
-        return true;
-      } else {
-        _error = 'Failed to logout. Please try again.';
-        return false;
-      }
+      
+      // Clear all local user data regardless of API response
+      // This ensures user data is cleared even if API call fails
+      await LogoutService().clearAllUserData();
+      
+      // Clear all auth state
+      resetAuthState();
+      
+      return success;
     } catch (e) {
+      // Even if API call fails, clear local data
+      await LogoutService().clearAllUserData();
+      resetAuthState();
+      
+      // Log error but don't prevent logout
       if (e is ServerSentException) {
-        // Use the server-sent message directly
         _error = e.userReadableMessage;
       } else {
         _error = e.toString();
       }
-      return false;
+      // Return true to allow logout to proceed even if API fails
+      return true;
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -41,6 +41,11 @@ class CurrentPatientService {
     await prefs.setString(_prefsKey, _encode(patient.toMap()));
   }
 
+  Future<void> clearCurrentPatient() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsKey);
+  }
+
   Map<String, dynamic> _decode(String json) {
     return Map<String, dynamic>.from(
       (jsonDecode(json) as Map<String, dynamic>),

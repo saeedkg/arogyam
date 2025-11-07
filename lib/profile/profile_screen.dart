@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_colors.dart';
-import '../_shared/routing/routing.dart';
+import '../_shared/routing/app_navigation.dart';
+import '../auth/provider/auth_provider.dart';
 import 'controller/profile_controller.dart';
 
 
@@ -372,40 +373,108 @@ class UserProfileScreen extends StatelessWidget {
   Future<void> _showSignOutDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Sign out?'),
-          content: const Text('Are you sure you want to sign out of your account?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                shape: const StadiumBorder(),
+        return Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text(
+                'Sign Out',
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              onPressed: () async {
-                try {
-                  // Attempt to use AuthProvider if available
-                  final provider = context.read<dynamic>();
-                  if (provider != null && provider.runtimeType.toString().contains('AuthProvider')) {
-                    await provider.logout();
-                  }
-                } catch (_) {}
-                Navigator.of(ctx).pop();
-                try {
-                  AppNavigation.offAllToOnboarding();
-                } catch (_) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
-              child: const Text('Sign Out'),
-            ),
-          ],
+              content: const Text(
+                'Are you sure you want to sign out of your account?',
+                style: TextStyle(fontSize: 15),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: authProvider.isLoading
+                      ? null
+                      : () => Navigator.of(ctx).pop(),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: authProvider.isLoading
+                      ? null
+                      : () async {
+                          Navigator.of(ctx).pop();
+                          
+                          // Show loading indicator
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (loadingCtx) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+
+                          try {
+                            // Call logout
+                            final success = await authProvider.logout();
+                            
+                            // Close loading dialog
+                            if (context.mounted) {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
+
+                            if (success || context.mounted) {
+                              // Navigate to login screen
+                              AppNavigation.offAllToRequestOtpScreen();
+                            } else {
+                              // Show error but still navigate
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      authProvider.error ?? 'Failed to logout. Please try again.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            // Close loading dialog
+                            if (context.mounted) {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
+                            // Even on error, navigate to login
+                            AppNavigation.offAllToRequestOtpScreen();
+                          }
+                        },
+                  child: authProvider.isLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Sign Out',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
