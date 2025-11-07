@@ -4,9 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/ui/app_colors.dart';
-import '../../../care_discovery/ui/care_discovery_screen.dart';
-import '../../../find_doctor/search_doctors_screen.dart';
-import '../../../_shared/routing/routing.dart';
+import '../../../_shared/consultation/consultation_flow_manager.dart';
 
 enum QuickActionType {
   hospitalAppointment,
@@ -95,10 +93,10 @@ class _QuickActionCard extends StatelessWidget {
         onTap: () {
           switch (type) {
             case QuickActionType.videoConsult:
-              Get.to(() => const SearchDoctorsScreen());
+              ConsultationFlowManager.instance.startScheduledConsultation();
               break;
             case QuickActionType.instantConsult:
-              AppNavigation.toInstantConsult();
+              ConsultationFlowManager.instance.startInstantConsultation();
               break;
             case QuickActionType.hospitalAppointment:
               // Add Hospital Appointment functionality here

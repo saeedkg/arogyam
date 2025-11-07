@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/consultation/consultation_flow_manager.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
 import '../entities/appointment_booking_request.dart';
-import '../../consultation_pending/ui/pending_consultation_screen.dart';
 
 class DoctorBookingScreen extends StatefulWidget {
   final String doctorId;
@@ -65,7 +65,22 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
             if (bookingController.bookingResult.value != null) {
               final result = bookingController.bookingResult.value!;
               Get.back();
-              Get.to(() => PendingConsultationScreen(appointmentId: result.id));
+              
+              // For scheduled consultations, check if payment is needed
+              final totalAmount = double.tryParse(result.totalAmount.toString()) ?? 0.0;
+              if (totalAmount > 0) {
+                // Navigate to payment screen
+                ConsultationFlowManager.instance.navigateToPayment(
+                  consultationFee: totalAmount,
+                  appointmentId: result.id,
+                  onPaymentSuccess: () {
+                    ConsultationFlowManager.instance.handlePaymentSuccess(result.id);
+                  },
+                );
+              } else {
+                // Free consultation, go directly to pending consultation
+                ConsultationFlowManager.instance.navigateToPendingConsultation(result.id);
+              }
             } else if (bookingController.bookingError.value != null) {
               showDialog(
                 context: context,
