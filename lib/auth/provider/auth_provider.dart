@@ -53,20 +53,20 @@ class AuthProvider extends ChangeNotifier {
     _verifyOtpResponse = null;
     notifyListeners();
     try {
-      final response = await _authService.verifyOtp(mobile: mobile, otp: otp,name: "saeed");
+      // Don't pass name initially - let server check if user exists
+      final response = await _authService.verifyOtp(mobile: mobile, otp: otp);
       _verifyOtpResponse = response;
-      if (verifyOtpResponse?.user != null) {
-       await _newUserAdder.addUser(_verifyOtpResponse!.user!);
-        
+      
+      // Only save user and clear state if user already exists (not a new user)
+      print("object-----------");
+      print(verifyOtpResponse?.userExists);
+      if (verifyOtpResponse?.user != null && verifyOtpResponse?.userExists == true) {
+        await _newUserAdder.addUser(_verifyOtpResponse!.user!);
         // Clear all auth state after successful login
         resetAuthState();
-        
-        // Request notification permission after successful login
-
       }
       return response;
     } catch (e) {
-
       if (e is ServerSentException) {
         // Use the server-sent message directly
         _verifyOtpError = e.userReadableMessage;
@@ -96,18 +96,14 @@ class AuthProvider extends ChangeNotifier {
         mobile: mobile,
         otp: otp,
         name: name,
-        email: email,
+        email: email.isNotEmpty ? email : null,
       );
       _verifyOtpResponse = response;
-      if (verifyOtpResponse?.user != null) {
-      await  _newUserAdder.addUser(_verifyOtpResponse!.user!);
-        
+      if (verifyOtpResponse?.user != null && verifyOtpResponse?.success == true) {
+        await _newUserAdder.addUser(_verifyOtpResponse!.user!);
         // Clear all auth state after successful registration
         resetAuthState();
-        
-
       }
-
       return response;
     } catch (e) {
       if (e is ServerSentException) {

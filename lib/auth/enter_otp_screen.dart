@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import '../_shared/ui/app_colors.dart';
 import '../landing/ui/landing_screen.dart';
+import 'register_screen.dart';
 
 class EnterOtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -214,29 +215,47 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
       );
 
       if (response != null && response.success == true) {
-         {
-          authProvider.resetAuthState();
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const LandingPage()),
-                (route) => false,
-          );
+        // Check if user is new (is_new_user = true means userExists = false)
+        if (!response.userExists) {
+          // New user - navigate to registration screen
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RegisterScreen(
+                  phoneNumber: widget.phoneNumber,
+                  otp: otp,
+                ),
+              ),
+            );
+          }
+        } else {
+          // Existing user - go to landing page
+          if (mounted) {
+            authProvider.resetAuthState();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LandingPage()),
+              (route) => false,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      } else {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message),
-              backgroundColor: Colors.green,
+            const SnackBar(
+              content: Text('Invalid OTP. Please check and try again.'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
             ),
           );
         }
-
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid OTP. Please check and try again.'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

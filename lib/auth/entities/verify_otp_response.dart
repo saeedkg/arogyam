@@ -25,7 +25,7 @@ class VerifyOtpResponse {
     return VerifyOtpResponse(
       success: json['success'] as bool,
       message: json['message'] as String,
-      userExists: !(data?['is_new_user'] as bool? ?? false),
+      userExists: !(json['is_new_user'] as bool? ?? false),
       // profileComplete: json['profile_complete'] as bool,
       user: (data != null && data['user'] != null) ? User.fromJson(data) : null,
       // token: data?['access_token'] as String?,
