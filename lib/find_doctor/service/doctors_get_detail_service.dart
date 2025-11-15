@@ -11,25 +11,70 @@ import '../../common_services/constants/common_urls.dart';
 
 class DoctorsApiService {
   final NetworkAdapter _networkAdapter;
+  final int _perPage = 10;
+  int _pageNumber = 1;
+  bool _didReachListEnd = false;
+  bool isLoading = false;
+  String? _currentSpecialization;
+  String? _currentSearchQuery;
 
   DoctorsApiService.initWith(this._networkAdapter);
 
   DoctorsApiService() : _networkAdapter = AROGYAMAPI();
 
-  Future<List<DoctorListItem>> fetchDoctorsList() async {
-    final url = DoctorUrls.getDoctorsListUrl();
+  Future<List<DoctorListItem>> fetchDoctorsList({bool reset = false, String? searchQuery, String? specialization}) async {
+    if (reset) {
+      _pageNumber = 1;
+      _didReachListEnd = false;
+      _currentSpecialization = specialization;
+      _currentSearchQuery = searchQuery;
+    }
+
+    final url = _currentSpecialization != null && _currentSpecialization != 'All'
+        ? CommonUrls.getDoctorsBySpecializationUrl(
+            _currentSpecialization!,
+            page: _pageNumber,
+            perPage: _perPage,
+            search: _currentSearchQuery,
+          )
+        : DoctorUrls.getDoctorsListUrl(
+            page: _pageNumber,
+            perPage: _perPage,
+            search: _currentSearchQuery,
+          );
+    
     final apiRequest = APIRequest(url);
+
+    isLoading = true;
     try {
       final apiResponse = await _networkAdapter.get(apiRequest);
+      isLoading = false;
+      
       if (apiResponse.data is Map<String, dynamic>) {
         final map = apiResponse.data as Map<String, dynamic>;
-        final list = (map['data'] as List<dynamic>? ?? const []);
-        return list.map((e) => _mapToListItem(e as Map<String, dynamic>)).toList();
+        // Handle different response structures
+        List<dynamic> list;
+        if (map['data'] is List) {
+          list = map['data'] as List<dynamic>;
+        } else if (map['data'] != null && map['data']['doctors'] is List) {
+          list = map['data']['doctors'] as List<dynamic>;
+        } else if (map['doctors'] is List) {
+          list = map['doctors'] as List<dynamic>;
+        } else {
+          list = [];
+        }
+        
+        final doctors = list.map((e) => _mapToListItem(e as Map<String, dynamic>)).toList();
+        _updatePaginationRelatedData(doctors.length);
+        return doctors;
       }
-      throw Exception('Invalid response');
+      _updatePaginationRelatedData(0);
+      return [];
     } on NetworkFailureException {
+      isLoading = false;
       throw NetworkFailureException();
     } on APIException catch (exception) {
+      isLoading = false;
       if (exception is HTTPException) {
         if (exception.responseData != null &&
             exception.responseData is Map<String, dynamic> &&
@@ -46,34 +91,29 @@ class DoctorsApiService {
     }
   }
 
-  Future<List<DoctorListItem>> fetchDoctorsBySpecialization(String specialization) async {
-    final url = CommonUrls.getDoctorsBySpecializationUrl(specialization);
-    final apiRequest = APIRequest(url);
-    try {
-      final apiResponse = await _networkAdapter.get(apiRequest);
-      if (apiResponse.data is Map<String, dynamic>) {
-        final map = apiResponse.data as Map<String, dynamic>;
-        final list = (map['data'] as List<dynamic>? ?? const []);
-        return list.map((e) => _mapToListItem(e as Map<String, dynamic>)).toList();
-      }
-      throw Exception('Invalid response');
-    } on NetworkFailureException {
-      throw NetworkFailureException();
-    } on APIException catch (exception) {
-      if (exception is HTTPException) {
-        if (exception.responseData != null &&
-            exception.responseData is Map<String, dynamic> &&
-            (exception.responseData as Map<String, dynamic>)["message"] != null) {
-          final responseMap = exception.responseData as Map<String, dynamic>;
-          final message = responseMap["message"] as String;
-          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
-          throw ServerSentException(message, errorCode);
-        }
-        throw ServerSentException('Failed to load doctors by specialization', exception.httpCode);
-      } else {
-        rethrow;
-      }
+  void _updatePaginationRelatedData(int noOfItemsReceived) {
+    if (noOfItemsReceived > 0) {
+      _pageNumber += 1;
     }
+    if (noOfItemsReceived < _perPage) {
+      _didReachListEnd = true;
+    }
+  }
+
+  bool get didReachListEnd => _didReachListEnd;
+  int getCurrentPageNumber() => _pageNumber;
+
+  void reset() {
+    _pageNumber = 1;
+    _didReachListEnd = false;
+    isLoading = false;
+    _currentSpecialization = null;
+    _currentSearchQuery = null;
+  }
+
+  // Deprecated - kept for backward compatibility
+  Future<List<DoctorListItem>> fetchDoctorsBySpecialization(String specialization) async {
+    return fetchDoctorsList(reset: true, specialization: specialization);
   }
 
   DoctorListItem _mapToListItem(Map<String, dynamic> json) {

@@ -219,6 +219,7 @@ class InstantConsultScreen extends StatelessWidget {
 
                                 if (controller.bookingResult.value != null) {
                                   final result = controller.bookingResult.value!;
+                                  // Navigate to pending consultation screen which handles both states
                                   Get.to(() => PendingConsultationScreen(appointmentId: result.id));
                                 } else if (controller.bookingError.value != null) {
                                   showDialog(

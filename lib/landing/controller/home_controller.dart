@@ -44,10 +44,10 @@ class HomeController extends GetxController {
         api.fetchBanners(),
         doctorService.fetchDoctors(),
       ]);
-      nextAppointment.value = results[0] as Appointment?;
+     // nextAppointment.value = results[0] as Appointment?;
       
       // Map specializations to categories
-      final specializations = results[1] as List<Specialization>;
+      final specializations = results[0] as List<Specialization>;
       categories.assignAll(
         specializations.take(8).map((s) => CategoryItem(
           id: s.id.toString(),
@@ -56,10 +56,10 @@ class HomeController extends GetxController {
         )).toList(),
       );
       
-      banners.assignAll(results[2] as List<BannerItem>);
+      banners.assignAll(results[1] as List<BannerItem>);
       
       // Map doctors from common service to landing entity
-      final doctors = results[3] as List<common_doctor.Doctor>;
+      final doctors = results[2] as List<common_doctor.Doctor>;
       topDoctors.assignAll(
         doctors.take(10).map((d) => Doctor(
           id: d.id.toString(),

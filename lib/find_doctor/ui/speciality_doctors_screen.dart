@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/routing.dart';
@@ -31,6 +32,144 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Widget _buildDoctorsList(DoctorsController c) {
+    if (c.isLoading.value && c.doctors.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              'Loading doctors...',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (c.errorMessage.value.isNotEmpty && c.doctors.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                c.errorMessage.value.toLowerCase().contains('internet')
+                    ? Icons.wifi_off
+                    : Icons.error_outline,
+                size: 64,
+                color: Colors.grey.shade300,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                c.errorMessage.value,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => c.fetchInitialDoctors(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryGreen,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!c.hasDoctors) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.medical_services_outlined,
+                size: 80, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'No doctors found',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Try adjusting your search or filters',
+              style: TextStyle(
+                  fontSize: 14, color: Colors.grey.shade500),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                _searchController.clear();
+                c.query.value = '';
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Clear Search'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await c.fetchInitialDoctors();
+      },
+      color: Colors.white,
+      backgroundColor: AppColors.primaryGreen,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo) {
+          if (!c.isLoading.value &&
+              c.didReachListEnd == false &&
+              scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100) {
+            c.fetchMoreDoctors();
+          }
+          return false;
+        },
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          itemCount: c.doctors.length + (c.didReachListEnd ? 0 : 1),
+          itemBuilder: (context, index) {
+            if (index == c.doctors.length) {
+              // Show loading indicator at the end
+              if (!c.didReachListEnd) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 16),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }
+            final d = c.doctors[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: DoctorCard(doctor: d),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   void _showSortOptions() {
@@ -95,7 +234,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
               ),
             ),
             Obx(() => Text(
-              '${c.filtered.length} doctors available',
+              '${c.doctors.length} doctors available',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade600,
@@ -198,74 +337,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
 
           // 🩺 Doctors List Section
           Expanded(
-            child: Obx(() {
-              if (c.isLoading.value) {
-                return const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text(
-                        'Loading doctors...',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              if (c.filtered.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.medical_services_outlined,
-                          size: 80, color: Colors.grey.shade400),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No doctors found',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Try adjusting your search or filters',
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey.shade500),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          c.query.value = '';
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryGreen,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text('Clear Search'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return ListView.separated(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                itemCount: c.filtered.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
-                itemBuilder: (_, i) {
-                  final d = c.filtered[i];
-                  return DoctorCard(doctor: d);
-                },
-              );
-            }),
+            child: Obx(() => _buildDoctorsList(c)),
           ),
         ],
       ),

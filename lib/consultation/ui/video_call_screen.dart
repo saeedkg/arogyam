@@ -81,11 +81,11 @@ class VideoCallScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: DyteService.buildMeetingUI(
-        authToken: authToken!,
-        brandColor: AppColors.primaryGreen,
-        backgroundColor: AppColors.backgroundBlack,
-      ),
+      // body: DyteService.buildMeetingUI(
+      //   authToken: authToken!,
+      //   brandColor: AppColors.primaryGreen,
+      //   backgroundColor: AppColors.backgroundBlack,
+      // ),
     );
 
   }

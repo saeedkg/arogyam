@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import '../../common_services/entities/specialization.dart';
 import '../../common_services/services/specialization_service.dart';
 import '../entities/doctor_list_item.dart';
 import '../service/doctors_get_detail_service.dart';
+import '../../network/exceptions/network_failure_exception.dart';
 
 class DoctorsController extends GetxController {
   final DoctorsApiService api;
@@ -16,47 +18,71 @@ class DoctorsController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxBool isLoadingSpecializations = false.obs;
-  final RxList<DoctorListItem> allDoctors = <DoctorListItem>[].obs;
-  final RxList<DoctorListItem> filtered = <DoctorListItem>[].obs;
+  final RxList<DoctorListItem> doctors = <DoctorListItem>[].obs;
   final RxString query = ''.obs;
   final RxString activeFilter = 'All'.obs;
   final RxList<String> filters = <String>['All'].obs;
+  final RxString errorMessage = ''.obs;
   String? _pendingFilter;
+  Timer? _searchDebounceTimer;
 
   @override
   void onInit() {
     super.onInit();
-    load();
+    fetchInitialDoctors();
     loadSpecializations();
-    ever(query, (_) => _apply());
-    ever(activeFilter, (_) => loadDoctorsByFilter());
+    // Debounce search query changes
+    // ever(query, (_) {
+    //   _searchDebounceTimer?.cancel();
+    //   _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+    //     fetchInitialDoctors();
+    //   });
+    // });
+    // ever(activeFilter, (_) => fetchInitialDoctors());
   }
 
-  Future<void> load() async {
-    isLoading.value = true;
+  @override
+  void onClose() {
+    _searchDebounceTimer?.cancel();
+    super.onClose();
+  }
+
+  Future<void> fetchInitialDoctors() async {
+    _setLoading(true);
+    _clearError();
+    doctors.clear();
     try {
-      final items = await api.fetchDoctorsList();
-      allDoctors.assignAll(items);
-      filtered.assignAll(items);
+      final newDoctors = await api.fetchDoctorsList(
+        reset: true,
+        searchQuery: query.value.isNotEmpty ? query.value : null,
+        specialization: activeFilter.value != 'All' ? activeFilter.value : null,
+      );
+      doctors.assignAll(newDoctors);
+    } on NetworkFailureException {
+      _setError('No internet connection. Please check your network and try again.');
+    } catch (e) {
+      _setError(_getErrorMessage(e));
     } finally {
-      isLoading.value = false;
+      _setLoading(false);
     }
   }
 
-  Future<void> loadDoctorsByFilter() async {
-    isLoading.value = true;
+  Future<void> fetchMoreDoctors() async {
+    if (isLoading.value || api.didReachListEnd) return;
+    _setLoading(true);
+    _clearError();
     try {
-      if (activeFilter.value == 'All') {
-        final items = await api.fetchDoctorsList();
-        allDoctors.assignAll(items);
-        _apply();
-      } else {
-        final items = await api.fetchDoctorsBySpecialization(activeFilter.value);
-        allDoctors.assignAll(items);
-        _apply();
-      }
+      final newDoctors = await api.fetchDoctorsList(
+        searchQuery: query.value.isNotEmpty ? query.value : null,
+        specialization: activeFilter.value != 'All' ? activeFilter.value : null,
+      );
+      doctors.addAll(newDoctors);
+    } on NetworkFailureException {
+      _setError('No internet connection. Please check your network and try again.');
+    } catch (e) {
+      _setError(_getErrorMessage(e));
     } finally {
-      isLoading.value = false;
+      _setLoading(false);
     }
   }
 
@@ -84,13 +110,33 @@ class DoctorsController extends GetxController {
     }
   }
 
-  void _apply() {
-    final q = query.value.toLowerCase();
-    filtered.assignAll(allDoctors.where((d) {
-      final matchesQuery = q.isEmpty || d.name.toLowerCase().contains(q) || d.specialization.toLowerCase().contains(q);
-      return matchesQuery;
-    }));
+  void clearDoctors() {
+    api.reset();
+    doctors.clear();
+    _clearError();
   }
+
+  void _setLoading(bool loading) {
+    isLoading.value = loading;
+  }
+
+  void _setError(String message) {
+    errorMessage.value = message;
+  }
+
+  void _clearError() {
+    errorMessage.value = '';
+  }
+
+  String _getErrorMessage(dynamic error) {
+    if (error is NetworkFailureException) {
+      return 'No internet connection. Please check your network and try again.';
+    }
+    return 'Something went wrong. Please try again.';
+  }
+
+  bool get hasDoctors => doctors.isNotEmpty;
+  bool get didReachListEnd => api.didReachListEnd;
 
   // Method to set active filter from outside (for category navigation)
   void setActiveFilter(String filter) {

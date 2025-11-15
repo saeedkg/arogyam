@@ -4,7 +4,6 @@ import '../../family_member/ui/family_member_screen.dart';
 import '../../health_records/ui/health_records_screen.dart';
 import '../../landing/ui/landing_screen.dart';
 import '../../onboarding/onboarding_screen.dart';
-import '../../find_doctor/search_doctors_screen.dart';
 import '../../appointment/appointments_screen.dart';
 import '../../appointment/appointment_detail_screen.dart';
 import '../../care_discovery/ui/care_discovery_screen.dart';
@@ -38,10 +37,10 @@ class AppRoutes {
       name: onboarding,
       page: () => const OnboardingScreen(),
     ),
-    GetPage(
-      name: doctors,
-      page: () => const SearchDoctorsScreen(),
-    ),
+    // GetPage(
+    //   name: doctors,
+    //   page: () => const SearchDoctorsScreen(),
+    // ),
     GetPage(
       name: appointments,
       page: () => const AppointmentsScreen(),

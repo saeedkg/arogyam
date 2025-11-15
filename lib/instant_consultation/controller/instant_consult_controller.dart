@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../entities/instant_doctor.dart';
 import '../service/instant_consult_service.dart';
+import '../../booking/entities/booking_response.dart';
 
 class InstantConsultController extends GetxController {
   final InstantConsultService api;
@@ -12,7 +13,7 @@ class InstantConsultController extends GetxController {
   final RxList<InstantDoctor> availableDoctors = <InstantDoctor>[].obs;
   final RxBool isBooking = false.obs;
   final RxnString bookingError = RxnString();
-  final Rxn<dynamic> bookingResult = Rxn();
+  final Rxn<BookingResponse> bookingResult = Rxn<BookingResponse>();
 
   @override
   void onInit() {
