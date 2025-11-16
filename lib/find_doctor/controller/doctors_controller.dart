@@ -29,7 +29,6 @@ class DoctorsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchInitialDoctors();
     loadSpecializations();
     // Debounce search query changes
     // ever(query, (_) {
@@ -38,7 +37,10 @@ class DoctorsController extends GetxController {
     //     fetchInitialDoctors();
     //   });
     // });
-    // ever(activeFilter, (_) => fetchInitialDoctors());
+    // ever(activeFilter, (_) {
+    //   // Trigger fetch when filter changes (only if not initial default 'All' fetch)
+    //   fetchInitialDoctors();
+    // });
   }
 
   @override
@@ -97,14 +99,34 @@ class DoctorsController extends GetxController {
       // Update filters with 'All' + specialization names
       filters.assignAll(['All', ...specializationNames]);
       
-      // If there was a preselected category waiting, apply it now
+      // If there was a preselected category waiting, apply it now and fetch
       if (_pendingFilter != null && filters.contains(_pendingFilter)) {
         activeFilter.value = _pendingFilter!;
         _pendingFilter = null;
+        // Trigger fetch with the applied filter
+        fetchInitialDoctors();
+      } else if (_pendingFilter == null && activeFilter.value == 'All' && doctors.isEmpty) {
+        // No pending filter and default 'All' - fetch initial doctors
+        fetchInitialDoctors();
+      } else if (_pendingFilter == null && activeFilter.value != 'All' && doctors.isEmpty) {
+        // Filter was already set (not 'All') and no doctors - fetch with that filter
+        fetchInitialDoctors();
       }
     } catch (e) {
       // If API fails, fall back to default filters
       filters.assignAll(['All', 'General', 'Cardiologist', 'Dentist']);
+      
+      // Try to apply pending filter even with fallback filters
+      if (_pendingFilter != null && filters.contains(_pendingFilter)) {
+        activeFilter.value = _pendingFilter!;
+        _pendingFilter = null;
+        fetchInitialDoctors();
+      } else if (_pendingFilter == null && activeFilter.value == 'All' && doctors.isEmpty) {
+        fetchInitialDoctors();
+      } else if (_pendingFilter == null && activeFilter.value != 'All' && doctors.isEmpty) {
+        // Filter was already set - fetch with that filter
+        fetchInitialDoctors();
+      }
     } finally {
       isLoadingSpecializations.value = false;
     }
@@ -140,11 +162,29 @@ class DoctorsController extends GetxController {
 
   // Method to set active filter from outside (for category navigation)
   void setActiveFilter(String filter) {
+    if (filter == 'All') {
+      // Always allow 'All' filter
+      activeFilter.value = filter;
+      // Always trigger fetch when filter changes (since ever() is commented out)
+      fetchInitialDoctors();
+      return;
+    }
+
     if (isLoadingSpecializations.value || filters.length <= 1) {
       // Still loading or filters not loaded yet, store for later
+      // Will be applied in loadSpecializations() which will trigger fetch
       _pendingFilter = filter;
     } else if (filters.contains(filter)) {
-      activeFilter.value = filter;
+      // Filter exists, set it immediately and always trigger fetch
+      // (since ever() listener is commented out, we need to manually trigger)
+      if (activeFilter.value != filter || doctors.isEmpty) {
+        activeFilter.value = filter;
+        fetchInitialDoctors();
+      }
+    } else {
+      // Filter doesn't exist yet, store it for when specializations load
+      // Will be applied in loadSpecializations() which will trigger fetch
+      _pendingFilter = filter;
     }
   }
 }

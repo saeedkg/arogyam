@@ -23,8 +23,27 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   @override
   void initState() {
     super.initState();
+    // Reset the controller to clear any previous state
+    c.api.reset();
+    c.doctors.clear();
+    c.query.value = ''; // Clear any previous search query
+    
+    // Set filter immediately - this will trigger fetchInitialDoctors
+    // If specializations are already loaded, it will trigger immediately
+    // If not, it will be stored as _pendingFilter and applied when specializations load
+    c.setActiveFilter(widget.category);
+    
+    // Ensure fetch happens after frame is built
+    // This handles cases where specializations are already loaded but filter wasn't applied yet
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      c.setActiveFilter(widget.category);
+      // If specializations are loaded, filter is set, but no doctors - fetch now
+      if (!c.isLoadingSpecializations.value && 
+          c.filters.contains(widget.category) && 
+          c.activeFilter.value == widget.category &&
+          c.doctors.isEmpty &&
+          !c.isLoading.value) {
+        c.fetchInitialDoctors();
+      }
     });
   }
 
