@@ -1,11 +1,9 @@
 import '../../network/entities/api_request.dart';
 import '../../network/exceptions/api_exception.dart';
-import '../../network/exceptions/http_exception.dart';
-import '../../network/exceptions/network_failure_exception.dart';
-import '../../network/exceptions/server_sent_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../entities/doctor_list_item.dart';
+import '../entities/doctor_filter.dart';
 import '../constants/doctor_urls.dart';
 import '../../common_services/constants/common_urls.dart';
 
@@ -15,33 +13,53 @@ class DoctorsApiService {
   int _pageNumber = 1;
   bool _didReachListEnd = false;
   bool isLoading = false;
-  String? _currentSpecialization;
-  String? _currentSearchQuery;
+  DoctorFilter? _currentFilter;
 
   DoctorsApiService.initWith(this._networkAdapter);
 
   DoctorsApiService() : _networkAdapter = AROGYAMAPI();
 
-  Future<List<DoctorListItem>> fetchDoctorsList({bool reset = false, String? searchQuery, String? specialization}) async {
+  Future<List<DoctorListItem>> fetchDoctorsList({
+    bool reset = false,
+    DoctorFilter? filter,
+    // Deprecated parameters - kept for backward compatibility
+    String? searchQuery,
+    String? specialization,
+  }) async {
+    // Create filter from legacy parameters if filter not provided
+    final effectiveFilter = filter ?? DoctorFilter(
+      searchQuery: searchQuery,
+      specialization: specialization,
+    );
+
     if (reset) {
       _pageNumber = 1;
       _didReachListEnd = false;
-      _currentSpecialization = specialization;
-      _currentSearchQuery = searchQuery;
+      _currentFilter = effectiveFilter;
     }
 
-    final url = _currentSpecialization != null && _currentSpecialization != 'All'
-        ? CommonUrls.getDoctorsBySpecializationUrl(
-            _currentSpecialization!,
-            page: _pageNumber,
-            perPage: _perPage,
-            search: _currentSearchQuery,
-          )
-        : DoctorUrls.getDoctorsListUrl(
-            page: _pageNumber,
-            perPage: _perPage,
-            search: _currentSearchQuery,
-          );
+    // Use current filter if no new filter provided
+    final activeFilter = _currentFilter ?? effectiveFilter;
+
+    // Build URL based on specialization - filter is passed to URL builder
+    // final url = activeFilter.specialization != null && activeFilter.specialization != 'All'
+    //     ? CommonUrls.getDoctorsBySpecializationUrl(
+    //         activeFilter.specialization!,
+    //         page: _pageNumber,
+    //         perPage: _perPage,
+    //         filter: activeFilter,
+    //       )
+    //     : DoctorUrls.getDoctorsListUrl(
+    //         page: _pageNumber,
+    //         perPage: _perPage,
+    //         filter: activeFilter,
+    //       );
+
+    final url = DoctorUrls.getDoctorsListUrl(
+      page: _pageNumber,
+      perPage: _perPage,
+      filter: activeFilter,
+    );
     
     final apiRequest = APIRequest(url);
 
@@ -107,8 +125,7 @@ class DoctorsApiService {
     _pageNumber = 1;
     _didReachListEnd = false;
     isLoading = false;
-    _currentSpecialization = null;
-    _currentSearchQuery = null;
+    _currentFilter = null;
   }
 
   // Deprecated - kept for backward compatibility
@@ -125,6 +142,12 @@ class DoctorsApiService {
     final ratingStr = json['average_rating']?.toString();
     final rating = double.tryParse(ratingStr ?? '0') ?? 0.0;
     final reviews = (json['total_ratings'] is int) ? json['total_ratings'] as int : int.tryParse('${json['total_ratings'] ?? 0}') ?? 0;
+    final fee =json["consultation_fee"]??"";
+    final qualList = (json['qualifications'] as List<dynamic>? ?? []);
+    final qualification = qualList.isNotEmpty
+        ? qualList.map((e) => e.toString()).join(", ")
+        : "Not available";
+
 
     return DoctorListItem(
       id: '${json['id']}',
@@ -134,7 +157,11 @@ class DoctorsApiService {
       imageUrl: 'https://i.pravatar.cc/150?img=10',
       rating: rating,
       reviews: reviews,
+      consultationFee: fee,
       favorite: false,
+      education: qualification,
+
+
     );
   }
 }

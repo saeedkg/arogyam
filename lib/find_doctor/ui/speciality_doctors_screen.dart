@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../../_shared/routing/routing.dart';
 import '../controller/doctors_controller.dart';
-import '../entities/doctor_list_item.dart';
+import '../entities/doctor_filter.dart';
 import 'components/doctor_card.dart';
 
 class SpecialityDoctorsScreen extends StatefulWidget {
@@ -18,7 +16,7 @@ class SpecialityDoctorsScreen extends StatefulWidget {
 class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final c = Get.put(DoctorsController());
-  String _selectedSortOption = 'Recommended';
+  DoctorSortBy _selectedSortOption = DoctorSortBy.recommended;
 
   @override
   void initState() {
@@ -211,9 +209,8 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              ...['Recommended', 'Experience', 'Rating', 'Availability', 'Price']
-                  .map((option) => ListTile(
-                title: Text(option),
+              ...DoctorSortBy.values.map((option) => ListTile(
+                title: Text(option.displayName),
                 trailing: _selectedSortOption == option
                     ? Icon(Icons.check, color: AppColors.primaryGreen)
                     : null,
@@ -221,10 +218,10 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                   setState(() {
                     _selectedSortOption = option;
                   });
+                  c.setSortBy(option);
                   Get.back();
                 },
-              ))
-                  .toList(),
+              )),
             ],
           ),
         );
@@ -338,17 +335,22 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                 // Filter Chips Row
                 SizedBox(
                   height: 42,
-                  child: ListView(
+                  child: Obx(() => ListView(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.zero,
-                    children: const [
-                      _FilterChip(label: 'All', isSelected: true),
-                      _FilterChip(label: 'Available Today'),
-                      _FilterChip(label: 'Near Me'),
-                      _FilterChip(label: 'Top Rated'),
-                      _FilterChip(label: 'Video Consult'),
+                    children: [
+                      _FilterChip(
+                        label: 'All',
+                        isSelected: c.currentFilter.value.quickFilters.isEmpty,
+                        onTap: () => c.clearQuickFilters(),
+                      ),
+                      ...DoctorQuickFilter.values.map((filter) => _FilterChip(
+                        label: filter.displayName,
+                        isSelected: c.currentFilter.value.hasQuickFilter(filter),
+                        onTap: () => c.toggleQuickFilter(filter),
+                      )),
                     ],
-                  ),
+                  )),
                 ),
               ],
             ),
@@ -368,7 +370,13 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
-  const _FilterChip({required this.label, this.isSelected = false});
+  final VoidCallback onTap;
+  
+  const _FilterChip({
+    required this.label,
+    this.isSelected = false,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -386,12 +394,9 @@ class _FilterChip extends StatelessWidget {
         selected: isSelected,
         backgroundColor: Colors.grey.shade100,
         selectedColor: AppColors.primaryGreen,
-        checkmarkColor: Colors.white, // ✅ white tick when selected
-
-
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        onSelected: (_) {},
+        checkmarkColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        onSelected: (_) => onTap(),
       ),
     );
   }

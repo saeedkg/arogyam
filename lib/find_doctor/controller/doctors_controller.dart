@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../common_services/entities/specialization.dart';
 import '../../common_services/services/specialization_service.dart';
 import '../entities/doctor_list_item.dart';
+import '../entities/doctor_filter.dart';
 import '../service/doctors_get_detail_service.dart';
 import '../../network/exceptions/network_failure_exception.dart';
 
@@ -23,6 +24,7 @@ class DoctorsController extends GetxController {
   final RxString activeFilter = 'All'.obs;
   final RxList<String> filters = <String>['All'].obs;
   final RxString errorMessage = ''.obs;
+  final Rx<DoctorFilter> currentFilter = const DoctorFilter().obs;
   String? _pendingFilter;
   Timer? _searchDebounceTimer;
 
@@ -54,10 +56,13 @@ class DoctorsController extends GetxController {
     _clearError();
     doctors.clear();
     try {
+      // Build filter from current state
+      _updateFilterFromState();
+      
+      // Pass filter to service
       final newDoctors = await api.fetchDoctorsList(
         reset: true,
-        searchQuery: query.value.isNotEmpty ? query.value : null,
-        specialization: activeFilter.value != 'All' ? activeFilter.value : null,
+        filter: currentFilter.value,
       );
       doctors.assignAll(newDoctors);
     } on NetworkFailureException {
@@ -74,9 +79,9 @@ class DoctorsController extends GetxController {
     _setLoading(true);
     _clearError();
     try {
+      // Pass current filter to service
       final newDoctors = await api.fetchDoctorsList(
-        searchQuery: query.value.isNotEmpty ? query.value : null,
-        specialization: activeFilter.value != 'All' ? activeFilter.value : null,
+        filter: currentFilter.value,
       );
       doctors.addAll(newDoctors);
     } on NetworkFailureException {
@@ -86,6 +91,38 @@ class DoctorsController extends GetxController {
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// Update filter from current state (query, activeFilter)
+  void _updateFilterFromState() {
+    currentFilter.value = currentFilter.value.copyWith(
+      searchQuery: query.value.isNotEmpty ? query.value : null,
+      specialization: activeFilter.value != 'All' ? activeFilter.value : null,
+    );
+  }
+
+  /// Set filter and fetch doctors
+  void setFilter(DoctorFilter filter) {
+    currentFilter.value = filter;
+    fetchInitialDoctors();
+  }
+
+  /// Update sort and fetch
+  void setSortBy(DoctorSortBy sortBy) {
+    currentFilter.value = currentFilter.value.copyWith(sortBy: sortBy);
+    fetchInitialDoctors();
+  }
+
+  /// Toggle quick filter and fetch
+  void toggleQuickFilter(DoctorQuickFilter filter) {
+    currentFilter.value = currentFilter.value.toggleQuickFilter(filter);
+    fetchInitialDoctors();
+  }
+
+  /// Clear quick filters and fetch
+  void clearQuickFilters() {
+    currentFilter.value = currentFilter.value.clearQuickFilters();
+    fetchInitialDoctors();
   }
 
   Future<void> loadSpecializations() async {

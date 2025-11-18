@@ -133,36 +133,36 @@ class DoctorCard extends StatelessWidget {
 
               /// 🏥 Hospital Section
               /// 🏥 Hospital Section
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FB), // subtle neutral background
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 18,
-                      color: Colors.blueGrey.shade600,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        doctor.hospital,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                          height: 1.3,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              //   decoration: BoxDecoration(
+              //     color: const Color(0xFFF8F9FB), // subtle neutral background
+              //     borderRadius: BorderRadius.circular(10),
+              //     border: Border.all(color: Colors.grey.shade200),
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       Icon(
+              //         Icons.location_on_outlined,
+              //         size: 18,
+              //         color: Colors.blueGrey.shade600,
+              //       ),
+              //       const SizedBox(width: 6),
+              //       Expanded(
+              //         child: Text(
+              //           doctor.hospital,
+              //           style: const TextStyle(
+              //             fontSize: 13,
+              //             fontWeight: FontWeight.w500,
+              //             color: Colors.black87,
+              //             height: 1.3,
+              //           ),
+              //           overflow: TextOverflow.ellipsis,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
 
               const SizedBox(height: 12),

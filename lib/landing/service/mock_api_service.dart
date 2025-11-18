@@ -88,6 +88,9 @@ class MockApiService {
         rating: 5.0,
         reviews: 1872,
         favorite: false,
+          consultationFee: ""
+          ,education: ""
+
       ),
       DoctorListItem(
         id: 'dl2',
@@ -98,6 +101,9 @@ class MockApiService {
         rating: 4.9,
         reviews: 127,
         favorite: false,
+        education: "",
+          consultationFee: ""
+
       ),
       DoctorListItem(
         id: 'dl3',
@@ -108,6 +114,10 @@ class MockApiService {
         rating: 4.7,
         reviews: 5223,
         favorite: true,
+        education: "",
+          consultationFee: ""
+
+
       ),
       DoctorListItem(
         id: 'dl4',
@@ -118,6 +128,8 @@ class MockApiService {
         rating: 5.0,
         reviews: 405,
         favorite: false,
+        education: "",
+        consultationFee: ""
       ),
     ];
   }

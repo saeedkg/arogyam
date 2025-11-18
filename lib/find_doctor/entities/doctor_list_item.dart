@@ -25,8 +25,8 @@ class DoctorListItem {
     this.favorite = false,
     this.isOnline=true,
     this.experience=5,
-    this.education="MBBAS",
-    this.consultationFee="50O",
+    required this.education,
+    required this.consultationFee,
     this.availableToday=true
 
   });
