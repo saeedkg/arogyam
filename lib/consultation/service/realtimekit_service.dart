@@ -91,7 +91,8 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
   @override
   void onMeetingInitCompleted() {
     print('RealtimeKit: Meeting init completed');
-    // Don't update to connected yet, wait for join
+    // Automatically join the room after initialization completes
+    joinMeeting();
   }
 
   @override

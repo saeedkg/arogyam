@@ -53,18 +53,16 @@ class RealtimeKitVideoCallController extends GetxController {
       // Set up connection state listener
       _setupConnectionStateListener();
       
-      // Initialize meeting
+      // Initialize meeting (join will be called automatically in onMeetingInitCompleted callback)
       await _service!.initializeMeeting(
         authToken: authToken,
         roomName: roomName,
         participantId: participantId,
       );
       
-      // Join meeting
-      await _service!.joinMeeting();
+      // Don't call joinMeeting here - it will be called in the onMeetingInitCompleted callback
+      // The loading state will be updated when we receive onMeetingRoomJoinCompleted
       
-      // Update states
-      isConnected.value = true;
       isLoading.value = false;
       
     } catch (e) {
