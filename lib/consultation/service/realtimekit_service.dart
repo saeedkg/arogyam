@@ -25,26 +25,26 @@ class ParticipantEvent {
 }
 
 class RealtimeKitService extends RtkMeetingRoomEventListener {
-  RtkClient? _client;
-  
+  RealtimekitClient? _client;
+
   // State properties
   bool _isAudioEnabled = true;
   bool _isVideoEnabled = true;
   app.ConnectionState _connectionState = app.ConnectionState.disconnected;
-  
+
   // Stream controllers
   final _connectionStateController = StreamController<app.ConnectionState>.broadcast();
   final _participantEventController = StreamController<ParticipantEvent>.broadcast();
-  
+
   // Getters
   bool get isAudioEnabled => _isAudioEnabled;
   bool get isVideoEnabled => _isVideoEnabled;
   app.ConnectionState get connectionState => _connectionState;
   Stream<app.ConnectionState> get connectionStateStream => _connectionStateController.stream;
   Stream<ParticipantEvent> get participantEventStream => _participantEventController.stream;
-  
+
   RealtimeKitService();
-  
+
   /// Initialize meeting with credentials
   Future<void> initializeMeeting({
     required String authToken,
@@ -53,25 +53,25 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
   }) async {
     try {
       _updateConnectionState(app.ConnectionState.connecting);
-      
+
       // Step 2: Initialize the SDK
-      _client = RtkClient();
-      
+      _client = RealtimekitClient();
+
       // Step 3: Set the meeting properties
       final meetingInfo = RtkMeetingInfo(
         authToken: authToken,
         enableAudio: true,
         enableVideo: true,
       );
-      
+
       // Step 4: Initialize the connection request
       _client!.init(meetingInfo);
-      
+
       // Subscribe to meeting room events
       _client!.addMeetingRoomEventListener(this);
-      
+
       print('RealtimeKit: Initialized with token: ${authToken.substring(0, 10)}...');
-      
+
     } catch (e) {
       _updateConnectionState(app.ConnectionState.failed);
       throw VideoCallError.authentication(
@@ -80,7 +80,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       );
     }
   }
-  
+
   // RtkMeetingRoomEventListener implementations
   @override
   void onMeetingInitStarted() {
@@ -107,7 +107,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
   }
 
   @override
-  void onMeetingRoomJoined() {
+  void onMeetingRoomJoinCompleted() {
     print('RealtimeKit: Successfully joined room');
     _updateConnectionState(app.ConnectionState.connected);
   }
@@ -129,8 +129,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
     _updateConnectionState(app.ConnectionState.disconnected);
   }
 
-  @override
-  void onParticipantJoin(RtkMeetingParticipant participant) {
+  void onParticipantJoined(RtkMeetingParticipant participant) {
     print('RealtimeKit: Participant joined - ${participant.name}');
     _participantEventController.add(
       ParticipantEvent(
@@ -141,8 +140,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
     );
   }
 
-  @override
-  void onParticipantLeave(RtkMeetingParticipant participant) {
+  void onParticipantLeft(RtkMeetingParticipant participant) {
     print('RealtimeKit: Participant left - ${participant.name}');
     _participantEventController.add(
       ParticipantEvent(
@@ -152,13 +150,13 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       ),
     );
   }
-  
+
   /// Update connection state and notify listeners
   void _updateConnectionState(app.ConnectionState newState) {
     _connectionState = newState;
     _connectionStateController.add(newState);
   }
-  
+
   /// Join the meeting room
   Future<void> joinMeeting() async {
     if (_client == null) {
@@ -167,10 +165,10 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
         details: 'Call initializeMeeting() first',
       );
     }
-    
+
     try {
       print('RealtimeKit: Attempting to join meeting...');
-      
+
       // Step 5: Join the room
       _client!.joinRoom(
         onSuccess: () {
@@ -181,7 +179,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
           _updateConnectionState(app.ConnectionState.failed);
         },
       );
-      
+
     } catch (e) {
       print('RealtimeKit: Failed to join - $e');
       _updateConnectionState(app.ConnectionState.failed);
@@ -191,14 +189,14 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       );
     }
   }
-  
+
   /// Leave the meeting and cleanup
   Future<void> leaveMeeting() async {
     if (_client == null) return;
-    
+
     try {
       print('RealtimeKit: Leaving meeting...');
-      
+
       // Leave the room
       _client!.leaveRoom(
         onSuccess: () {
@@ -208,7 +206,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
           print('RealtimeKit: Leave error - $error');
         },
       );
-      
+
     } catch (e) {
       throw VideoCallError.runtime(
         'Failed to leave meeting',
@@ -216,20 +214,20 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       );
     }
   }
-  
+
   /// Toggle audio (mute/unmute microphone)
   Future<void> toggleAudio() async {
     if (_client == null) {
       throw VideoCallError.runtime('Client not initialized');
     }
-    
+
     try {
       if (_isAudioEnabled) {
-        await _client!.localUser.disableAudio();
+        _client!.localUser.disableAudio();
         _isAudioEnabled = false;
         print('RealtimeKit: Audio disabled');
       } else {
-        await _client!.localUser.enableAudio();
+        _client!.localUser.enableAudio();
         _isAudioEnabled = true;
         print('RealtimeKit: Audio enabled');
       }
@@ -240,20 +238,20 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       );
     }
   }
-  
+
   /// Toggle video (enable/disable camera)
   Future<void> toggleVideo() async {
     if (_client == null) {
       throw VideoCallError.runtime('Client not initialized');
     }
-    
+
     try {
       if (_isVideoEnabled) {
-        await _client!.localUser.disableVideo();
+        _client!.localUser.disableVideo();
         _isVideoEnabled = false;
         print('RealtimeKit: Video disabled');
       } else {
-        await _client!.localUser.enableVideo();
+        _client!.localUser.enableVideo();
         _isVideoEnabled = true;
         print('RealtimeKit: Video enabled');
       }
@@ -264,44 +262,44 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       );
     }
   }
-  
+
   /// Get local video renderer (for displaying local video)
   dynamic getLocalVideoRenderer() {
     // TODO: Return actual video renderer from SDK
     return _client;
   }
-  
+
   /// Get remote video renderer (for displaying remote video)
   dynamic getRemoteVideoRenderer() {
     // TODO: Return actual video renderer from SDK
     return _client;
   }
-  
+
   /// Dispose and cleanup all resources
   void dispose() {
     // Leave meeting if still connected
     if (_client != null && _connectionState == app.ConnectionState.connected) {
       leaveMeeting();
     }
-    
+
     // Remove event listener and clean up
     if (_client != null) {
       _client!.removeMeetingRoomEventListener(this);
       _client!.cleanAllNativeListeners();
     }
-    
+
     // Close stream controllers
     _connectionStateController.close();
     _participantEventController.close();
-    
+
     // Clear client reference
     _client = null;
-    
+
     // Reset state
     _isAudioEnabled = true;
     _isVideoEnabled = true;
     _connectionState = app.ConnectionState.disconnected;
-    
+
     print('RealtimeKit: Service disposed');
   }
 }
