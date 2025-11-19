@@ -203,74 +203,72 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   }
   
   Widget _buildRemoteVideo() {
-    return Obx(() {
-      final service = controller.service;
-      final participants = service?.participants;
+    final service = controller.service;
+    final participants = service?.participants;
+    
+    // Check if we have remote participants with video
+    if (service != null && 
+        participants != null && 
+        participants.active.isNotEmpty) {
+      final remoteParticipant = participants.active.first;
       
-      // Check if we have remote participants with video
-      if (service != null && 
-          participants != null && 
-          participants.active.isNotEmpty) {
-        final remoteParticipant = participants.active.first;
-        
-        // Show actual remote video using VideoView
-        return VideoView(
-          meetingParticipant: remoteParticipant,
-          isSelfParticipant: false,
-        );
-      }
-      
-      // Show placeholder when no remote video
-      return Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.grey.shade900,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage(controller.doctorImageUrl),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                controller.doctorName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                controller.specialization,
-                style: TextStyle(
-                  color: Colors.grey.shade400,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Waiting for video...',
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
+      // Show actual remote video using VideoView
+      return VideoView(
+        meetingParticipant: remoteParticipant,
+        isSelfParticipant: false,
       );
-    });
+    }
+    
+    // Show placeholder when no remote video
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Colors.grey.shade900,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: NetworkImage(controller.doctorImageUrl),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              controller.doctorName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              controller.specialization,
+              style: TextStyle(
+                color: Colors.grey.shade400,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Waiting for video...',
+              style: TextStyle(
+                color: Colors.grey.shade500,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
   
   Widget _buildLocalVideo() {
     return Obx(() {
-      final service = controller.service;
-      final localUser = service?.localUser;
+      // Access observable to trigger rebuild
+      final isVideoEnabled = controller.isVideoEnabled.value;
       
-      if (!controller.isVideoEnabled.value || localUser == null) {
+      if (!isVideoEnabled) {
         // Show placeholder when video is disabled
         return Container(
           width: 120,
