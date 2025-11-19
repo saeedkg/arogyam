@@ -42,6 +42,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
   app.ConnectionState get connectionState => _connectionState;
   Stream<app.ConnectionState> get connectionStateStream => _connectionStateController.stream;
   Stream<ParticipantEvent> get participantEventStream => _participantEventController.stream;
+  RealtimekitClient? get client => _client;
 
   RealtimeKitService();
 
@@ -264,17 +265,11 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
     }
   }
 
-  /// Get local video renderer (for displaying local video)
-  dynamic getLocalVideoRenderer() {
-    // TODO: Return actual video renderer from SDK
-    return _client;
-  }
+  /// Get local user for video rendering
+  RtkSelfParticipant? get localUser => _client?.localUser;
 
-  /// Get remote video renderer (for displaying remote video)
-  dynamic getRemoteVideoRenderer() {
-    // TODO: Return actual video renderer from SDK
-    return _client;
-  }
+  /// Get remote participants for video rendering
+  RtkParticipants? get participants => _client?.participants;
 
   /// Dispose and cleanup all resources
   void dispose() {

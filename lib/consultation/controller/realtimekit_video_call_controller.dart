@@ -25,6 +25,9 @@ class RealtimeKitVideoCallController extends GetxController {
   // Service instance
   RealtimeKitService? _service;
   
+  // Expose service for video views
+  RealtimeKitService? get service => _service;
+  
   RealtimeKitVideoCallController();
   
   /// Initialize with video call config

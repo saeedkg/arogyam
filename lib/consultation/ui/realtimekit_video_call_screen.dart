@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:realtimekit_core/realtimekit_core.dart';
 import '../controller/realtimekit_video_call_controller.dart';
 import '../entities/video_call_config.dart';
 import '../../_shared/ui/app_colors.dart';
@@ -202,45 +203,74 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   }
   
   Widget _buildRemoteVideo() {
-    // TODO: Replace with actual video renderer from SDK
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Colors.grey.shade900,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 60,
-              backgroundImage: NetworkImage(controller.doctorImageUrl),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              controller.doctorName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
+    return Obx(() {
+      final service = controller.service;
+      final participants = service?.participants;
+      
+      // Check if we have remote participants with video
+      if (service != null && 
+          participants != null && 
+          participants.active.isNotEmpty) {
+        final remoteParticipant = participants.active.first;
+        
+        // Show actual remote video using VideoView
+        return VideoView(
+          meetingParticipant: remoteParticipant,
+          isSelfParticipant: false,
+        );
+      }
+      
+      // Show placeholder when no remote video
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.grey.shade900,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: NetworkImage(controller.doctorImageUrl),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              controller.specialization,
-              style: TextStyle(
-                color: Colors.grey.shade400,
-                fontSize: 16,
+              const SizedBox(height: 16),
+              Text(
+                controller.doctorName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                controller.specialization,
+                style: TextStyle(
+                  color: Colors.grey.shade400,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Waiting for video...',
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
   
   Widget _buildLocalVideo() {
     return Obx(() {
-      if (!controller.isVideoEnabled.value) {
+      final service = controller.service;
+      final localUser = service?.localUser;
+      
+      if (!controller.isVideoEnabled.value || localUser == null) {
         // Show placeholder when video is disabled
         return Container(
           width: 120,
@@ -260,20 +290,18 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         );
       }
       
-      // TODO: Replace with actual local video renderer from SDK
-      return Container(
-        width: 120,
-        height: 160,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade700,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.person,
-            color: Colors.white,
-            size: 40,
+      // Show actual local video using VideoView
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 120,
+          height: 160,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white, width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const VideoView(
+            isSelfParticipant: true,
           ),
         ),
       );
@@ -428,7 +456,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
       child: Container(
         width: 60,
         height: 60,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.red,
           shape: BoxShape.circle,
         ),
