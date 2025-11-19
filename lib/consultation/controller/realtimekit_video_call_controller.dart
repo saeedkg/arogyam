@@ -23,7 +23,7 @@ class RealtimeKitVideoCallController extends GetxController {
   late String participantId;
   
   // Service instance
-  late RealtimeKitService _service;
+  RealtimeKitService? _service;
   
   RealtimeKitVideoCallController();
   
@@ -50,15 +50,18 @@ class RealtimeKitVideoCallController extends GetxController {
       // Initialize service
       _service = RealtimeKitService();
       
+      // Set up connection state listener
+      _setupConnectionStateListener();
+      
       // Initialize meeting
-      await _service.initializeMeeting(
+      await _service!.initializeMeeting(
         authToken: authToken,
         roomName: roomName,
         participantId: participantId,
       );
       
       // Join meeting
-      await _service.joinMeeting();
+      await _service!.joinMeeting();
       
       // Update states
       isConnected.value = true;
@@ -72,9 +75,10 @@ class RealtimeKitVideoCallController extends GetxController {
   
   /// Toggle audio (mute/unmute)
   Future<void> toggleAudio() async {
+    if (_service == null) return;
     try {
-      await _service.toggleAudio();
-      isAudioEnabled.value = _service.isAudioEnabled;
+      await _service!.toggleAudio();
+      isAudioEnabled.value = _service!.isAudioEnabled;
     } catch (e) {
       handleError('Failed to toggle audio: ${e.toString()}');
     }
@@ -82,9 +86,10 @@ class RealtimeKitVideoCallController extends GetxController {
   
   /// Toggle video (enable/disable camera)
   Future<void> toggleVideo() async {
+    if (_service == null) return;
     try {
-      await _service.toggleVideo();
-      isVideoEnabled.value = _service.isVideoEnabled;
+      await _service!.toggleVideo();
+      isVideoEnabled.value = _service!.isVideoEnabled;
     } catch (e) {
       handleError('Failed to toggle video: ${e.toString()}');
     }
@@ -92,8 +97,12 @@ class RealtimeKitVideoCallController extends GetxController {
   
   /// End the call and navigate back
   Future<void> endCall() async {
+    if (_service == null) {
+      Get.back();
+      return;
+    }
     try {
-      await _service.leaveMeeting();
+      await _service!.leaveMeeting();
       isConnected.value = false;
       Get.back();
     } catch (e) {
@@ -115,11 +124,11 @@ class RealtimeKitVideoCallController extends GetxController {
     error.value = null;
   }
   
-  @override
-  void onInit() {
-    super.onInit();
-    // Set up connection state listener
-    _service.connectionStateStream.listen((state) {
+  /// Set up connection state listener after service is initialized
+  void _setupConnectionStateListener() {
+    if (_service == null) return;
+    
+    _service!.connectionStateStream.listen((state) {
       connectionState.value = state;
       if (state == app.ConnectionState.connected) {
         isConnected.value = true;
@@ -132,7 +141,9 @@ class RealtimeKitVideoCallController extends GetxController {
   @override
   void onClose() {
     // Dispose service and cleanup resources
-    _service.dispose();
+    if (_service != null) {
+      _service!.dispose();
+    }
     super.onClose();
   }
 }
