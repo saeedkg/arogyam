@@ -46,6 +46,7 @@ dependencies:
   flutter_svg: ^2.2.1
   permission_handler: ^11.3.1
   file_picker: ^9.2.1
+  realtimekit_core: ^0.1.3
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
-import '../../consultation/ui/video_call_screen.dart';
+import '../../consultation/ui/realtimekit_video_call_screen.dart';
+import '../../consultation/entities/video_call_config.dart';
 import '../../consultation/utils/permission_handler.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../controller/pending_consultation_controller.dart';
@@ -85,15 +86,16 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
     );
 
     if (shouldJoin == true && mounted) {
-      Get.to(() => VideoCallScreen(
-        doctorName: cons.doctorName,
-        specialization: cons.doctorSpecialization,
-        hospital: '',
-        doctorImageUrl: cons.doctorImageUrl,
+      final config = VideoCallConfig(
         authToken: cons.authToken!,
         roomName: cons.meetingRoomName!,
         participantId: cons.participantId!,
-      ));
+        doctorName: cons.doctorName ?? 'Doctor',
+        specialization: cons.doctorSpecialization ?? 'General',
+        doctorImageUrl: cons.doctorImageUrl,
+      );
+      
+      Get.to(() => RealtimeKitVideoCallScreen(config: config));
     }
   }
 

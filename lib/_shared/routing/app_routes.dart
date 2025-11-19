@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import '../../auth/request_otp_screen.dart';
 import '../../family_member/ui/family_member_screen.dart';
 import '../../health_records/ui/health_records_screen.dart';
 import '../../landing/ui/landing_screen.dart';
@@ -11,6 +10,8 @@ import '../../find_doctor/ui/doctor_detail_screen.dart';
 import '../../find_doctor/ui/consultation_confirmed_screen.dart';
 import '../../instant_consultation/ui/instant_consult_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
+import '../../consultation/ui/realtimekit_video_call_screen.dart';
+import '../../consultation/entities/video_call_config.dart';
 
 class AppRoutes {
   // Route names
@@ -26,6 +27,7 @@ class AppRoutes {
   static const String instantConsult = '/instant_consult';
   static const String healthRecords = '/health_records';
   static const String doctorBooking = '/doctor_booking';
+  static const String videoCall = '/video_call';
 
   // Get pages
   static final List<GetPage> getPages = [
@@ -88,6 +90,13 @@ class AppRoutes {
       page: () {
         final id = (Get.arguments as Map<String, dynamic>?)?['id'] as String? ?? 'd1';
         return DoctorBookingScreen(doctorId: id);
+      },
+    ),
+    GetPage(
+      name: videoCall,
+      page: () {
+        final config = Get.arguments as VideoCallConfig;
+        return RealtimeKitVideoCallScreen(config: config);
       },
     ),
   ];
