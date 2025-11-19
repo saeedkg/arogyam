@@ -126,9 +126,10 @@ class RealtimeKitVideoCallController extends GetxController {
   
   /// Set up connection state listener after service is initialized
   void _setupConnectionStateListener() {
-    if (_service == null) return;
+    final service = _service;
+    if (service == null) return;
     
-    _service!.connectionStateStream.listen((state) {
+    service.connectionStateStream.listen((state) {
       connectionState.value = state;
       if (state == app.ConnectionState.connected) {
         isConnected.value = true;
