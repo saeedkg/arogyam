@@ -138,6 +138,13 @@ class RealtimeKitVideoCallController extends GetxController {
         isConnected.value = false;
       }
     });
+    
+    // Listen for participant events to trigger UI updates
+    service.participantEventStream.listen((event) {
+      print('VideoCallController: Participant event - ${event.type} for ${event.participantId}');
+      // Force UI update by updating a dummy observable
+      connectionState.refresh();
+    });
   }
   
   @override

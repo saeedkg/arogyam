@@ -212,10 +212,19 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         participants.active.isNotEmpty) {
       final remoteParticipant = participants.active.first;
       
+      // Debug log
+      print('RealtimeKit: Remote participant: ${remoteParticipant.name}, ID: ${remoteParticipant.id}, Video: ${remoteParticipant.videoEnabled}');
+      
       // Show actual remote video using VideoView
-      return VideoView(
-        meetingParticipant: remoteParticipant,
-        isSelfParticipant: false,
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.black,
+        child: VideoView(
+          key: ValueKey('remote_${remoteParticipant.id}'),
+          meetingParticipant: remoteParticipant,
+          isSelfParticipant: false,
+        ),
       );
     }
     
@@ -268,6 +277,9 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
       // Access observable to trigger rebuild
       final isVideoEnabled = controller.isVideoEnabled.value;
       
+      // Debug log
+      print('RealtimeKit: Local video enabled: $isVideoEnabled');
+      
       if (!isVideoEnabled) {
         // Show placeholder when video is disabled
         return Container(
@@ -295,10 +307,12 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
           width: 120,
           height: 160,
           decoration: BoxDecoration(
+            color: Colors.black,
             border: Border.all(color: Colors.white, width: 2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const VideoView(
+            key: ValueKey('local_self'),
             isSelfParticipant: true,
           ),
         ),

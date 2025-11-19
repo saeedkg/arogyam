@@ -132,7 +132,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
   }
 
   void onParticipantJoined(RtkMeetingParticipant participant) {
-    print('RealtimeKit: Participant joined - ${participant.name}');
+    print('RealtimeKit: Participant joined - ${participant.name}, ID: ${participant.id}, Video: ${participant.videoEnabled}');
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
