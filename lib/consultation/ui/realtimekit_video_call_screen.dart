@@ -206,6 +206,12 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     final service = controller.service;
     final participants = service?.participants;
     
+    // Debug logs
+    print('RealtimeKit: Building remote video - service: ${service != null}, participants: ${participants != null}');
+    if (participants != null) {
+      print('RealtimeKit: Active participants count: ${participants.active.length}');
+    }
+    
     // Check if we have remote participants with video
     if (service != null && 
         participants != null && 
@@ -229,6 +235,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     }
     
     // Show placeholder when no remote video
+    print('RealtimeKit: Showing placeholder - no remote participants');
     return Container(
       width: double.infinity,
       height: double.infinity,
