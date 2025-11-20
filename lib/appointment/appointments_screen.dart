@@ -66,7 +66,7 @@ class AppointmentsScreen extends StatelessWidget {
                 type: b.type,
                 onView: () {
                   // If status is confirmed and type is instant, go to pending consultation screen
-                  if (b.status == AppointmentStatus.confirmed|| b.status==AppointmentStatus.pending && b.type == 'instant') {
+                  if (b.status == AppointmentStatus.confirmed|| b.status==AppointmentStatus.pending ) {
                     ConsultationFlowManager.instance.navigateToPendingConsultation(b.id.toString());
                   } else {
                     // Otherwise, go to appointment detail screen
