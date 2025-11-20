@@ -210,15 +210,17 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   Widget _buildRemoteVideo() {
     final service = controller.service;
     final participants = service?.participants;
+    final isConnected = controller.isConnected.value;
     
     // Debug logs
-    print('RealtimeKit: Building remote video - service: ${service != null}, participants: ${participants != null}');
+    print('RealtimeKit: Building remote video - connected: $isConnected, service: ${service != null}, participants: ${participants != null}');
     if (participants != null) {
       print('RealtimeKit: Active participants count: ${participants.active.length}');
     }
     
-    // Check if we have remote participants with video
-    if (service != null && 
+    // Only show VideoView if connected AND have participants
+    if (isConnected &&
+        service != null && 
         participants != null && 
         participants.active.isNotEmpty) {
       final remoteParticipant = participants.active.first;
@@ -239,8 +241,8 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
       );
     }
     
-    // Show placeholder when no remote video
-    print('RealtimeKit: Showing placeholder - no remote participants');
+    // Show placeholder when not connected or no remote participants
+    print('RealtimeKit: Showing placeholder - connected: $isConnected, participants: ${participants?.active.length ?? 0}');
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -288,12 +290,13 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     return Obx(() {
       // Access observable to trigger rebuild
       final isVideoEnabled = controller.isVideoEnabled.value;
+      final isConnected = controller.isConnected.value;
       
       // Debug log
-      print('RealtimeKit: Local video enabled: $isVideoEnabled');
+      print('RealtimeKit: Local video enabled: $isVideoEnabled, connected: $isConnected');
       
-      if (!isVideoEnabled) {
-        // Show placeholder when video is disabled
+      if (!isVideoEnabled || !isConnected) {
+        // Show placeholder when video is disabled or not connected yet
         return Container(
           width: 120,
           height: 160,
@@ -302,9 +305,9 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white, width: 2),
           ),
-          child: const Center(
+          child: Center(
             child: Icon(
-              Icons.videocam_off,
+              isVideoEnabled ? Icons.videocam : Icons.videocam_off,
               color: Colors.white,
               size: 40,
             ),
@@ -312,7 +315,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         );
       }
       
-      // Show actual local video using VideoView
+      // Show actual local video using VideoView ONLY after connected
       return ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Container(
