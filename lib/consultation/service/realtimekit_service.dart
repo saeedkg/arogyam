@@ -183,11 +183,33 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
   @override
   void onVideoUpdate(RtkRemoteParticipant participant, bool videoEnabled) {
     print('RealtimeKit: Video update - ${participant.name}, enabled: $videoEnabled');
+    // Force UI update when video state changes
+    _connectionStateController.add(_connectionState);
+    
+    // Also emit participant event
+    _participantEventController.add(
+      ParticipantEvent(
+        participantId: participant.id,
+        type: videoEnabled ? ParticipantEventType.videoEnabled : ParticipantEventType.videoDisabled,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
   
   @override
   void onAudioUpdate(RtkRemoteParticipant participant, bool audioEnabled) {
     print('RealtimeKit: Audio update - ${participant.name}, enabled: $audioEnabled');
+    // Force UI update when audio state changes
+    _connectionStateController.add(_connectionState);
+    
+    // Also emit participant event
+    _participantEventController.add(
+      ParticipantEvent(
+        participantId: participant.id,
+        type: audioEnabled ? ParticipantEventType.audioEnabled : ParticipantEventType.audioDisabled,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
   
 
