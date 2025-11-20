@@ -24,7 +24,8 @@ class ParticipantEvent {
   });
 }
 
-class RealtimeKitService extends RtkMeetingRoomEventListener {
+class RealtimeKitService extends RtkMeetingRoomEventListener 
+    implements RtkParticipantsEventListener {
   RealtimekitClient? _client;
 
   // State properties
@@ -70,6 +71,9 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
 
       // Subscribe to meeting room events
       _client!.addMeetingRoomEventListener(this);
+      
+      // Subscribe to participants events
+      _client!.addParticipantsEventListener(this);
 
       print('RealtimeKit: Initialized with token: ${authToken.substring(0, 10)}...');
 
@@ -112,6 +116,16 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
   void onMeetingRoomJoinCompleted() {
     print('RealtimeKit: Successfully joined room');
     _updateConnectionState(app.ConnectionState.connected);
+    
+    // Debug: Check participants after joining
+    Future.delayed(const Duration(seconds: 1), () {
+      if (_client != null) {
+        print('RealtimeKit: Participants after join - Active: ${_client!.participants.active.length}');
+        for (var p in _client!.participants.active) {
+          print('RealtimeKit: Participant: ${p.name}, ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled}');
+        }
+      }
+    });
   }
 
   @override
@@ -131,7 +145,9 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
     _updateConnectionState(app.ConnectionState.disconnected);
   }
 
-  void onParticipantJoined(RtkMeetingParticipant participant) {
+  // RtkParticipantsEventListener methods
+  @override
+  void onParticipantJoin(RtkMeetingParticipant participant) {
     print('RealtimeKit: Participant joined - ${participant.name}, ID: ${participant.id}, Video: ${participant.videoEnabled}');
     _participantEventController.add(
       ParticipantEvent(
@@ -142,7 +158,8 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
     );
   }
 
-  void onParticipantLeft(RtkMeetingParticipant participant) {
+  @override
+  void onParticipantLeave(RtkMeetingParticipant participant) {
     print('RealtimeKit: Participant left - ${participant.name}');
     _participantEventController.add(
       ParticipantEvent(
@@ -151,6 +168,58 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
         timestamp: DateTime.now(),
       ),
     );
+  }
+  
+  @override
+  void onVideoUpdate(RtkRemoteParticipant participant, bool videoEnabled) {
+    print('RealtimeKit: Video update - ${participant.name}, enabled: $videoEnabled');
+  }
+  
+  @override
+  void onAudioUpdate(RtkRemoteParticipant participant, bool audioEnabled) {
+    print('RealtimeKit: Audio update - ${participant.name}, enabled: $audioEnabled');
+  }
+  
+
+  
+  @override
+  void onActiveParticipantsChanged(List<RtkMeetingParticipant> active) {
+    print('RealtimeKit: Active participants changed - count: ${active.length}');
+    for (var p in active) {
+      print('  - ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled})');
+    }
+  }
+  
+  @override
+  void onActiveSpeakerChanged(RtkRemoteParticipant? participant) {
+    print('RealtimeKit: Active speaker - ${participant?.name ?? "none"}');
+  }
+  
+  @override
+  void onNewBroadcastMessage(String message, Map<String, dynamic> data) {
+    print('RealtimeKit: Broadcast message - $message');
+  }
+  
+  @override
+  void onScreenShareUpdate(RtkRemoteParticipant participant, bool screenShareEnabled) {
+    print('RealtimeKit: Screen share update - ${participant.name}, enabled: $screenShareEnabled');
+  }
+  
+  @override
+  void onUpdate(RtkParticipants participants) {
+    print('RealtimeKit: Participants updated - Active: ${participants.active.length}');
+    // Force UI update
+    _connectionStateController.add(_connectionState);
+  }
+  
+  @override
+  void onParticipantPinned(RtkMeetingParticipant participant) {
+    print('RealtimeKit: Participant pinned - ${participant.name}');
+  }
+  
+  @override
+  void onParticipantUnpinned(RtkMeetingParticipant participant) {
+    print('RealtimeKit: Participant unpinned - ${participant.name}');
   }
 
   /// Update connection state and notify listeners
@@ -278,9 +347,10 @@ class RealtimeKitService extends RtkMeetingRoomEventListener {
       leaveMeeting();
     }
 
-    // Remove event listener and clean up
+    // Remove event listeners and clean up
     if (_client != null) {
       _client!.removeMeetingRoomEventListener(this);
+      _client!.removeParticipantsEventListener(this);
       _client!.cleanAllNativeListeners();
     }
 

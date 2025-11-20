@@ -171,35 +171,40 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   }
 
   Widget _buildVideoCallUI() {
-    return Stack(
-      children: [
-        // Remote video (doctor) - Full screen
-        _buildRemoteVideo(),
-        
-        // Local video (patient) - PiP overlay
-        Positioned(
-          top: 20,
-          right: 20,
-          child: _buildLocalVideo(),
-        ),
-        
-        // Top bar with doctor info
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: _buildTopBar(),
-        ),
-        
-        // Bottom control bar
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: _buildControlBar(),
-        ),
-      ],
-    );
+    return Obx(() {
+      // Force rebuild when connection state changes (which includes participant events)
+      final _ = controller.connectionState.value;
+      
+      return Stack(
+        children: [
+          // Remote video (doctor) - Full screen
+          _buildRemoteVideo(),
+          
+          // Local video (patient) - PiP overlay
+          Positioned(
+            top: 20,
+            right: 20,
+            child: _buildLocalVideo(),
+          ),
+          
+          // Top bar with doctor info
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _buildTopBar(),
+          ),
+          
+          // Bottom control bar
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildControlBar(),
+          ),
+        ],
+      );
+    });
   }
   
   Widget _buildRemoteVideo() {
