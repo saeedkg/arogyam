@@ -234,8 +234,8 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
       }
     }
     
-    // Show VideoView if we have a remote participant AND video is enabled
-    if (remoteParticipant != null && remoteParticipant.videoEnabled) {
+    // Show VideoView if we have a remote participant
+    if (remoteParticipant != null) {
       print('RealtimeKit: Showing remote video - ${remoteParticipant.name}, ID: ${remoteParticipant.id}, Video: ${remoteParticipant.videoEnabled}');
       
       return Container(
@@ -243,7 +243,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         height: double.infinity,
         color: Colors.black,
         child: VideoView(
-          key: ValueKey('remote_${remoteParticipant.id}_${remoteParticipant.videoEnabled}'),
+          key: ValueKey('remote_${remoteParticipant.id}'),
           meetingParticipant: remoteParticipant,
           isSelfParticipant: false,
         ),
