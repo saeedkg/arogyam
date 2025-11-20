@@ -120,10 +120,20 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     // Debug: Check participants after joining
     Future.delayed(const Duration(seconds: 1), () {
       if (_client != null) {
-        print('RealtimeKit: Participants after join - Active: ${_client!.participants.active.length}');
+        print('RealtimeKit: === PARTICIPANTS DEBUG ===');
+        print('RealtimeKit: Active count: ${_client!.participants.active.length}');
+        print('RealtimeKit: Joined count: ${_client!.participants.joined.length}');
+        
+        print('RealtimeKit: Active participants:');
         for (var p in _client!.participants.active) {
-          print('RealtimeKit: Participant: ${p.name}, ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled}');
+          print('  - ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled})');
         }
+        
+        print('RealtimeKit: Joined participants:');
+        for (var p in _client!.participants.joined) {
+          print('  - ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled})');
+        }
+        print('RealtimeKit: === END DEBUG ===');
       }
     });
   }

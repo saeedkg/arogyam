@@ -215,20 +215,29 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     // Debug logs
     print('RealtimeKit: Building remote video - connected: $isConnected, service: ${service != null}, participants: ${participants != null}');
     if (participants != null) {
-      print('RealtimeKit: Active participants count: ${participants.active.length}');
+      print('RealtimeKit: Active: ${participants.active.length}, Joined: ${participants.joined.length}');
     }
     
-    // Only show VideoView if connected AND have participants
-    if (isConnected &&
-        service != null && 
-        participants != null && 
-        participants.active.isNotEmpty) {
-      final remoteParticipant = participants.active.first;
+    // Try to get remote participant from either active or joined list
+    RtkMeetingParticipant? remoteParticipant;
+    
+    if (isConnected && service != null && participants != null) {
+      // First try active list
+      if (participants.active.isNotEmpty) {
+        remoteParticipant = participants.active.first;
+        print('RealtimeKit: Using ACTIVE participant: ${remoteParticipant.name}');
+      }
+      // Then try joined list
+      else if (participants.joined.isNotEmpty) {
+        remoteParticipant = participants.joined.first;
+        print('RealtimeKit: Using JOINED participant: ${remoteParticipant.name}');
+      }
+    }
+    
+    // Show VideoView if we have a remote participant
+    if (remoteParticipant != null) {
+      print('RealtimeKit: Showing remote video - ${remoteParticipant.name}, ID: ${remoteParticipant.id}, Video: ${remoteParticipant.videoEnabled}');
       
-      // Debug log
-      print('RealtimeKit: Remote participant: ${remoteParticipant.name}, ID: ${remoteParticipant.id}, Video: ${remoteParticipant.videoEnabled}');
-      
-      // Show actual remote video using VideoView
       return Container(
         width: double.infinity,
         height: double.infinity,
@@ -242,7 +251,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     }
     
     // Show placeholder when not connected or no remote participants
-    print('RealtimeKit: Showing placeholder - connected: $isConnected, participants: ${participants?.active.length ?? 0}');
+    print('RealtimeKit: Showing placeholder - connected: $isConnected, active: ${participants?.active.length ?? 0}, joined: ${participants?.joined.length ?? 0}');
     return Container(
       width: double.infinity,
       height: double.infinity,
