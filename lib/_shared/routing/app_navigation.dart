@@ -51,24 +51,7 @@ class AppNavigation {
   }
 
   // Navigate to Consultation Confirmed
-  static void toConsultationConfirmed({
-    String? name,
-    String? specialization,
-    String? hospital,
-    String? imageUrl,
-    String? status,
-  }) {
-    Get.toNamed(
-      AppRoutes.consultationConfirmed,
-      arguments: {
-        'name': name,
-        'specialization': specialization,
-        'hospital': hospital,
-        'imageUrl': imageUrl,
-        'status': status,
-      },
-    );
-  }
+
 
   // Navigate to Family Members
   static void toFamilyMembers() {

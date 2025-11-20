@@ -6,8 +6,6 @@ import '../../onboarding/onboarding_screen.dart';
 import '../../appointment/appointments_screen.dart';
 import '../../appointment/appointment_detail_screen.dart';
 import '../../care_discovery/ui/care_discovery_screen.dart';
-import '../../find_doctor/ui/doctor_detail_screen.dart';
-import '../../find_doctor/ui/consultation_confirmed_screen.dart';
 import '../../instant_consultation/ui/instant_consult_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
 import '../../consultation/ui/realtimekit_video_call_screen.dart';
@@ -62,17 +60,8 @@ class AppRoutes {
         return CareDiscoveryScreen(entry: entry);
       },
     ),
-    GetPage(
-      name: doctorDetail,
-      page: () {
-        final id = (Get.arguments as Map<String, dynamic>?)?['id'] as String? ?? 'd1';
-        return DoctorDetailScreen(doctorId: id);
-      },
-    ),
-    GetPage(
-      name: consultationConfirmed,
-      page: () => const ConsultationConfirmedScreen(),
-    ),
+
+
     GetPage(
       name: familyMembers,
       page: () => const FamilyMembersBottomSheet(),
