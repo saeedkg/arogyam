@@ -14,6 +14,10 @@ class CareDiscoveryScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
+          onPressed: Get.back,
+        ),
         title: Text(entry, style: const TextStyle(fontWeight: FontWeight.w800)),
         centerTitle: true,
         elevation: 0,
