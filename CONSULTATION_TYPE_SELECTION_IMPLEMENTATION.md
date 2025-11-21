@@ -66,6 +66,15 @@ Successfully implemented a consultation type selection screen that appears betwe
 - Added GetPage configuration for ConsultationTypeSelectionScreen
 - Imported ConsultationTypeSelectionScreen
 
+### 9. Updated Dashboard Categories
+**File:** `lib/landing/ui/components/dasbboard_category.dart`
+
+- Added onTap navigation to category cards
+- Categories now navigate to consultation type selection screen
+- Uses `ConsultationFlowManager.navigateFromCareDiscovery()` with no pre-selected type
+- Fixed deprecated `withOpacity` and `color` parameters
+- Cleaned up imports and added proper key parameter
+
 ## Navigation Flows
 
 ### Flow 1: From Dashboard QuickActions (Skip Selection)
@@ -76,7 +85,15 @@ Dashboard → QuickAction (Hospital/Video)
   → SpecialityDoctorsScreen (skip selection screen)
 ```
 
-### Flow 2: From CareDiscovery (Show Selection)
+### Flow 2: From Dashboard Categories (Show Selection)
+```
+Dashboard → Category Card (e.g., Dentistry, Cardiology)
+  → ConsultationTypeSelectionScreen
+  → Select Type (Clinic/Video)
+  → SpecialityDoctorsScreen
+```
+
+### Flow 3: From CareDiscovery (Show Selection)
 ```
 CareDiscoveryScreen (no preSelectedAppointmentType)
   → Select Speciality
@@ -85,7 +102,7 @@ CareDiscoveryScreen (no preSelectedAppointmentType)
   → SpecialityDoctorsScreen
 ```
 
-### Flow 3: Instant Consult (Unchanged)
+### Flow 4: Instant Consult (Unchanged)
 ```
 Dashboard → Instant Consult QuickAction
   → InstantConsultScreen
@@ -109,16 +126,18 @@ Dashboard → Instant Consult QuickAction
 5. `lib/care_discovery/ui/components/specialization_grid.dart`
 6. `lib/find_doctor/ui/speciality_doctors_screen.dart`
 7. `lib/landing/ui/components/dashboard_quick_action_view.dart`
-8. `lib/_shared/routing/app_routes.dart`
+8. `lib/landing/ui/components/dasbboard_category.dart`
+9. `lib/_shared/routing/app_routes.dart`
 
 ## Testing Recommendations
 
 ### Manual Testing
-1. Test QuickAction flows (Hospital Appointment, Video Consult)
-2. Test normal CareDiscovery flow (should show selection screen)
-3. Test back navigation from selection screen
-4. Test both appointment type selections
-5. Verify Instant Consult still works as before
+1. Test QuickAction flows (Hospital Appointment, Video Consult) - should skip selection
+2. Test Dashboard Category cards - should show selection screen
+3. Test normal CareDiscovery flow - should show selection screen
+4. Test back navigation from selection screen
+5. Test both appointment type selections (Clinic and Video)
+6. Verify Instant Consult still works as before
 
 ### Future Enhancements
 - Add doctor filtering based on appointment type in SpecialityDoctorsScreen

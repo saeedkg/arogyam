@@ -1,14 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
+import '../../../_shared/consultation/consultation_flow_manager.dart';
 import '../../entities/category_item.dart';
 
 class CategoriesGrid extends StatelessWidget {
   final List<CategoryItem> categories;
-  const CategoriesGrid({required this.categories});
+  const CategoriesGrid({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -31,21 +31,30 @@ class CategoriesGrid extends StatelessWidget {
             final c = categories[i];
             final bgColor = _getCategoryColor(c.name);
 
-            return Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: bgColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
+            return GestureDetector(
+              onTap: () {
+                // Navigate to consultation type selection screen
+                // No pre-selected type, so user will see the selection screen
+                ConsultationFlowManager.instance.navigateFromCareDiscovery(
+                  speciality: c.name,
+                  preSelectedType: null,
+                );
+              },
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
                     child: Stack(
                       children: [
                         // 🌙 Glossy ellipse overlay (top-left)
@@ -56,7 +65,7 @@ class CategoriesGrid extends StatelessWidget {
                             height: 120,
                             width: 120,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(25),
                             ),
                           ),
@@ -70,10 +79,12 @@ class CategoriesGrid extends StatelessWidget {
                               SvgPicture.asset(
                                 _getCategoryIconPath(c.name),
                                 height: 36,
-                                color: Colors.white,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                               const SizedBox(height: 8),
-
                             ],
                           ),
                         ),
@@ -81,13 +92,13 @@ class CategoriesGrid extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 6,),
+                const SizedBox(height: 6),
                 AppText.label(
                   c.name,
-                  maxLines: 1
-
+                  maxLines: 1,
                 ),
               ],
+            ),
             );
           },
         ),
