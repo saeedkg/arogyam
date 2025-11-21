@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/utils/date_time_formatter.dart';
 import '../../_shared/consultation/consultation_flow_manager.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
@@ -47,7 +48,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
               : () async {
             final d = c.detail.value!;
             final selectedSlot = c.selectedSlot.value!;
-            final scheduledAt = DateTime.parse(selectedSlot.datetime);
+            final scheduledAt = selectedSlot.datetime;
 
             final req = AppointmentBookingRequest(
               doctorId: d.id,
@@ -186,7 +187,7 @@ class _DoctorProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -314,7 +315,7 @@ class _DetailItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 18, color: color),
@@ -346,7 +347,7 @@ class _AvailabilitySection extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -431,12 +432,13 @@ class _AvailabilitySection extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: controller.availableSlots.map((slot) {
-                          final isSelected = controller.selectedSlot.value?.startTime == slot.startTime;
+                          final isSelected = controller.selectedSlot.value?.datetime == slot.datetime;
+                          final timeStr = DateTimeFormatter.formatTime(slot.datetime, isUtc: true);
                           return _TimeChip(
-                            time: slot.startTime,
+                            time: timeStr,
                             isSelected: isSelected,
                             onTap: () {
-                              controller.selectedTime.value = slot.startTime;
+                              controller.selectedTime.value = timeStr;
                               controller.selectedSlot.value = slot;
                             },
                           );

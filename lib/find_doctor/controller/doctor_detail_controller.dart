@@ -1,3 +1,4 @@
+import 'package:arogyam/_shared/utils/date_time_formatter.dart';
 import 'package:get/get.dart';
 import '../entities/doctor_detail.dart';
 import '../entities/time_slot.dart';
@@ -51,7 +52,14 @@ class DoctorDetailController extends GetxController {
   }
 
   List<String> get timesForSelectedDate {
-    return availableSlots.map((slot) => slot.startTime).toList();
+    final convertedSlots = availableSlots.map((slot) =>DateTimeFormatter.toLocal (slot.datetime)).toList();
+
+    return convertedSlots.map((dt) {
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final amPm = dt.hour >= 12 ? 'PM' : 'AM';
+      final minute = dt.minute.toString().padLeft(2, '0');
+      return '${hour.toString().padLeft(2, '0')}:$minute $amPm';
+    }).toList();
   }
 }
 

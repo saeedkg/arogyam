@@ -1,14 +1,10 @@
 class TimeSlot {
-  final String startTime;
-  final String endTime;
-  final String datetime;
+  final DateTime datetime;
   final String consultationType;
   final String? clinicId;
   final bool isAvailable;
 
   const TimeSlot({
-    required this.startTime,
-    required this.endTime,
     required this.datetime,
     required this.consultationType,
     this.clinicId,
@@ -17,9 +13,7 @@ class TimeSlot {
 
   factory TimeSlot.fromJson(Map<String, dynamic> json) {
     return TimeSlot(
-      startTime: json['start_time'] as String,
-      endTime: json['end_time'] as String,
-      datetime: json['datetime'] as String,
+      datetime: DateTime.parse(json['datetime'] as String),
       consultationType: json['consultation_type'] as String,
       clinicId: json['clinic_id'] as String?,
       isAvailable: json['is_available'] as bool? ?? true,
