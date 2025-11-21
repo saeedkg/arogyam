@@ -1,3 +1,4 @@
+import 'package:arogyam/_shared/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_colors.dart';
@@ -212,7 +213,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               child: _buildDetailItem(
                 icon: Icons.calendar_today_rounded,
                 title: 'Date',
-                value: _formatDate(d.startTime),
+                value: DateTimeFormatter.formatDateShort(d.startTime),
               ),
             ),
             const SizedBox(width: 16),
@@ -220,7 +221,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               child: _buildDetailItem(
                 icon: Icons.access_time_rounded,
                 title: 'Time',
-                value: _formatTime(d.startTime),
+                value: DateTimeFormatter.formatTime(d.startTime),
               ),
             ),
           ],

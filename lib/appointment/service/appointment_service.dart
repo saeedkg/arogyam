@@ -61,7 +61,7 @@ class AppointmentService {
       endTime: endTime,
       status: data['status'] as String? ?? 'pending',
       prescriptionAvailable: data['prescription'] != null,
-      prescriptionUrl: data['prescription']?['file_path'] as String?,
+      prescriptionUrl: data['prescription']?['pdf_path'] as String?,
       amountPaid: double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0.0,
       paymentStatus: data['payment_mode'] as String? ?? 'online',
       transactionId: data['payment']?['transaction_id'] as String? ?? '',
