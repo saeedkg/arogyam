@@ -1,0 +1,12 @@
+name: realtimekit_core_ios
+description: Fake stub plugin to disable iOS part while developing on Windows
+version: 0.0.1
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: FakeRealtimeKitPlugin

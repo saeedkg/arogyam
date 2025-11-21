@@ -1,9 +1,5 @@
-import '../../booking/constants/booking_urls.dart';
 import '../../network/entities/api_request.dart';
 import '../../network/exceptions/api_exception.dart';
-import '../../network/exceptions/http_exception.dart';
-import '../../network/exceptions/network_failure_exception.dart';
-import '../../network/exceptions/server_sent_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../constants/appointment_urls.dart';
@@ -12,15 +8,44 @@ import '../entities/appointment.dart';
 
 class AppointmentsService {
   final NetworkAdapter _networkAdapter;
+  final int _perPage = 10;
+  int _pageNumber = 1;
+  bool _didReachListEnd = false;
+  bool isLoading = false;
+  String? _currentPatientId;
 
-  AppointmentsService({NetworkAdapter? networkAdapter})
-      : _networkAdapter = networkAdapter ?? AROGYAMAPI();
+  AppointmentsService.initWith(this._networkAdapter);
 
-  /// Fetch list of all appointments
-  Future<List<Appointment>> fetchAppointments() async {
-    final apiRequest = APIRequest(AppointmentsUrls.getAppointmentsUrl());
+  AppointmentsService() : _networkAdapter = AROGYAMAPI();
+
+  /// Fetch list of appointments with pagination
+  Future<List<Appointment>> fetchAppointments({
+    bool reset = false,
+    String? patientId,
+  }) async {
+    if (reset) {
+      _pageNumber = 1;
+      _didReachListEnd = false;
+      _currentPatientId = patientId;
+    }
+
+    // Use current patient ID if no new one provided
+    final activePatientId = _currentPatientId ?? patientId;
+
+    // Build URL with pagination parameters appended
+    final url = AppointmentsUrls.getAppointmentsUrl(
+      page: _pageNumber,
+      perPage: _perPage,
+      patientId: activePatientId,
+    );
+    
+    final apiRequest = APIRequest(url);
+
+    isLoading = true;
     try {
       final res = await _networkAdapter.get(apiRequest);
+      isLoading = false;
+      
       final data = res.data;
 
       // Expected structure: { "data": { "data": [ ... ] } }
@@ -28,13 +53,18 @@ class AppointmentsService {
           data['data'] != null &&
           data['data']['data'] is List) {
         final List list = data['data']['data'];
-        return list.map((e) => Appointment.fromJson(e)).toList();
+        final appointments = list.map((e) => Appointment.fromJson(e)).toList();
+        _updatePaginationRelatedData(appointments.length);
+        return appointments;
       }
 
-      throw Exception('Invalid appointments response format');
+      _updatePaginationRelatedData(0);
+      return [];
     } on NetworkFailureException {
+      isLoading = false;
       throw NetworkFailureException();
     } on APIException catch (exception) {
+      isLoading = false;
       if (exception is HTTPException) {
         final responseMap = exception.responseData;
         if (responseMap != null &&
@@ -50,6 +80,25 @@ class AppointmentsService {
         rethrow;
       }
     }
+  }
+
+  void _updatePaginationRelatedData(int noOfItemsReceived) {
+    if (noOfItemsReceived > 0) {
+      _pageNumber += 1;
+    }
+    if (noOfItemsReceived < _perPage) {
+      _didReachListEnd = true;
+    }
+  }
+
+  bool get didReachListEnd => _didReachListEnd;
+  int getCurrentPageNumber() => _pageNumber;
+
+  void reset() {
+    _pageNumber = 1;
+    _didReachListEnd = false;
+    isLoading = false;
+    _currentPatientId = null;
   }
 
   /// Fetch single appointment detail by ID

@@ -54,8 +54,8 @@ class AppNavigation {
 
 
   // Navigate to Family Members
-  static void toFamilyMembers() {
-    Get.bottomSheet(
+  static Future<dynamic> toFamilyMembers() {
+    return Get.bottomSheet(
       const FamilyMembersBottomSheet(),
       isScrollControlled: true,
       backgroundColor: const Color(0xFFFFFFFF),

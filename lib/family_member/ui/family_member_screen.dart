@@ -226,7 +226,8 @@ class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
       if (!isCurrentPatient) {
         _handleMemberSelection(selectedMember!, currentPatientController);
       }
-      Get.back(result: selectedMember);
+      // Return the patient ID
+      Get.back(result: selectedMember!.id);
     }
   }
 
