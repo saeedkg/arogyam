@@ -6,6 +6,7 @@ import '../../onboarding/onboarding_screen.dart';
 import '../../appointment/appointments_screen.dart';
 import '../../appointment/appointment_detail_screen.dart';
 import '../../care_discovery/ui/care_discovery_screen.dart';
+import '../../care_discovery/ui/consultation_type_selection_screen.dart';
 import '../../instant_consultation/ui/instant_consult_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
 import '../../consultation/ui/realtimekit_video_call_screen.dart';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String appointments = '/appointments';
   static const String appointmentDetail = '/appointment_detail';
   static const String careDiscovery = '/care_discovery';
+  static const String consultationTypeSelection = '/consultation_type_selection';
   static const String doctorDetail = '/doctor_detail';
   static const String consultationConfirmed = '/consultation_confirmed';
   static const String familyMembers = '/family_members';
@@ -60,7 +62,13 @@ class AppRoutes {
         return CareDiscoveryScreen(entry: entry);
       },
     ),
-
+    GetPage(
+      name: consultationTypeSelection,
+      page: () {
+        final speciality = Get.arguments as String? ?? 'General';
+        return ConsultationTypeSelectionScreen(speciality: speciality);
+      },
+    ),
 
     GetPage(
       name: familyMembers,

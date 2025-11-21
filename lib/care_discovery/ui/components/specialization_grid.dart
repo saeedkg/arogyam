@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
+import '../../../_shared/consultation/consultation_type.dart';
+import '../../../_shared/consultation/consultation_flow_manager.dart';
 import '../../../common_services/entities/specialization.dart';
-import '../../../find_doctor/ui/speciality_doctors_screen.dart';
 
 class SpecializationGrid extends StatefulWidget {
   final List<Specialization> specializations;
-  const SpecializationGrid({super.key, required this.specializations});
+  final AppointmentType? preSelectedAppointmentType;
+  
+  const SpecializationGrid({
+    super.key,
+    required this.specializations,
+    this.preSelectedAppointmentType,
+  });
 
   @override
   State<SpecializationGrid> createState() => _SpecializationGridState();
@@ -62,7 +67,10 @@ class _SpecializationGridState extends State<SpecializationGrid> {
 
             return GestureDetector(
               onTap: () {
-                Get.to(() => SpecialityDoctorsScreen(category: s.name));
+                ConsultationFlowManager.instance.navigateFromCareDiscovery(
+                  speciality: s.name,
+                  preSelectedType: widget.preSelectedAppointmentType,
+                );
               },
               child: Column(
                 children: [

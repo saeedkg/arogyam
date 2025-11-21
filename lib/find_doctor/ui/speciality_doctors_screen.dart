@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/consultation/consultation_type.dart';
 import '../controller/doctors_controller.dart';
 import '../entities/doctor_filter.dart';
 import 'components/doctor_card.dart';
 
 class SpecialityDoctorsScreen extends StatefulWidget {
   final String category;
-  const SpecialityDoctorsScreen({super.key, required this.category});
+  final AppointmentType? appointmentType;
+  
+  const SpecialityDoctorsScreen({
+    super.key,
+    required this.category,
+    this.appointmentType,
+  });
 
   @override
   State<SpecialityDoctorsScreen> createState() => _SpecialityDoctorsScreenState();

@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/routing/routing.dart';
+import '../../_shared/consultation/consultation_type.dart';
 import '../controller/care_discovery_controller.dart';
 import 'components/specialization_grid.dart';
 
 class CareDiscoveryScreen extends StatelessWidget {
   final String entry;
-  const CareDiscoveryScreen({super.key, required this.entry});
+  final AppointmentType? preSelectedAppointmentType;
+  
+  const CareDiscoveryScreen({
+    super.key,
+    required this.entry,
+    this.preSelectedAppointmentType,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +53,10 @@ class CareDiscoveryScreen extends StatelessWidget {
                 onSubmitted: (q) => AppNavigation.toDoctors(),
               ),
               const SizedBox(height: 20),
-              SpecializationGrid(specializations: c.specializations),
+              SpecializationGrid(
+                specializations: c.specializations,
+                preSelectedAppointmentType: preSelectedAppointmentType,
+              ),
             ],
           ),
         );

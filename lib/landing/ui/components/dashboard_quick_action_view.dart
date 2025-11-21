@@ -1,10 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/consultation/consultation_flow_manager.dart';
+import '../../../_shared/consultation/consultation_type.dart';
 
 enum QuickActionType {
   hospitalAppointment,
@@ -93,13 +90,17 @@ class _QuickActionCard extends StatelessWidget {
         onTap: () {
           switch (type) {
             case QuickActionType.videoConsult:
-              ConsultationFlowManager.instance.startScheduledConsultation();
+              ConsultationFlowManager.instance.startScheduledConsultation(
+                appointmentType: AppointmentType.video,
+              );
               break;
             case QuickActionType.instantConsult:
               ConsultationFlowManager.instance.startInstantConsultation();
               break;
             case QuickActionType.hospitalAppointment:
-              // Add Hospital Appointment functionality here
+              ConsultationFlowManager.instance.startScheduledConsultation(
+                appointmentType: AppointmentType.clinic,
+              );
               break;
           }
         },
