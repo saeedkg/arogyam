@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../_shared/routing/routing.dart';
 import '../_shared/patient/current_patient_controller.dart';
 import '../_shared/consultation/consultation_flow_manager.dart';
+import '../_shared/utils/date_time_formatter.dart';
 import 'controler/appointments_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
@@ -193,8 +194,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             imageUrl: appointment.doctorImage,
             name: appointment.doctorName,
             specialization: appointment.specialization,
-            date: _formatDate(appointment.scheduledAt),
-            time: _formatTime(appointment.scheduledAt),
+            date: (DateTimeFormatter.formatDateShort(appointment.scheduledAt)),
+            time: (DateTimeFormatter.formatTime(appointment.scheduledAt)),
             status: appointment.status,
             type: appointment.type,
             onView: () {
@@ -241,22 +242,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     });
   }
 
-  String _formatDate(DateTime dt) {
-    return '${_month(dt.month)} ${dt.day}, ${dt.year}';
-  }
 
-  String _formatTime(DateTime dt) {
-    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final amPm = dt.hour >= 12 ? 'PM' : 'AM';
-    return '${_pad(hour)}:${_pad(dt.minute)} $amPm';
-  }
-
-  String _pad(int n) => n.toString().padLeft(2, '0');
-
-  String _month(int m) => const [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ][m - 1];
 }
 
 class _Tabs extends StatelessWidget {

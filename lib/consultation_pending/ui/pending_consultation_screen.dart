@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
+import '../../_shared/utils/date_time_formatter.dart';
 import '../../consultation/ui/realtimekit_video_call_screen.dart';
 import '../../consultation/entities/video_call_config.dart';
 import '../../consultation/utils/permission_handler.dart';
@@ -344,13 +345,13 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
                       _buildDetailRow(
                         icon: Icons.calendar_today_rounded,
                         label: 'Date',
-                        value: _formatDate(cons.scheduledAt),
+                        value: DateTimeFormatter.formatDateShort(cons.scheduledAt),
                       ),
                       const SizedBox(height: 16),
                       _buildDetailRow(
                         icon: Icons.access_time_rounded,
                         label: 'Time',
-                        value: _formatTime(cons.scheduledAt),
+                        value: DateTimeFormatter.formatTime(cons.scheduledAt),
                       ),
                       const SizedBox(height: 16),
                       _buildDetailRow(
@@ -454,18 +455,5 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
 
-  String _formatTime(DateTime date) {
-    final hour = date.hour > 12 ? date.hour - 12 : (date.hour == 0 ? 12 : date.hour);
-    final minute = date.minute.toString().padLeft(2, '0');
-    final period = date.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute $period';
-  }
 }
