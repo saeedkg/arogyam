@@ -1,0 +1,267 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
+
+import '../../../_shared/ui/app_colors.dart';
+import '../../../_shared/utils/date_time_formatter.dart';
+import '../../../_shared/utils/file_downloader.dart';
+import '../../entities/health_record.dart';
+
+class HealthRecordCard extends StatefulWidget {
+  final HealthRecord record;
+
+  const HealthRecordCard({required this.record});
+
+  @override
+  State<HealthRecordCard> createState() => _HealthRecordCardState();
+}
+
+class _HealthRecordCardState extends State<HealthRecordCard> {
+  bool _isDownloading = false;
+  double _downloadProgress = 0.0;
+
+  Future<void> _downloadRecord() async {
+    if (widget.record.fileUrl == null || widget.record.fileUrl!.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'No file available for this record',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
+      return;
+    }
+
+    setState(() {
+      _isDownloading = true;
+      _downloadProgress = 0.0;
+    });
+
+    try {
+      // Extract file extension from URL or default to pdf
+      final uri = Uri.parse(widget.record.fileUrl!);
+      final pathSegments = uri.pathSegments;
+      final lastSegment = pathSegments.isNotEmpty ? pathSegments.last : '';
+      final extension = lastSegment.contains('.')
+          ? lastSegment.split('.').last
+          : 'pdf';
+
+      final fileName = '${widget.record.title.replaceAll(' ', '_')}_${widget.record.id}.$extension';
+
+      final success = await FileDownloader.downloadAndOpenFile(
+        url: widget.record.fileUrl!,
+        fileName: fileName,
+        onProgress: (received, total) {
+          if (total != -1) {
+            setState(() {
+              _downloadProgress = received / total;
+            });
+          }
+        },
+      );
+
+      if (success) {
+        if (mounted) {
+          Get.snackbar(
+            'Success',
+            'File downloaded and opened successfully',
+            backgroundColor: AppColors.primaryGreen,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 10,
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+          );
+        }
+      } else {
+        if (mounted) {
+          Get.snackbar(
+            'Error',
+            'Failed to download file',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 10,
+            icon: const Icon(Icons.error_outline, color: Colors.white),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar(
+          'Error',
+          'Error: ${e.toString()}',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 10,
+          icon: const Icon(Icons.error_outline, color: Colors.white),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+          _downloadProgress = 0.0;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: _isDownloading ? null : _downloadRecord,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                // Icon/File Type
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primaryGreen.withValues(alpha: 0.2),
+                        AppColors.primaryGreen.withValues(alpha: 0.1),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.description_rounded,
+                    color: AppColors.primaryGreen,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Record Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.record.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (_isDownloading) ...[
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                value: _downloadProgress > 0 ? _downloadProgress : null,
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              widget.record.category,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryGreen,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(Icons.calendar_today_rounded, size: 14, color: Colors.grey.shade500),
+                          const SizedBox(width: 4),
+                          Text(
+                            // _formatDate(widget.record.date),
+                            DateTimeFormatter.formatDateShortYear(widget.record.date),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (widget.record.notes != null && widget.record.notes!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.record.notes!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                // Actions
+                Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.download_rounded,
+                        color: _isDownloading
+                            ? Colors.grey.shade400
+                            : AppColors.primaryGreen,
+                      ),
+                      onPressed: _isDownloading ? null : _downloadRecord,
+                      tooltip: 'Download',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime d) => '${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.month-1]} ${d.day}, \'${d.year%100}';
+
+}
