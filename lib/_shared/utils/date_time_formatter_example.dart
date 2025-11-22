@@ -14,6 +14,10 @@ void exampleUsage() {
   final formattedDateShort = DateTimeFormatter.formatDateShort(utcDateTime);
   print(formattedDateShort); // Output: Jan 15, 2024 (in local time)
 
+  // 2b. Format date (short with 2-digit year): "Jan 15, '24"
+  final formattedDateShortYear = DateTimeFormatter.formatDateShortYear(utcDateTime);
+  print(formattedDateShortYear); // Output: Jan 15, '24 (in local time)
+
   // 3. Format time: "02:30 PM"
   final formattedTime = DateTimeFormatter.formatTime(utcDateTime);
   print(formattedTime); // Output: 02:30 PM (in local time)

@@ -4,6 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_filex/open_filex.dart';
 
+import '../constants/network_config.dart';
+
 /// Utility class for downloading files
 class FileDownloader {
   FileDownloader._();
@@ -30,11 +32,15 @@ class FileDownloader {
 
       // Create the full file path
       final filePath = '${directory.path}/$fileName';
+      print("----");
+      print(filePath);
+      print("***");
+      print("${NetworkConfig.baseUrl}/$url");
 
       // Download the file using Dio
       final dio = Dio();
       await dio.download(
-        url,
+        "${NetworkConfig.baseUrl}/$url",
         filePath,
         onReceiveProgress: onProgress,
       );

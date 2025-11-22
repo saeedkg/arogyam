@@ -112,7 +112,7 @@ class HealthRecordsService {
       category: json['category'] as String? ?? 'General',
       notes: json['notes'] as String?,
       date: date,
-      fileUrl: json['file'] as String?,
+      fileUrl: json['file_path'] as String?,
     );
   }
 

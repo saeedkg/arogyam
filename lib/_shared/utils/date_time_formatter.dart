@@ -22,6 +22,14 @@ class DateTimeFormatter {
     return '${_getMonthNameShort(localDateTime.month)} ${localDateTime.day}, ${localDateTime.year}';
   }
 
+  /// Formats date as short format with 2-digit year "MMM DD, 'YY" (e.g., "Jan 15, '24")
+  /// Automatically converts UTC to local time
+  static String formatDateShortYear(DateTime dateTime, {bool isUtc = true}) {
+    final localDateTime = isUtc ? dateTime.toLocal() : dateTime;
+    final twoDigitYear = localDateTime.year % 100;
+    return '${_getMonthNameShort(localDateTime.month)} ${localDateTime.day}, \'${twoDigitYear.toString().padLeft(2, '0')}';
+  }
+
   /// Formats time as "HH:MM AM/PM" (e.g., "02:30 PM")
   /// Automatically converts UTC to local time
   static String formatTime(DateTime dateTime, {bool isUtc = true}) {

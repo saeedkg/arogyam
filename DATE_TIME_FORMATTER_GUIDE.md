@@ -39,6 +39,13 @@ DateTimeFormatter.formatDateShort(utcDateTime);
 // Output: "Jan 15, 2024"
 ```
 
+#### 2b. `formatDateShortYear(DateTime dateTime, {bool isUtc = true})`
+Formats date as "MMM DD, 'YY" (with 2-digit year)
+```dart
+DateTimeFormatter.formatDateShortYear(utcDateTime);
+// Output: "Jan 15, '24"
+```
+
 #### 3. `formatDateWithDay(DateTime dateTime, {bool isUtc = true})`
 Formats date with day name
 ```dart
