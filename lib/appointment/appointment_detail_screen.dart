@@ -1,4 +1,5 @@
 import 'package:arogyam/_shared/utils/date_time_formatter.dart';
+import 'package:arogyam/_shared/utils/file_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_colors.dart';
@@ -16,11 +17,109 @@ class AppointmentDetailScreen extends StatefulWidget {
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   final _api = AppointmentService();
   Future<BookingDetail>? _future;
+  bool _isDownloadingPrescription = false;
+  double _downloadProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
     _future = _api.getAppointmentDetail(widget.bookingId);
+  }
+
+  Future<void> _downloadPrescription(String prescriptionUrl) async {
+    setState(() {
+      _isDownloadingPrescription = true;
+      _downloadProgress = 0.0;
+    });
+
+    try {
+      // Extract file name from URL or create a default one
+      final fileName = 'prescription_${widget.bookingId}.pdf';
+
+      final success = await FileDownloader.downloadAndOpenFile(
+        url: prescriptionUrl,
+        fileName: fileName,
+        onProgress: (received, total) {
+          if (total != -1) {
+            setState(() {
+              _downloadProgress = received / total;
+            });
+          }
+        },
+      );
+
+      if (success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('Prescription downloaded and opened successfully'),
+                  ),
+                ],
+              ),
+              backgroundColor: AppColors.primaryGreen,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('Failed to download prescription'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Error: ${e.toString()}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDownloadingPrescription = false;
+          _downloadProgress = 0.0;
+        });
+      }
+    }
   }
 
   @override
@@ -230,10 +329,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: _getStatusColor(d.status).withOpacity(0.08),
+            color: _getStatusColor(d.status).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: _getStatusColor(d.status).withOpacity(0.2),
+              color: _getStatusColor(d.status).withValues(alpha: 0.2),
             ),
           ),
           child: Row(
@@ -346,29 +445,57 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           SizedBox(
             height: 48,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: _isDownloadingPrescription
+                  ? null
+                  : () => _downloadPrescription(d.prescriptionUrl!),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.infoBlue,
+                disabledBackgroundColor: AppColors.infoBlue.withValues(alpha: 0.6),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 0,
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.download_rounded, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Download Prescription',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+              child: _isDownloadingPrescription
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            value: _downloadProgress > 0 ? _downloadProgress : null,
+                            strokeWidth: 2,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          _downloadProgress > 0
+                              ? 'Downloading ${(_downloadProgress * 100).toInt()}%'
+                              : 'Downloading...',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.download_rounded, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Download Prescription',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -720,11 +847,4 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     }
   }
 
-  String _formatDate(DateTime dt) => '${_month(dt.month)} ${dt.day}, ${dt.year}';
-  String _formatTime(DateTime dt) => '${_pad(dt.hour)}:${_pad(dt.minute)} ${dt.hour >= 12 ? 'PM' : 'AM'}';
-  String _pad(int n) => n.toString().padLeft(2, '0');
-  String _month(int m) => const [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ][m - 1];
 }
