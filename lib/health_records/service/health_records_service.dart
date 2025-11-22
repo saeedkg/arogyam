@@ -22,8 +22,8 @@ class HealthRecordsService {
   //   return dummyHealthRecords;
   // }
 
-  Future<List<HealthRecord>> fetchHealthRecords() async {
-    final url = HealthRecordsUrls.getHealthRecordsUrl();
+  Future<List<HealthRecord>> fetchHealthRecords({String? patientId}) async {
+    final url = HealthRecordsUrls.getHealthRecordsUrl(patientId: patientId);
     final apiRequest = APIRequest(url);
     try {
       final apiResponse = await _networkAdapter.get(apiRequest);

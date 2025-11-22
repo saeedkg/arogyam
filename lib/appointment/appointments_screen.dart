@@ -245,42 +245,4 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
 }
 
-class _Tabs extends StatelessWidget {
-  final int index;
-  final ValueChanged<int> onChanged;
 
-  const _Tabs({required this.index, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          _chip('Upcoming', 0),
-          const SizedBox(width: 8),
-          _chip('Completed', 1),
-          const SizedBox(width: 8),
-          _chip('Canceled', 2),
-        ],
-      ),
-    );
-  }
-
-  Widget _chip(String label, int i) {
-    final active = index == i;
-    return ChoiceChip(
-      label: Text(label),
-      selected: active,
-      onSelected: (_) => onChanged(i),
-      selectedColor: Colors.black87,
-      labelStyle: TextStyle(
-        color: active ? Colors.white : Colors.black87,
-        fontWeight: FontWeight.w600,
-      ),
-      shape: const StadiumBorder(
-        side: BorderSide(color: Colors.black12),
-      ),
-    );
-  }
-}

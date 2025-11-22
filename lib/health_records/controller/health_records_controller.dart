@@ -9,6 +9,7 @@ class HealthRecordsController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxList<HealthRecord> healthRecords = <HealthRecord>[].obs;
+  final RxnString selectedPatientId = RxnString();
 
   @override
   void onInit() {
@@ -16,10 +17,17 @@ class HealthRecordsController extends GetxController {
     loadHealthRecords();
   }
 
+  /// Set patient ID and reload health records
+  void setPatientId(String? patientId) {
+    selectedPatientId.value = patientId;
+    healthRecords.clear();
+    loadHealthRecords();
+  }
+
   Future<void> loadHealthRecords() async {
     isLoading.value = true;
     try {
-      final records = await api.fetchHealthRecords();
+      final records = await api.fetchHealthRecords(patientId: selectedPatientId.value);
       healthRecords.assignAll(records);
     } finally {
       isLoading.value = false;
