@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../../network/exceptions/network_failure_exception.dart';
 import '../../network/exceptions/server_sent_exception.dart';
-import '../entities/appointemet_detail.dart';
 import '../entities/appointment.dart';
 import '../service/appointments_service.dart';
 
@@ -17,7 +16,6 @@ class AppointmentsController extends GetxController {
   final RxString errorMessage = ''.obs;
 
   final RxBool isDetailLoading = false.obs;
-  final Rxn<AppointmentDetail> appointmentDetail = Rxn<AppointmentDetail>();
 
   String? _currentPatientId;
 
@@ -103,16 +101,5 @@ class AppointmentsController extends GetxController {
     return error.toString().replaceAll('Exception: ', '');
   }
 
-  Future<void> fetchAppointmentDetail(int id) async {
-    isDetailLoading.value = true;
-    appointmentDetail.value = null;
-    try {
-      final result = await api.fetchAppointmentDetail(id);
-      appointmentDetail.value = result;
-    } catch (e) {
-      errorMessage.value = _getErrorMessage(e);
-    } finally {
-      isDetailLoading.value = false;
-    }
-  }
+
 }

@@ -3,7 +3,6 @@ import '../../network/exceptions/api_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../constants/appointment_urls.dart';
-import '../entities/appointemet_detail.dart';
 import '../entities/appointment.dart';
 
 class AppointmentsService {
@@ -101,37 +100,5 @@ class AppointmentsService {
     _currentPatientId = null;
   }
 
-  /// Fetch single appointment detail by ID
-  Future<AppointmentDetail> fetchAppointmentDetail(int id) async {
-    final apiRequest =
-    APIRequest(AppointmentsUrls.getAppointmentDetailUrl(id));
-    try {
-      final res = await _networkAdapter.get(apiRequest);
-      final data = res.data;
 
-      // Expected structure: { "data": { ... } }
-      if (data is Map<String, dynamic> && data['data'] != null) {
-        return AppointmentDetail.fromJson(data['data']);
-      }
-
-      throw Exception('Invalid appointment detail response format');
-    } on NetworkFailureException {
-      throw NetworkFailureException();
-    } on APIException catch (exception) {
-      if (exception is HTTPException) {
-        final responseMap = exception.responseData;
-        if (responseMap != null &&
-            responseMap is Map<String, dynamic> &&
-            responseMap["message"] != null) {
-          final message = responseMap["message"] as String;
-          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
-          throw ServerSentException(message, errorCode);
-        }
-        throw ServerSentException(
-            'Failed to load appointment detail', exception.httpCode);
-      } else {
-        rethrow;
-      }
-    }
-  }
 }
