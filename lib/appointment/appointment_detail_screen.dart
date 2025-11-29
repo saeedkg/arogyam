@@ -34,6 +34,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     );
   }
 
+  Future<void> _refreshAppointmentDetails() async {
+    setState(() {
+      _future = _api.getAppointmentDetail(widget.bookingId);
+    });
+    await _future;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,8 +63,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         elevation: 0.5,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.more_vert_rounded, color: Colors.grey.shade700),
+            onPressed: _refreshAppointmentDetails,
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh',
           ),
         ],
       ),
@@ -73,22 +81,30 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           }
 
           final d = snapshot.data!;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Combined Appointment & Prescription Card
-                _buildAppointmentPrescriptionCard(d),
-                const SizedBox(height: 20),
+          return RefreshIndicator(
+            onRefresh: _refreshAppointmentDetails,
+            color: AppColors.primaryGreen,
+            backgroundColor: Colors.white,
+            strokeWidth: 3.0,
+            displacement: 40.0,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Combined Appointment & Prescription Card
+                  _buildAppointmentPrescriptionCard(d),
+                  const SizedBox(height: 20),
 
-                // Payment Summary Card
-                _buildPaymentCard(d),
-                const SizedBox(height: 24),
+                  // Payment Summary Card
+                  _buildPaymentCard(d),
+                  const SizedBox(height: 24),
 
-                // Action Buttons
-                _buildActionButtons(),
-              ],
+                  // Action Buttons
+                  _buildActionButtons(),
+                ],
+              ),
             ),
           );
         },
@@ -611,7 +627,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(),
+          const CircularProgressIndicator(
+            color: AppColors.primaryGreen,
+            strokeWidth: 3,
+          ),
           const SizedBox(height: 20),
           Text(
             'Loading appointment details...',
@@ -626,61 +645,69 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Widget _buildErrorState() {
-    return Center(
-      child: Padding(
+    return RefreshIndicator(
+      onRefresh: _refreshAppointmentDetails,
+      color: AppColors.primaryGreen,
+      backgroundColor: Colors.white,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 80,
-              color: Colors.grey.shade400,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Unable to Load Details',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'There was a problem loading the appointment details. Please try again.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 15,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => setState(() {
-                  _future = _api.getAppointmentDetail(widget.bookingId);
-                }),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.infoBlue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+        children: [
+          SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 80,
+                  color: Colors.grey.shade400,
                 ),
-                child: const Text(
-                  'Try Again',
+                const SizedBox(height: 24),
+                const Text(
+                  'Unable to Load Details',
                   style: TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'There was a problem loading the appointment details. Please try again.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
                     fontSize: 15,
                   ),
                 ),
-              ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _refreshAppointmentDetails,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Try Again',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
