@@ -38,6 +38,7 @@ class UserLocalRepository {
             }
           : null,
       'token': user.token,
+      'refresh_token':user.refreshToken
     };
   }
 } 

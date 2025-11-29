@@ -113,7 +113,7 @@ class AROGYAMAPI implements NetworkAdapter {
    // headers['X-WallPost-App-ID'] = AppId.appId;
    // String authToken ="Bearer 7|fe65AQLbufhacuKXtJaHtTSsTZVyFBYzXOrfYIxh207ab479";
 
-    var authToken = await _accessTokenProvider.getToken();
+    var authToken = await _accessTokenProvider.getToken(forceRefresh: forceRefresh);
     if (authToken != null) {
       headers['Authorization'] ="Bearer $authToken";
     }
