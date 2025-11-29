@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_filex/open_filex.dart';
 
+import '../../auth/user_management/service/auth_token_provider.dart';
 import '../constants/network_config.dart';
 
 /// Utility class for downloading files
@@ -38,9 +39,19 @@ class FileDownloader {
       print("${NetworkConfig.baseUrl}/$url");
 
       // Download the file using Dio
+
       final dio = Dio();
+
+      var authToken = await AuthTokenProvider().getToken(forceRefresh: false);
+
+      // Add token in headers
+      dio.options.headers = {
+        'Authorization': 'Bearer $authToken', // <-- your token
+        'Accept': 'application/json',
+      };
+
       await dio.download(
-        "${NetworkConfig.baseUrl}/$url",
+        "${NetworkConfig.baseUrl}/patient/prescriptions/$url/download",
         filePath,
         onReceiveProgress: onProgress,
       );
