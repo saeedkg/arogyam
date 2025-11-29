@@ -359,7 +359,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             child: ElevatedButton(
               onPressed: () => _viewPrescription(d),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.infoBlue,
+                backgroundColor: AppColors.primaryGreen,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -442,8 +442,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             child: OutlinedButton(
               onPressed: () {},
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.infoBlue,
-                side: BorderSide(color: AppColors.infoBlue, width: 1.5),
+                foregroundColor: AppColors.primaryGreen,
+                side: BorderSide(color: AppColors.primaryGreen, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

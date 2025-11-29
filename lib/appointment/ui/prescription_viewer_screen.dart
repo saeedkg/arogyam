@@ -162,7 +162,7 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
                   ),
                 ],
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.errorRed,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -189,7 +189,7 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
                 ),
               ],
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.errorRed,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -235,7 +235,7 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
                 ),
               ],
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.errorRed,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -274,10 +274,10 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
+        backgroundColor: AppColors.grey50,
         appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_rounded, size: 20, color: Colors.black87),
           onPressed: () => Get.back(),
         ),
         title: Text(
@@ -295,16 +295,18 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
           IconButton(
             icon: Icon(
               Icons.download_rounded,
-              color: _isDownloading ? Colors.grey.shade400 : Colors.grey.shade700,
+              color: _isDownloading ? AppColors.grey400 : AppColors.primaryGreen,
             ),
             onPressed: _isDownloading || _localFilePath == null ? null : _downloadPrescription,
+            tooltip: 'Download',
           ),
           IconButton(
             icon: Icon(
               Icons.share_rounded,
-              color: _localFilePath == null ? Colors.grey.shade400 : Colors.grey.shade700,
+              color: _localFilePath == null ? AppColors.grey400 : AppColors.primaryBlue,
             ),
             onPressed: _localFilePath == null ? null : _sharePrescription,
+            tooltip: 'Share',
           ),
         ],
       ),
@@ -330,13 +332,17 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(),
+          CircularProgressIndicator(
+            color: AppColors.primaryGreen,
+            strokeWidth: 3,
+          ),
           const SizedBox(height: 20),
           Text(
             'Loading prescription...',
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: AppColors.grey600,
               fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -354,7 +360,7 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
             Icon(
               Icons.error_outline_rounded,
               size: 80,
-              color: Colors.grey.shade400,
+              color: AppColors.grey400,
             ),
             const SizedBox(height: 24),
             const Text(
@@ -370,7 +376,7 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
               _errorMessage ?? 'There was a problem loading the prescription. Please try again.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: AppColors.grey600,
                 fontSize: 15,
               ),
             ),
@@ -380,12 +386,13 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
               child: ElevatedButton(
                 onPressed: _retry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.infoBlue,
+                  backgroundColor: AppColors.primaryGreen,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 32),
+                  elevation: 0,
                 ),
                 child: const Text(
                   'Try Again',
@@ -408,8 +415,9 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
         child: Text(
           'No prescription file available',
           style: TextStyle(
-            color: Colors.grey.shade600,
+            color: AppColors.grey600,
             fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
         ),
       );
@@ -419,7 +427,7 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
       children: [
         // PDF viewer
         Container(
-          color: Colors.white,
+          color: AppColors.grey100,
           child: PDFView(
             filePath: _localFilePath!,
             enableSwipe: true,
@@ -459,22 +467,30 @@ class _PrescriptionViewerScreenState extends State<PrescriptionViewerScreen> {
         // Page indicator overlay
         if (_totalPages > 0)
           Positioned(
-            bottom: 16,
+            bottom: 24,
             left: 0,
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.primaryGreen,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryGreen.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Text(
                   'Page ${_currentPage + 1} of $_totalPages',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
