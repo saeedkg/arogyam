@@ -1,4 +1,4 @@
-class PendingConsultation {
+class AppointmentDetails {
   final String id;
   final String doctorName;
   final String doctorSpecialization;
@@ -22,7 +22,7 @@ class PendingConsultation {
   final String? specializationId;
   final DateTime? requestedAt;
 
-  PendingConsultation({
+  AppointmentDetails({
     required this.id,
     required this.doctorName,
     required this.doctorSpecialization,
@@ -43,7 +43,7 @@ class PendingConsultation {
     this.requestedAt,
   });
 
-  factory PendingConsultation.fromJson(Map<String, dynamic> json) {
+  factory AppointmentDetails.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>? ?? json;
     
     // The response can have 'appointment' nested or be the appointment itself
@@ -75,7 +75,7 @@ class PendingConsultation {
     
     // If no doctor, return a minimal pending consultation with metadata
     if (doctor == null) {
-      return PendingConsultation(
+      return AppointmentDetails(
         id: appointmentId,
         doctorName: '',
         doctorSpecialization: '',
@@ -105,7 +105,7 @@ class PendingConsultation {
     final dataLevelJoinDetails = data['user_join_details'] as Map<String, dynamic>?;
     final joinDetails = consultationJoinDetails ?? dataLevelJoinDetails;
     
-    return PendingConsultation(
+    return AppointmentDetails(
       id: appointmentId,
       doctorName: user?['name'] as String? ?? 'Doctor',
       doctorSpecialization: specialization,

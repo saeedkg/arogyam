@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../entities/pending_consultation.dart';
+import '../entities/appointment_detail.dart';
 import '../service/consultation_service.dart';
 
 class PendingConsultationController extends GetxController {
@@ -8,7 +8,7 @@ class PendingConsultationController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxnString error = RxnString();
-  final Rxn<PendingConsultation> consultation = Rxn<PendingConsultation>();
+  final Rxn<AppointmentDetails> consultation = Rxn<AppointmentDetails>();
 
   Future<void> load(String appointmentId) async {
     isLoading.value = true;

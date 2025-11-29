@@ -6,19 +6,19 @@ import '../../network/exceptions/server_sent_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../constants/consultation_urls.dart';
-import '../entities/pending_consultation.dart';
+import '../entities/appointment_detail.dart';
 
 class ConsultationService {
   final NetworkAdapter _networkAdapter;
   ConsultationService({NetworkAdapter? networkAdapter}) : _networkAdapter = networkAdapter ?? AROGYAMAPI();
 
-  Future<PendingConsultation> getPendingConsultation(String appointmentId) async {
+  Future<AppointmentDetails> getPendingConsultation(String appointmentId) async {
     final url = ConsultationUrls.getPendingConsultationUrl(appointmentId);
     final apiRequest = APIRequest(url);
     try {
       final apiResponse = await _networkAdapter.get(apiRequest);
       if (apiResponse.data is Map<String, dynamic>) {
-        return PendingConsultation.fromJson(apiResponse.data as Map<String, dynamic>);
+        return AppointmentDetails.fromJson(apiResponse.data as Map<String, dynamic>);
       }
       throw Exception('Invalid response');
     } on NetworkFailureException {

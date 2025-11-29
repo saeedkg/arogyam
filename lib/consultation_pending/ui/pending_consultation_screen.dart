@@ -7,7 +7,7 @@ import '../../consultation/entities/video_call_config.dart';
 import '../../consultation/utils/permission_handler.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../controller/pending_consultation_controller.dart';
-import '../entities/pending_consultation.dart';
+import '../entities/appointment_detail.dart';
 
 class PendingConsultationScreen extends StatefulWidget {
   final String appointmentId;
@@ -185,7 +185,7 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
 
 
 
-  Widget _buildConsultationReady(PendingConsultation cons) {
+  Widget _buildConsultationReady(AppointmentDetails cons) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
