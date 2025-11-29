@@ -429,15 +429,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildPaymentRow(
-                  'Payment Status',
-                  d.paymentStatus,
-                  _getPaymentStatusColor(d.paymentStatus),
-                ),
-                const SizedBox(height: 12),
-                _buildPaymentRow(
-                  'Transaction ID',
-                  d.transactionId,
-                  Colors.grey.shade600,
+                  'Type',
+                  d.paymentType.toUpperCase(),
+                  AppColors.infoBlue,
                 ),
               ],
             ),
@@ -699,20 +693,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         return AppColors.infoBlue;
       case 'pending':
         return AppColors.warningOrange;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _getPaymentStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-      case 'success':
-        return AppColors.primaryGreen;
-      case 'pending':
-        return AppColors.warningOrange;
-      case 'failed':
-        return Colors.red;
       default:
         return Colors.grey;
     }

@@ -51,6 +51,10 @@ class AppointmentService {
     final duration = doctor['consultation_duration'] as int? ?? 30;
     final endTime = scheduledAt.add(Duration(minutes: duration));
 
+    // Parse payment information
+    final totalAmount = double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0.0;
+    final paymentMode = data['payment_mode'] as String? ?? 'online';
+
     return BookingDetail(
       id: '${data['id']}',
       doctorName: user['name'] as String? ?? 'Doctor',
@@ -61,10 +65,9 @@ class AppointmentService {
       endTime: endTime,
       status: data['status'] as String? ?? 'pending',
       prescriptionAvailable: data['prescription'] != null,
-      prescriptionUrl: data['prescription']?['id'] .toString(),
-      amountPaid: double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0.0,
-      paymentStatus: data['payment_mode'] as String? ?? 'online',
-      transactionId: data['payment']?['transaction_id'] as String? ?? '',
+      prescriptionUrl: data['prescription']?['id'].toString(),
+      amountPaid: totalAmount,
+      paymentType: paymentMode,
     );
   }
 }

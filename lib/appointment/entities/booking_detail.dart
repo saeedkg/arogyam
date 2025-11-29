@@ -14,8 +14,7 @@ class BookingDetail {
 
   // payment
   final double amountPaid;
-  final String paymentStatus;
-  final String transactionId;
+  final String paymentType;
 
   const BookingDetail({
     required this.id,
@@ -29,8 +28,7 @@ class BookingDetail {
     required this.prescriptionAvailable,
     this.prescriptionUrl,
     required this.amountPaid,
-    required this.paymentStatus,
-    required this.transactionId,
+    required this.paymentType,
   });
 }
 
