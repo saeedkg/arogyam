@@ -62,8 +62,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_none_rounded),
+            onPressed: () => c.refreshAppointments(),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh',
           ),
         ],
       ),
@@ -78,7 +79,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
+            CircularProgressIndicator(
+              color: Color(0xFF22C58B), // AppColors.primaryGreen
+              strokeWidth: 3,
+            ),
             SizedBox(height: 16),
             Text(
               'Loading appointments...',
@@ -91,35 +95,59 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
     // Error state - no data
     if (c.errorMessage.value.isNotEmpty && c.appointments.isEmpty) {
-      return Center(
-        child: Padding(
+      return RefreshIndicator(
+        onRefresh: c.refreshAppointments,
+        color: const Color(0xFF22C58B), // AppColors.primaryGreen
+        backgroundColor: Colors.white,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                c.errorMessage.value.toLowerCase().contains('internet')
-                    ? Icons.wifi_off
-                    : Icons.error_outline,
-                size: 64,
-                color: Colors.grey.shade300,
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    c.errorMessage.value.toLowerCase().contains('internet')
+                        ? Icons.wifi_off
+                        : Icons.error_outline,
+                    size: 64,
+                    color: Colors.grey.shade300,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    c.errorMessage.value,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => c.fetchInitialAppointments(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF22C58B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Retry',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                c.errorMessage.value,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => c.fetchInitialAppointments(),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -128,7 +156,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     if (c.appointments.isEmpty) {
       return RefreshIndicator(
         onRefresh: c.refreshAppointments,
+        color: const Color(0xFF22C58B), // AppColors.primaryGreen
+        backgroundColor: Colors.white,
         child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
             _buildPatientCard(),
@@ -161,7 +192,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     // List with data
     return RefreshIndicator(
       onRefresh: c.refreshAppointments,
+      color: const Color(0xFF22C58B), // AppColors.primaryGreen
+      backgroundColor: Colors.white,
+      strokeWidth: 3.0,
+      displacement: 40.0,
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
         itemCount: c.appointments.length + 2, // +2 for patient card and loading indicator
@@ -181,7 +217,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             if (c.isLoading.value && !c.api.didReachListEnd) {
               return const Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF22C58B), // AppColors.primaryGreen
+                    strokeWidth: 3,
+                  ),
+                ),
               );
             }
             return const SizedBox.shrink();
