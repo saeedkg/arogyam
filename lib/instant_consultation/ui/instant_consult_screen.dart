@@ -107,76 +107,103 @@ class InstantConsultScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey.shade100, width: 1.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                    Obx(() {
+                      if (controller.isPricingLoading.value) {
+                        return Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.grey.shade100, width: 1.5),
                           ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          _buildFeeRow(
-                            'Consultation Fee',
-                            '\$150.00',
-                            isBold: false,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primaryGreen,
+                            ),
                           ),
-                          const Divider(height: 32, thickness: 1.2),
-                          _buildFeeRow(
-                            'Platform Fee',
-                            '\$10.00',
-                            isBold: false,
+                        );
+                      }
+
+                      final pricing = controller.pricing.value;
+                      if (pricing == null) {
+                        return Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.grey.shade100, width: 1.5),
                           ),
-                          const Divider(height: 32, thickness: 1.2),
-                          _buildFeeRow(
-                            'GST (18%)',
-                            '\$28.80',
-                            isBold: false,
+                          child: const Center(
+                            child: Text('Unable to load pricing'),
                           ),
-                          const SizedBox(height: 16),
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.primaryGreen.withOpacity(0.1),
-                                  AppColors.primaryGreen.withOpacity(0.05),
+                        );
+                      }
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            _buildFeeRow(
+                              'Consultation Fee',
+                              '₹${pricing.consultationFee.toStringAsFixed(2)}',
+                              isBold: false,
+                            ),
+                            const Divider(height: 32, thickness: 1.2),
+                            _buildFeeRow(
+                              'Platform Fee (${pricing.platformFeePercentage.toStringAsFixed(0)}%)',
+                              '₹${pricing.platformFee.toStringAsFixed(2)}',
+                              isBold: false,
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primaryGreen.withOpacity(0.1),
+                                    AppColors.primaryGreen.withOpacity(0.05),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total Amount',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade900,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${pricing.totalAmount.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primaryGreen,
+                                    ),
+                                  ),
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Total Amount',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey.shade900,
-                                  ),
-                                ),
-                                Text(
-                                  '\$188.80',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.primaryGreen,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),

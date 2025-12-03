@@ -8,6 +8,7 @@ import '../../network/services/network_adapter.dart';
 import '../constants/instant_consult_urls.dart';
 import '../entities/instant_doctor.dart';
 import '../entities/detailed_instant_doctor.dart';
+import '../entities/pricing.dart';
 import '../../booking/constants/booking_urls.dart';
 import '../../booking/entities/booking_response.dart';
 
@@ -97,6 +98,34 @@ class InstantConsultService {
       imageUrl: imageUrl,
       rating: rating,
     );
+  }
+
+  Future<Pricing> fetchPricing() async {
+    final url = InstantConsultUrls.getPricingUrl();
+    final apiRequest = APIRequest(url);
+    try {
+      final apiResponse = await _networkAdapter.get(apiRequest);
+      if (apiResponse.data is Map<String, dynamic>) {
+        return Pricing.fromJson(apiResponse.data as Map<String, dynamic>);
+      }
+      throw Exception('Invalid response');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to load pricing', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
   }
 
   Future<BookingResponse> bookInstantAppointment({
