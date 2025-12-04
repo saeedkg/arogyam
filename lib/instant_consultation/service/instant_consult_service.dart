@@ -9,6 +9,8 @@ import '../constants/instant_consult_urls.dart';
 import '../entities/instant_doctor.dart';
 import '../entities/detailed_instant_doctor.dart';
 import '../entities/pricing.dart';
+import '../entities/payment_order.dart';
+import '../entities/complete_payment_response.dart';
 import '../../booking/constants/booking_urls.dart';
 import '../../booking/entities/booking_response.dart';
 
@@ -128,25 +130,13 @@ class InstantConsultService {
     }
   }
 
-  Future<BookingResponse> bookInstantAppointment({
-    required String? patientId,
-    required String symptoms,
-    required String notes,
-  }) async {
-    final url = BookingUrls.bookAppointmentUrl();
+  Future<PaymentOrder> createPaymentOrder() async {
+    final url = InstantConsultUrls.getCreateOrderUrl();
     final apiRequest = APIRequest(url);
-    apiRequest.addParameters({
-      'type': 'instant',
-      'payment_mode': 'online',
-      'payment_method': 'online',
-      'symptoms': symptoms,
-      'notes': notes,
-      if (patientId != null && patientId.isNotEmpty) 'patient_id': patientId,
-    });
     try {
-      final res = await _networkAdapter.post(apiRequest);
-      if (res.data is Map<String, dynamic>) {
-        return BookingResponse.fromJson(res.data as Map<String, dynamic>);
+      final apiResponse = await _networkAdapter.post(apiRequest);
+      if (apiResponse.data is Map<String, dynamic>) {
+        return PaymentOrder.fromJson(apiResponse.data as Map<String, dynamic>);
       }
       throw Exception('Invalid response');
     } on NetworkFailureException {
@@ -161,7 +151,46 @@ class InstantConsultService {
           final errorCode = responseMap["errorCode"] ?? exception.httpCode;
           throw ServerSentException(message, errorCode);
         }
-        throw ServerSentException('Failed to book instant consultation', exception.httpCode);
+        throw ServerSentException('Failed to create payment order', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  Future<CompletePaymentResponse> completePayment({
+    required String razorpayPaymentId,
+    required String razorpayOrderId,
+    required String razorpaySignature,
+    int? specializationId,
+  }) async {
+    final url = InstantConsultUrls.getCompletePaymentUrl();
+    final apiRequest = APIRequest(url);
+    apiRequest.addParameters({
+      'razorpay_payment_id': razorpayPaymentId,
+      'razorpay_order_id': razorpayOrderId,
+      'razorpay_signature': razorpaySignature,
+      if (specializationId != null) 'specialization_id': specializationId,
+    });
+    try {
+      final res = await _networkAdapter.post(apiRequest);
+      if (res.data is Map<String, dynamic>) {
+        return CompletePaymentResponse.fromJson(res.data as Map<String, dynamic>);
+      }
+      throw Exception('Invalid response');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to complete payment', exception.httpCode);
       } else {
         rethrow;
       }

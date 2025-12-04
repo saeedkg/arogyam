@@ -1,11 +1,14 @@
 import 'package:get/get.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../entities/instant_doctor.dart';
 import '../entities/pricing.dart';
+import '../entities/payment_order.dart';
+import '../entities/complete_payment_response.dart';
 import '../service/instant_consult_service.dart';
-import '../../booking/entities/booking_response.dart';
 
 class InstantConsultController extends GetxController {
   final InstantConsultService api;
+  late Razorpay _razorpay;
 
   InstantConsultController({InstantConsultService? api})
       : api = api ?? InstantConsultService();
@@ -14,7 +17,7 @@ class InstantConsultController extends GetxController {
   final RxList<InstantDoctor> availableDoctors = <InstantDoctor>[].obs;
   final RxBool isBooking = false.obs;
   final RxnString bookingError = RxnString();
-  final Rxn<BookingResponse> bookingResult = Rxn<BookingResponse>();
+  final RxnString appointmentId = RxnString();
   
   final RxBool isPricingLoading = false.obs;
   final Rxn<Pricing> pricing = Rxn<Pricing>();
@@ -22,8 +25,18 @@ class InstantConsultController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     loadAvailableDoctors();
     loadPricing();
+  }
+
+  @override
+  void onClose() {
+    _razorpay.clear();
+    super.onClose();
   }
 
   Future<void> loadPricing() async {
@@ -48,26 +61,64 @@ class InstantConsultController extends GetxController {
     }
   }
 
-  Future<void> bookInstant({
-    required String? patientId,
-    required String symptoms,
-    required String notes,
-  }) async {
+  Future<void> initiatePayment() async {
     isBooking.value = true;
     bookingError.value = null;
-    bookingResult.value = null;
+    appointmentId.value = null;
+    
     try {
-      final result = await api.bookInstantAppointment(
-        patientId: patientId,
-        symptoms: symptoms,
-        notes: notes,
+      // Step 1: Create payment order
+      final paymentOrder = await api.createPaymentOrder();
+      
+      // Step 2: Open Razorpay checkout
+      var options = {
+        'key': paymentOrder.razorpayKey,
+        'amount': (paymentOrder.amount * 100).toInt(), // Amount in paise
+        'currency': paymentOrder.currency,
+        'name': 'Arogyam',
+        'description': 'Instant Consultation',
+        'order_id': paymentOrder.orderId,
+        'prefill': {
+          'contact': '',
+          'email': ''
+        },
+        'theme': {
+          'color': '#22C58B'
+        }
+      };
+      
+      _razorpay.open(options);
+    } catch (e) {
+      bookingError.value = e.toString();
+      isBooking.value = false;
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    try {
+      // Step 3: Complete payment and create appointment
+      final result = await api.completePayment(
+        razorpayPaymentId: response.paymentId ?? '',
+        razorpayOrderId: response.orderId ?? '',
+        razorpaySignature: response.signature ?? '',
       );
-      bookingResult.value = result;
+      
+      appointmentId.value = result.appointmentId;
     } catch (e) {
       bookingError.value = e.toString();
     } finally {
       isBooking.value = false;
     }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    bookingError.value = 'Payment failed: ${response.message}';
+    isBooking.value = false;
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    bookingError.value = 'External wallet selected: ${response.walletName}';
+    isBooking.value = false;
   }
 }
 

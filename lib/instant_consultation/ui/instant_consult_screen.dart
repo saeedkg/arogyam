@@ -225,70 +225,78 @@ class InstantConsultScreen extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: Obx(() => ElevatedButton(
-                        onPressed: controller.isBooking.value
-                            ? null
-                            : () async {
-                                if (controller.availableDoctors.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('No doctors available right now')),
-                                  );
-                                  return;
-                                }
-
-                                final currentPatient = currentPatientController.current.value;
-                                final String? patientId = currentPatient?.id;
-                                await controller.bookInstant(
-                                  patientId: patientId,
-                                  symptoms: 'Chest pain and shortness of breath',
-                                  notes: 'First consultation',
-                                );
-
-                                if (controller.bookingResult.value != null) {
-                                  final result = controller.bookingResult.value!;
-                                  // Navigate to pending consultation screen which handles both states
-                                  Get.to(() => PendingConsultationScreen(appointmentId: result.id));
-                                } else if (controller.bookingError.value != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Booking Failed'),
-                                      content: Text(controller.bookingError.value!),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: const Text('Close'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryGreen,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: controller.isBooking.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Text(
-                                'Book Instant Consultation',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
+                  child: Obx(() {
+                    // Listen to appointment ID changes (payment success)
+                    if (controller.appointmentId.value != null) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final apptId = controller.appointmentId.value!;
+                        Get.to(() => PendingConsultationScreen(appointmentId: apptId));
+                        controller.appointmentId.value = null; // Reset
+                      });
+                    }
+                    
+                    // Listen to booking error changes
+                    if (controller.bookingError.value != null) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Payment Failed'),
+                            content: Text(controller.bookingError.value!),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  controller.bookingError.value = null; // Reset
+                                },
+                                child: const Text('Close'),
                               ),
-                      )),
+                            ],
+                          ),
+                        );
+                      });
+                    }
+                    
+                    return ElevatedButton(
+                      onPressed: controller.isBooking.value
+                          ? null
+                          : () async {
+                              if (controller.availableDoctors.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('No doctors available right now')),
+                                );
+                                return;
+                              }
+
+                              // Initiate Razorpay payment
+                              await controller.initiatePayment();
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: controller.isBooking.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Proceed to Payment',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                    );
+                  }),
                 ),
               ),
             ),

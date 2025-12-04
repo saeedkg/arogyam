@@ -8,5 +8,13 @@ class InstantConsultUrls {
   static String getPricingUrl() {
     return '${NetworkConfig.baseUrl}/patient/instant-consultation/pricing';
   }
+
+  static String getCreateOrderUrl() {
+    return '${NetworkConfig.baseUrl}/patient/instant-consultation/create-order';
+  }
+
+  static String getCompletePaymentUrl() {
+    return '${NetworkConfig.baseUrl}/patient/instant-consultation/complete';
+  }
 }
 
