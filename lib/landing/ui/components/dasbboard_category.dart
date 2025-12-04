@@ -76,14 +76,23 @@ class CategoriesGrid extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(
-                                _getCategoryIconPath(c.name),
-                                height: 36,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
+                              c.svgIcon != null && c.svgIcon!.isNotEmpty
+                                  ? SvgPicture.string(
+                                      c.svgIcon!,
+                                      height: 36,
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
+                                    )
+                                  : SvgPicture.asset(
+                                      _getCategoryIconPath(c.name),
+                                      height: 36,
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
                               const SizedBox(height: 8),
                             ],
                           ),
@@ -134,6 +143,18 @@ class CategoriesGrid extends StatelessWidget {
     }
   }
 
+  // List of available colors for categories
+  static const List<Color> _availableColors = [
+    AppColors.peach,
+    AppColors.roseDust,
+    AppColors.sageGreen,
+    AppColors.blueBell,
+    AppColors.mediumSkyBlue,
+    AppColors.teal,
+    AppColors.blush,
+    AppColors.deepPurple,
+  ];
+
   // Helper method to get color based on category name
   Color _getCategoryColor(String categoryName) {
     switch (categoryName.toLowerCase()) {
@@ -158,7 +179,8 @@ class CategoriesGrid extends StatelessWidget {
       case 'vaccinat...':
         return AppColors.deepPurple;
       default:
-        return Colors.grey;
+        final hash = categoryName.hashCode.abs();
+        return _availableColors[hash % _availableColors.length];
     }
   }
 }

@@ -105,14 +105,23 @@ class _SpecializationGridState extends State<SpecializationGrid> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SvgPicture.asset(
-                                  _getCategoryIconPath(s.name),
-                                  height: 36,
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.white,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
+                                s.svgIcon != null && s.svgIcon!.isNotEmpty
+                                    ? SvgPicture.string(
+                                        s.svgIcon!,
+                                        height: 36,
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white,
+                                          BlendMode.srcIn,
+                                        ),
+                                      )
+                                    : SvgPicture.asset(
+                                        _getCategoryIconPath(s.name),
+                                        height: 36,
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
                                 const SizedBox(height: 8),
                               ],
                             ),
@@ -164,6 +173,18 @@ class _SpecializationGridState extends State<SpecializationGrid> {
     }
   }
 
+  // List of available colors for categories
+  static const List<Color> _availableColors = [
+    AppColors.peach,
+    AppColors.roseDust,
+    AppColors.sageGreen,
+    AppColors.blueBell,
+    AppColors.mediumSkyBlue,
+    AppColors.teal,
+    AppColors.blush,
+    AppColors.deepPurple,
+  ];
+
   // Helper method to get color based on category name
   Color _getCategoryColor(String categoryName) {
     switch (categoryName.toLowerCase()) {
@@ -189,7 +210,8 @@ class _SpecializationGridState extends State<SpecializationGrid> {
       case 'vaccinat...':
         return AppColors.deepPurple;
       default:
-        return Colors.grey;
+        final hash = categoryName.hashCode.abs();
+        return _availableColors[hash % _availableColors.length];
     }
   }
 }

@@ -52,7 +52,7 @@ class HomeController extends GetxController {
         specializations.take(8).map((s) => CategoryItem(
           id: s.id.toString(),
           name: s.name,
-          icon: s.icon ?? '',
+          svgIcon: s.svgIcon,
         )).toList(),
       );
       

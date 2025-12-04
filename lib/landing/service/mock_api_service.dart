@@ -24,21 +24,21 @@ class MockApiService {
   //
   // }
 
-  Future<List<CategoryItem>> fetchCategories() async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    return const [
-      CategoryItem(id: 'cat_cardio', name: 'Cardiology', icon: '❤️'),
-      CategoryItem(id: 'cat_gyno', name: 'dentistry', icon: '🤰'),
-      CategoryItem(id: 'cat_general', name: 'General', icon: '🩺'),
-      CategoryItem(id: 'cat_derma', name: 'gastroen', icon: '🧴'),
-      CategoryItem(id: 'cat_ortho', name: 'vaccination', icon: '🦴'),
-      CategoryItem(id: 'cat_ent', name: 'laboratory', icon: '👂'),
-      CategoryItem(id: 'cat_ent', name: 'pulmonology', icon: '👂'),
-      CategoryItem(id: 'cat_ent', name: 'neurology', icon: '👂'),
-
-
-    ];
-  }
+  // Future<List<CategoryItem>> fetchCategories() async {
+  //   await Future<void>.delayed(const Duration(milliseconds: 300));
+  //   return const [
+  //     CategoryItem(id: 'cat_cardio', name: 'Cardiology', icon: '❤️'),
+  //     CategoryItem(id: 'cat_gyno', name: 'dentistry', icon: '🤰'),
+  //     CategoryItem(id: 'cat_general', name: 'General', icon: '🩺'),
+  //     CategoryItem(id: 'cat_derma', name: 'gastroen', icon: '🧴'),
+  //     CategoryItem(id: 'cat_ortho', name: 'vaccination', icon: '🦴'),
+  //     CategoryItem(id: 'cat_ent', name: 'laboratory', icon: '👂'),
+  //     CategoryItem(id: 'cat_ent', name: 'pulmonology', icon: '👂'),
+  //     CategoryItem(id: 'cat_ent', name: 'neurology', icon: '👂'),
+  //
+  //
+  //   ];
+  // }
 
   Future<List<BannerItem>> fetchBanners() async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
