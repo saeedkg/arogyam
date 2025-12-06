@@ -52,6 +52,8 @@ class DoctorDetailController extends GetxController {
   }
 
   List<String> get timesForSelectedDate {
+    print("-----");
+    print(availableSlots[0].datetime);
     final convertedSlots = availableSlots.map((slot) =>DateTimeFormatter.toLocal (slot.datetime)).toList();
 
     return convertedSlots.map((dt) {

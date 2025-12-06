@@ -24,6 +24,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
   void initState() {
     super.initState();
     c.load(widget.doctorId);
+    bookingController.loadPricing(widget.doctorId);
   }
 
   @override
@@ -39,90 +40,98 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
       ),
 
       // ✅ Fixed bottom button
-      bottomNavigationBar: SafeArea(
-
-        minimum: const EdgeInsets.all(16),
-        child: Obx(() => ElevatedButton(
-          onPressed: c.selectedSlot.value == null || bookingController.isBooking.value
-              ? null
-              : () async {
-            final d = c.detail.value!;
-            final selectedSlot = c.selectedSlot.value!;
-            final scheduledAt = selectedSlot.datetime;
-
-            final req = AppointmentBookingRequest(
-              doctorId: d.id,
-              scheduledAt: scheduledAt,
-              type: "online",
-              paymentMode: "online",
-              paymentMethod: "online",
-              symptoms: "Chest pain and shortness of breath",
-              notes: "First consultation",
-              patientId: selectedFamilyMemberId,
-            );
-
-            await bookingController.book(req);
-
-            if (bookingController.bookingResult.value != null) {
-              final result = bookingController.bookingResult.value!;
-              Get.back();
-              
-              // For scheduled consultations, check if payment is needed
-              final totalAmount = double.tryParse(result.totalAmount.toString()) ?? 0.0;
-              if (totalAmount > 0) {
-                // Navigate to payment screen
-                ConsultationFlowManager.instance.navigateToPayment(
-                  consultationFee: totalAmount,
-                  appointmentId: result.id,
-                  onPaymentSuccess: () {
-                    ConsultationFlowManager.instance.handlePaymentSuccess(result.id);
-                  },
-                );
-              } else {
-                // Free consultation, go directly to pending consultation
-                ConsultationFlowManager.instance.navigateToPendingConsultation(result.id);
-              }
-            } else if (bookingController.bookingError.value != null) {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Booking Failed"),
-                  content: Text(bookingController.bookingError.value!),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("Close")),
-                  ],
-                ),
-              );
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Obx(() {
+            // Listen to appointment ID changes (payment success)
+            if (bookingController.appointmentId.value != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final apptId = bookingController.appointmentId.value!;
+                Get.back(); // Go back to previous screen
+                ConsultationFlowManager.instance.navigateToPendingConsultation(apptId);
+                bookingController.appointmentId.value = null; // Reset
+              });
             }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryGreen,
-            disabledBackgroundColor: Colors.grey.shade300,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: bookingController.isBooking.value
-              ? const SizedBox(
-            height: 18,
-            width: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.white,
-            ),
-          )
-              : const Text(
-            'Book Appointment',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        )),
+            
+            // Listen to booking error changes
+            if (bookingController.bookingError.value != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Payment Failed'),
+                    content: Text(bookingController.bookingError.value!),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          bookingController.bookingError.value = null; // Reset
+                        },
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            }
+            
+            return ElevatedButton(
+              onPressed: c.selectedSlot.value == null || bookingController.isBooking.value
+                  ? null
+                  : () async {
+                final d = c.detail.value!;
+                final selectedSlot = c.selectedSlot.value!;
+                final scheduledAt = selectedSlot.datetime;
+                print("---");
+                print(scheduledAt);
+
+                // Initiate Razorpay payment
+                await bookingController.initiatePayment(
+                  doctorId: d.id,
+                  scheduledAt: scheduledAt,
+                  familyMemberId: selectedFamilyMemberId,
+                  patientNotes: "First consultation",
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+                disabledBackgroundColor: Colors.grey.shade300,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: bookingController.isBooking.value
+                  ? const SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+                  : const Text(
+                'Proceed to Payment',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            );
+          }),
+        ),
       ),
 
       body: Obx(() {
@@ -144,7 +153,9 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
                   // TODO: Open FamilyMembers flow and set selectedFamilyMemberId
                 },
               ),
-              const SizedBox(height: 80), // space before bottom button
+              const SizedBox(height: 24),
+              _PaymentDetailsSection(bookingController: bookingController),
+              const SizedBox(height: 100), // space before bottom button
             ],
           ),
         );
@@ -540,6 +551,133 @@ class _TimeChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PaymentDetailsSection extends StatelessWidget {
+  final BookingController bookingController;
+  const _PaymentDetailsSection({required this.bookingController});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Payment Details',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            if (bookingController.isPricingLoading.value) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryGreen,
+                  ),
+                ),
+              );
+            }
+
+            final pricing = bookingController.pricing.value;
+            if (pricing == null) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text('Unable to load pricing'),
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                _buildFeeRow(
+                  'Consultation Fee',
+                  '₹${pricing.consultationFee.toStringAsFixed(2)}',
+                ),
+                const Divider(height: 24, thickness: 1),
+                _buildFeeRow(
+                  'Platform Fee (${pricing.platformFeePercentage.toStringAsFixed(0)}%)',
+                  '₹${pricing.platformFee.toStringAsFixed(2)}',
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primaryGreen.withOpacity(0.1),
+                        AppColors.primaryGreen.withOpacity(0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total Amount',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade900,
+                        ),
+                      ),
+                      Text(
+                        '₹${pricing.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeeRow(String label, String amount) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade800,
+          ),
+        ),
+        Text(
+          amount,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }

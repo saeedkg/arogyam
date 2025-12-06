@@ -1,6 +1,8 @@
 class TimeSlot {
   final DateTime datetime;
   final String consultationType;
+  final String dateTimeString;
+
   final String? clinicId;
   final bool isAvailable;
 
@@ -9,12 +11,14 @@ class TimeSlot {
     required this.consultationType,
     this.clinicId,
     required this.isAvailable,
+    required this.dateTimeString
   });
 
   factory TimeSlot.fromJson(Map<String, dynamic> json) {
     return TimeSlot(
       datetime: DateTime.parse(json['datetime'] as String),
       consultationType: json['consultation_type'] as String,
+      dateTimeString:json['datetime'],
       clinicId: json['clinic_id'] as String?,
       isAvailable: json['is_available'] as bool? ?? true,
     );
