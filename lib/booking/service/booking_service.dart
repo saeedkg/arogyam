@@ -67,13 +67,13 @@ class BookingService {
 
   Future<VideoConsultationPaymentOrder> createVideoConsultationOrder({
     required String doctorId,
-    required DateTime scheduledAt,
+    required String scheduledAt,
     String? familyMemberId,
   }) async {
     final apiRequest = APIRequest(BookingUrls.videoConsultationCreateOrderUrl());
     apiRequest.addParameters({
       'doctor_id': doctorId,
-      'scheduled_at': scheduledAt.toIso8601String(),
+      'scheduled_at': scheduledAt,
       if (familyMemberId != null) 'family_member_id': familyMemberId,
     });
     try {
@@ -98,7 +98,7 @@ class BookingService {
     required String razorpayOrderId,
     required String razorpaySignature,
     required String doctorId,
-    required DateTime scheduledAt,
+    required String scheduledAt,
     String? familyMemberId,
     String? patientNotes,
   }) async {
@@ -108,7 +108,7 @@ class BookingService {
       'razorpay_order_id': razorpayOrderId,
       'razorpay_signature': razorpaySignature,
       'doctor_id': doctorId,
-      'scheduled_at': scheduledAt.toIso8601String(),
+      'scheduled_at': scheduledAt,
       if (familyMemberId != null) 'family_member_id': familyMemberId,
       if (patientNotes != null) 'patient_notes': patientNotes,
     });

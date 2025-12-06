@@ -12,7 +12,7 @@ class BookingController extends GetxController {
   
   // Store payment context
   String? _currentDoctorId;
-  DateTime? _currentScheduledAt;
+  String? _currentScheduledAt;
   String? _currentFamilyMemberId;
   String? _currentPatientNotes;
 
@@ -68,7 +68,7 @@ class BookingController extends GetxController {
 
   Future<void> initiatePayment({
     required String doctorId,
-    required DateTime scheduledAt,
+    required String scheduledAt,
     String? familyMemberId,
     String? patientNotes,
   }) async {

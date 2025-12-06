@@ -92,9 +92,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
                   : () async {
                 final d = c.detail.value!;
                 final selectedSlot = c.selectedSlot.value!;
-                final scheduledAt = selectedSlot.datetime;
-                print("---");
-                print(scheduledAt);
+                final scheduledAt = selectedSlot.dateTimeString;
 
                 // Initiate Razorpay payment
                 await bookingController.initiatePayment(
