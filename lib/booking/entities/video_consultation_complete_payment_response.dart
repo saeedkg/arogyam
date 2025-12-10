@@ -9,8 +9,9 @@ class VideoConsultationCompletePaymentResponse {
 
   factory VideoConsultationCompletePaymentResponse.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>;
+    final appointment = data['appointment'] as Map<String, dynamic>;
     return VideoConsultationCompletePaymentResponse(
-      appointmentId: data['appointment_id'].toString(),
+      appointmentId: appointment['id'].toString(),
       message: json['message'] as String,
     );
   }
