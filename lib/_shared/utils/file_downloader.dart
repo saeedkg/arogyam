@@ -93,6 +93,52 @@ class FileDownloader {
     return false;
   }
 
+  /// Downloads and opens a health record file
+  static Future<bool> downloadAndOpenHealthRecord({
+    required String recordId,
+    required String fileName,
+    Function(int received, int total)? onProgress,
+  }) async {
+    try {
+      // Request storage permission
+      final hasPermission = await _requestStoragePermission();
+      if (!hasPermission) {
+        throw Exception('Storage permission denied');
+      }
+
+      // Get the directory to save the file
+      final directory = await _getDownloadDirectory();
+      if (directory == null) {
+        throw Exception('Could not access download directory');
+      }
+
+      // Create the full file path
+      final filePath = '${directory.path}/$fileName';
+
+      // Download the file using Dio with authentication
+      final dio = Dio();
+      var authToken = await AuthTokenProvider().getToken(forceRefresh: false);
+
+      // Add token in headers
+      dio.options.headers = {
+        'Authorization': 'Bearer $authToken',
+        'Accept': 'application/json',
+      };
+
+      await dio.download(
+        "${NetworkConfig.baseUrl}/patient/health-records/$recordId/download",
+        filePath,
+        onReceiveProgress: onProgress,
+      );
+
+      // Open the downloaded file
+      return await openFile(filePath);
+    } catch (e) {
+      print('Error downloading health record: $e');
+      return false;
+    }
+  }
+
   /// Request storage permission
   static Future<bool> _requestStoragePermission() async {
     if (Platform.isAndroid) {

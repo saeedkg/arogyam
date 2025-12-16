@@ -8,6 +8,7 @@ import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/utils/date_time_formatter.dart';
 import '../../../_shared/utils/file_downloader.dart';
 import '../../entities/health_record.dart';
+import '../health_record_viewer_screen.dart';
 
 class HealthRecordCard extends StatefulWidget {
   final HealthRecord record;
@@ -21,6 +22,11 @@ class HealthRecordCard extends StatefulWidget {
 class _HealthRecordCardState extends State<HealthRecordCard> {
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
+
+  void _viewRecord() {
+    // Navigate to health record viewer
+    Get.to(() => HealthRecordViewerScreen(healthRecord: widget.record));
+  }
 
   Future<void> _downloadRecord() async {
     if (widget.record.fileUrl == null || widget.record.fileUrl!.isEmpty) {
@@ -134,7 +140,7 @@ class _HealthRecordCardState extends State<HealthRecordCard> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: _isDownloading ? null : _downloadRecord,
+          onTap: _isDownloading ? null : _viewRecord,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(

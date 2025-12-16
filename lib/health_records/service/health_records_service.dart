@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
 import '../../network/entities/api_request.dart';
 import '../../network/exceptions/api_exception.dart';
 import '../../network/exceptions/http_exception.dart';
@@ -6,6 +8,9 @@ import '../../network/exceptions/network_failure_exception.dart';
 import '../../network/exceptions/server_sent_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
+import '../../_shared/utils/file_downloader.dart';
+import '../../auth/user_management/service/auth_token_provider.dart';
+import '../../_shared/constants/network_config.dart';
 import '../constants/health_records_urls.dart';
 import '../entities/health_record.dart';
 
@@ -114,6 +119,63 @@ class HealthRecordsService {
       date: date,
       fileUrl: json['file_path'] as String?,
     );
+  }
+
+  /// Fetches health record file for viewing (temporary cache) using API endpoint
+  Future<String?> fetchHealthRecordForViewing({
+    required String recordId,
+    Function(int received, int total)? onProgress,
+  }) async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final fileName = 'health_record_${recordId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final filePath = '${tempDir.path}/$fileName';
+
+      // Use Dio with authentication for downloading
+      final dio = Dio();
+      var authToken = await AuthTokenProvider().getToken(forceRefresh: false);
+
+      // Add token in headers
+      dio.options.headers = {
+        'Authorization': 'Bearer $authToken',
+        'Accept': 'application/json',
+      };
+
+      await dio.download(
+        "${NetworkConfig.baseUrl}/patient/health-records/$recordId/download",
+        filePath,
+        onReceiveProgress: onProgress,
+      );
+
+      final file = File(filePath);
+      if (await file.exists()) {
+        return filePath;
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching health record for viewing: $e');
+      return null;
+    }
+  }
+
+  /// Downloads health record permanently to device storage using API endpoint
+  Future<bool> downloadHealthRecordPermanently({
+    required String recordId,
+    required String fileName,
+    Function(int received, int total)? onProgress,
+  }) async {
+    try {
+      // Use the record ID as the URL parameter for FileDownloader
+      // FileDownloader will construct the full URL with authentication
+      return await FileDownloader.downloadAndOpenHealthRecord(
+        recordId: recordId,
+        fileName: fileName,
+        onProgress: onProgress,
+      );
+    } catch (e) {
+      print('Error downloading health record permanently: $e');
+      return false;
+    }
   }
 
   // final dummyHealthRecords = [
