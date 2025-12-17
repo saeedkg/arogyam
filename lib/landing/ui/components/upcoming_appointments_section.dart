@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/utils/date_time_formatter.dart';
 import '../../../_shared/routing/routing.dart';
+import '../../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../../entities/dashboard_data.dart';
 
 class UpcomingAppointmentsSection extends StatelessWidget {
@@ -81,7 +82,7 @@ class _UpcomingAppointmentCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Navigate to appointment detail
-        AppNavigation.toAppointmentDetail(appointment.id.toString());
+        Get.to(() => PendingConsultationScreen(appointmentId: appointment.id.toString()));
       },
       child: Container(
         width: 260,
