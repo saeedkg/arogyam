@@ -8,6 +8,7 @@ import '../components/dashboard_app_bar.dart';
 import '../components/dashboard_quick_action_view.dart' show QuickActions;
 import '../components/dashboard_serach_view.dart';
 import '../components/top_doctors_view.dart';
+import '../components/upcoming_appointments_section.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -30,18 +31,19 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SearchSection(),
-                    //const SizedBox(height: 16),
-                    //_NextAppointmentCard(appointment: controller.nextAppointment.value),
                     const SizedBox(height: 16),
-                   // _SectionHeader(title: 'Quick actions'),
-                  //  const SizedBox(height: 8),
+                    
+                    // Upcoming Appointments Section
+                    UpcomingAppointmentsSection(
+                      appointments: controller.upcomingAppointments,
+                    ),
+                    if (controller.upcomingAppointments.isNotEmpty)
+                      const SizedBox(height: 16),
+                    
                     QuickActions(),
                     const SizedBox(height: 16),
-                  //  _SectionHeader(title: 'Highlights'),
-                  //  const SizedBox(height: 8),
                     BannerCarousel(banners: controller.banners),
                     const SizedBox(height: 16),
-                  //  _SectionHeader(title: 'Categories'),
                     const SizedBox(height: 8),
                     CategoriesGrid(categories: controller.categories),
                     const SizedBox(height: 16),

@@ -7,25 +7,32 @@ import '../../common_services/services/specialization_service.dart';
 import '../entities/banner_item.dart';
 import '../entities/category_item.dart';
 import '../entities/doctor.dart';
+import '../entities/dashboard_data.dart';
 import '../service/mock_api_service.dart';
+import '../service/dashboard_service.dart';
 
 class HomeController extends GetxController {
   final MockApiService api;
   final DoctorService doctorService;
   final SpecializationService specializationService;
+  final DashboardService dashboardService;
 
   HomeController({
     MockApiService? api,
     DoctorService? doctorService,
     SpecializationService? specializationService,
+    DashboardService? dashboardService,
   })  : api = api ?? MockApiService(),
         doctorService = doctorService ?? DoctorService(),
-        specializationService = specializationService ?? SpecializationService();
+        specializationService = specializationService ?? SpecializationService(),
+        dashboardService = dashboardService ?? DashboardService();
 
   final Rxn<Appointment> nextAppointment = Rxn<Appointment>();
   final RxList<CategoryItem> categories = <CategoryItem>[].obs;
   final RxList<BannerItem> banners = <BannerItem>[].obs;
   final RxList<Doctor> topDoctors = <Doctor>[].obs;
+  final RxList<UpcomingAppointment> upcomingAppointments = <UpcomingAppointment>[].obs;
+  final Rxn<DashboardData> dashboardData = Rxn<DashboardData>();
   final RxBool isLoading = false.obs;
   final RxInt bannerIndex = 0.obs;
 
@@ -39,15 +46,18 @@ class HomeController extends GetxController {
     isLoading.value = true;
     try {
       final results = await Future.wait([
-       // api.fetchNextAppointment(),
+        dashboardService.fetchDashboardData(),
         specializationService.fetchSpecializations(),
         api.fetchBanners(),
         doctorService.fetchDoctors(),
       ]);
-     // nextAppointment.value = results[0] as Appointment?;
+      
+      // Store dashboard data
+      dashboardData.value = results[0] as DashboardData;
+      upcomingAppointments.assignAll(dashboardData.value!.upcomingAppointments);
       
       // Map specializations to categories
-      final specializations = results[0] as List<Specialization>;
+      final specializations = results[1] as List<Specialization>;
       categories.assignAll(
         specializations.take(8).map((s) => CategoryItem(
           id: s.id.toString(),
@@ -56,10 +66,10 @@ class HomeController extends GetxController {
         )).toList(),
       );
       
-      banners.assignAll(results[1] as List<BannerItem>);
+      banners.assignAll(results[2] as List<BannerItem>);
       
       // Map doctors from common service to landing entity
-      final doctors = results[2] as List<common_doctor.Doctor>;
+      final doctors = results[3] as List<common_doctor.Doctor>;
       topDoctors.assignAll(
         doctors.take(10).map((d) => Doctor(
           id: d.id.toString(),
@@ -73,6 +83,44 @@ class HomeController extends GetxController {
           rating: d.averageRating > 0 ? d.averageRating : 4.8,
         )).toList(),
       );
+    } catch (e) {
+      print('Error loading dashboard data: $e');
+      // Continue loading other data even if dashboard fails
+      try {
+        final results = await Future.wait([
+          specializationService.fetchSpecializations(),
+          api.fetchBanners(),
+          doctorService.fetchDoctors(),
+        ]);
+        
+        final specializations = results[0] as List<Specialization>;
+        categories.assignAll(
+          specializations.take(8).map((s) => CategoryItem(
+            id: s.id.toString(),
+            name: s.name,
+            svgIcon: s.svgIcon,
+          )).toList(),
+        );
+        
+        banners.assignAll(results[1] as List<BannerItem>);
+        
+        final doctors = results[2] as List<common_doctor.Doctor>;
+        topDoctors.assignAll(
+          doctors.take(10).map((d) => Doctor(
+            id: d.id.toString(),
+            name: d.name,
+            specialization: d.qualifications.isNotEmpty 
+                ? d.qualifications.first 
+                : 'General Physician',
+            imageUrl: d.imageUrl.isNotEmpty 
+                ? d.imageUrl 
+                : "https://i.pravatar.cc/150?img=47",
+            rating: d.averageRating > 0 ? d.averageRating : 4.8,
+          )).toList(),
+        );
+      } catch (e) {
+        print('Error loading fallback data: $e');
+      }
     } finally {
       isLoading.value = false;
     }
