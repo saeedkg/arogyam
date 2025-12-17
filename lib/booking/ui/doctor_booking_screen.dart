@@ -6,6 +6,7 @@ import '../../_shared/consultation/consultation_flow_manager.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
 import '../entities/appointment_booking_request.dart';
+import '../../family_member/ui/family_member_screen.dart';
 
 class DoctorBookingScreen extends StatefulWidget {
   final String doctorId;
@@ -18,13 +19,39 @@ class DoctorBookingScreen extends StatefulWidget {
 class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
   final c = Get.put(DoctorDetailController());
   final bookingController = Get.put(BookingController());
-  String? selectedFamilyMemberId; // can be set from patient selection later
 
   @override
   void initState() {
     super.initState();
     c.load(widget.doctorId);
     bookingController.loadPricing(widget.doctorId);
+  }
+
+  Future<void> _showPatientSelectionAndProceed() async {
+    // Show patient selection bottom sheet
+    final selectedPatientId = await Get.bottomSheet<String>(
+      const FamilyMembersBottomSheet(),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+    );
+
+    // If a patient was selected, proceed with payment
+    if (selectedPatientId != null) {
+      final d = c.detail.value!;
+      final selectedSlot = c.selectedSlot.value!;
+      final scheduledAt = selectedSlot.dateTimeString;
+
+      // Initiate Razorpay payment
+      await bookingController.initiatePayment(
+        doctorId: d.id,
+        scheduledAt: scheduledAt,
+        familyMemberId: selectedPatientId,
+        patientNotes: "First consultation",
+      );
+    }
   }
 
   @override
@@ -90,17 +117,8 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
               onPressed: c.selectedSlot.value == null || bookingController.isBooking.value
                   ? null
                   : () async {
-                final d = c.detail.value!;
-                final selectedSlot = c.selectedSlot.value!;
-                final scheduledAt = selectedSlot.dateTimeString;
-
-                // Initiate Razorpay payment
-                await bookingController.initiatePayment(
-                  doctorId: d.id,
-                  scheduledAt: scheduledAt,
-                  familyMemberId: selectedFamilyMemberId,
-                  patientNotes: "First consultation",
-                );
+                // Show patient selection bottom sheet first
+                await _showPatientSelectionAndProceed();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,
@@ -145,13 +163,6 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
               const SizedBox(height: 24),
               _AvailabilitySection(controller: c, doctor: d),
               const SizedBox(height: 24),
-              _PatientSelection(
-                selectedId: selectedFamilyMemberId,
-                onTap: () {
-                  // TODO: Open FamilyMembers flow and set selectedFamilyMemberId
-                },
-              ),
-              const SizedBox(height: 24),
               _PaymentDetailsSection(bookingController: bookingController),
               const SizedBox(height: 100), // space before bottom button
             ],
@@ -166,23 +177,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
 // COMPONENTS
 // ========================
 
-class _PatientSelection extends StatelessWidget {
-  final String? selectedId;
-  final VoidCallback onTap;
-  const _PatientSelection({this.selectedId, required this.onTap});
 
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      leading: const Icon(Icons.person, color: AppColors.primaryGreen),
-      title: Text(selectedId != null ? 'Patient $selectedId' : 'Select patient'),
-      trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: onTap,
-    );
-  }
-}
 
 class _DoctorProfileCard extends StatelessWidget {
   final dynamic d;

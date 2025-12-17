@@ -74,7 +74,7 @@ class BookingService {
     apiRequest.addParameters({
       'doctor_id': doctorId,
       'scheduled_at': scheduledAt,
-      if (familyMemberId != null) 'family_member_id': familyMemberId,
+      if (familyMemberId != null && familyMemberId.toLowerCase() != 'self') 'family_member_id': familyMemberId,
     });
     try {
       final res = await _networkAdapter.post(apiRequest);
@@ -109,7 +109,7 @@ class BookingService {
       'razorpay_signature': razorpaySignature,
       'doctor_id': doctorId,
       'scheduled_at': scheduledAt,
-      if (familyMemberId != null) 'family_member_id': familyMemberId,
+      if (familyMemberId != null && familyMemberId.toLowerCase() != 'self') 'family_member_id': familyMemberId,
       if (patientNotes != null) 'patient_notes': patientNotes,
     });
     try {
