@@ -8,12 +8,19 @@ class DoctorUrls {
     String? search,
     DoctorFilter? filter,
   }) {
-    String url = '${NetworkConfig.baseUrl}/patient/doctors/featured?page=$page&per_page=$perPage';
+    String url = '${NetworkConfig.baseUrl}/patient/doctors/search?page=$page&per_page=$perPage';
+    
+    // Add specialization as URL parameter if selected
+    if (filter?.specialization != null && 
+        filter!.specialization != 'All' && 
+        filter.specialization!.isNotEmpty) {
+      url += '&specialization=${Uri.encodeComponent(filter.specialization!)}';
+    }
     
     // Add search from parameter or filter
     final searchQuery = search ?? filter?.searchQuery;
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      url += '&search=$searchQuery';
+      url += '&search=${Uri.encodeComponent(searchQuery)}';
     }
     
     // Add filter parameters if filter is provided
