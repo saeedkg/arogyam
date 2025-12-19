@@ -142,12 +142,16 @@ class DoctorsApiService {
     final ratingStr = json['average_rating']?.toString();
     final rating = double.tryParse(ratingStr ?? '0') ?? 0.0;
     final reviews = (json['total_ratings'] is int) ? json['total_ratings'] as int : int.tryParse('${json['total_ratings'] ?? 0}') ?? 0;
-    final fee =json["consultation_fee"]??"";
+    final fee = json["consultation_fee"] ?? "";
     final qualList = (json['qualifications'] as List<dynamic>? ?? []);
     final qualification = qualList.isNotEmpty
         ? qualList.map((e) => e.toString()).join(", ")
         : "Not available";
 
+    // Map new availability fields from API
+    final availabilityStatus = json['availability_status'] as String?;
+    final isOnline = availabilityStatus == 'online';
+    final availableToday = json['available_today'] as bool? ?? false;
 
     return DoctorListItem(
       id: '${json['id']}',
@@ -160,8 +164,8 @@ class DoctorsApiService {
       consultationFee: fee,
       favorite: false,
       education: qualification,
-
-
+      isOnline: isOnline,
+      availableToday: availableToday,
     );
   }
 }
