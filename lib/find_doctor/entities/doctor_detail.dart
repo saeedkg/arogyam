@@ -10,6 +10,17 @@ class DoctorDetail {
   final int experienceYears;
   final int fee;
   final List<DateTime> availableDates; // first 4 days
+  
+  // New fields from API
+  final List<String>? qualifications;
+  final List<String>? languages;
+  final List<Map<String, dynamic>>? specializations;
+  final String? availabilityStatus;
+  final bool? availableToday;
+  final int? todaySlotsCount;
+  final int? totalConsultations;
+  final bool? isVerified;
+  final String? consultationFee;
 
   const DoctorDetail({
     required this.id,
@@ -23,6 +34,15 @@ class DoctorDetail {
     required this.experienceYears,
     required this.fee,
     required this.availableDates,
+    this.qualifications,
+    this.languages,
+    this.specializations,
+    this.availabilityStatus,
+    this.availableToday,
+    this.todaySlotsCount,
+    this.totalConsultations,
+    this.isVerified,
+    this.consultationFee,
   });
 }
 

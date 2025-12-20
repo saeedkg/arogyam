@@ -64,6 +64,17 @@ class DoctorBookingService {
             : null)
             ?.round() ?? 0;
 
+    // Map new API fields
+    final qualifications = (json['qualifications'] as List<dynamic>?)?.cast<String>();
+    final languages = (json['languages'] as List<dynamic>?)?.cast<String>();
+    final specializations = (json['specializations'] as List<dynamic>?)?.cast<Map<String, dynamic>>();
+    final availabilityStatus = json['availability_status'] as String?;
+    final availableToday = json['available_today'] as bool?;
+    final todaySlotsCount = json['today_slots_count'] as int?;
+    final totalConsultations = json['total_consultations'] as int?;
+    final isVerified = json['is_verified'] as bool?;
+    final consultationFee = json['consultation_fee']?.toString();
+
     // Build availability for next 7 days
     final now = DateTime.now();
     final days = List<DateTime>.generate(7, (i) => DateTime(now.year, now.month, now.day + i));
@@ -80,6 +91,15 @@ class DoctorBookingService {
       experienceYears: experienceYears,
       fee: fee,
       availableDates: days,
+      qualifications: qualifications,
+      languages: languages,
+      specializations: specializations,
+      availabilityStatus: availabilityStatus,
+      availableToday: availableToday,
+      todaySlotsCount: todaySlotsCount,
+      totalConsultations: totalConsultations,
+      isVerified: isVerified,
+      consultationFee: consultationFee,
     );
   }
 }
