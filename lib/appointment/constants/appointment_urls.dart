@@ -10,9 +10,14 @@ class AppointmentsUrls {
     String url = '${NetworkConfig.baseUrl}/patient/appointments?page=$page&per_page=$perPage';
     
     // Add patient_id if provided
-    if (patientId != null && patientId.isNotEmpty) {
-      url += '&patient_id=$patientId';
+    final intId = int.tryParse(patientId ?? '');
+    if (intId != null) {
+      url += '&family_member_id=$intId';
     }
+
+    // if (patientId != null && patientId.isNotEmpty) {
+    //   url += '&family_member_id=$patientId';
+    // }
     
     return url;
   }
