@@ -59,6 +59,38 @@ class HealthRecordsService {
     }
   }
 
+  Future<List<HealthRecord>> fetchHealthRecordsForAppointment(String appointmentId) async {
+    final url = HealthRecordsUrls.getHealthRecordsForAppointmentUrl(appointmentId);
+    final apiRequest = APIRequest(url);
+    try {
+      final apiResponse = await _networkAdapter.get(apiRequest);
+      if (apiResponse.data is Map<String, dynamic>) {
+        final map = apiResponse.data as Map<String, dynamic>;
+        final list = (map['data'] is Map<String, dynamic>)
+            ? (map['data']['data'] as List<dynamic>? ?? const [])
+            : (map['data'] as List<dynamic>? ?? const []);
+        return list.map((e) => _mapToHealthRecord(e as Map<String, dynamic>)).toList();
+      }
+      throw Exception('Invalid response');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to load health records for appointment', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
   Future<void> uploadHealthRecord({
     required File file,
     required String title,
@@ -100,8 +132,8 @@ class HealthRecordsService {
     // Parse date
     DateTime date;
     try {
-      if (json['date'] != null) {
-        date = DateTime.parse(json['date'] as String);
+      if (json['record_date'] != null) {
+        date = DateTime.parse(json['record_date'] as String);
       } else if (json['created_at'] != null) {
         date = DateTime.parse(json['created_at'] as String);
       } else {
@@ -114,10 +146,14 @@ class HealthRecordsService {
     return HealthRecord(
       id: '${json['id']}',
       title: json['title'] as String? ?? 'Untitled Record',
-      category: json['category'] as String? ?? 'General',
-      notes: json['notes'] as String?,
+      category: json['category']?['name'] as String? ?? 'General',
+      notes: json['description'] as String?,
       date: date,
       fileUrl: json['file_path'] as String?,
+      fileName: json['file_name'] as String?,
+      fileType: json['file_type'] as String?,
+      fileSize: json['file_size'] as int?,
+      type: json['type'] as String? ?? 'general',
     );
   }
 

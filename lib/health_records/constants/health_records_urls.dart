@@ -5,6 +5,10 @@ class HealthRecordsUrls {
     return '${NetworkConfig.baseUrl}/patient/health-records';
   }
 
+  static String getHealthRecordsForAppointmentUrl(String appointmentId) {
+    return '${NetworkConfig.baseUrl}/patient/health-records?appointment_id=$appointmentId';
+  }
+
   static String getHealthRecordDownloadUrl(String healthRecordId) {
     return '${NetworkConfig.baseUrl}/patient/health-records/$healthRecordId/download';
   }

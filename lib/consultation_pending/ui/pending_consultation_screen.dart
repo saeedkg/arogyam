@@ -9,6 +9,7 @@ import '../../_shared/ui/app_colors.dart';
 import '../controller/pending_consultation_controller.dart';
 import '../entities/appointment_detail.dart';
 import 'components/upload_document_dialog.dart';
+import 'components/consultation_health_records_section.dart';
 
 class PendingConsultationScreen extends StatefulWidget {
   final String appointmentId;
@@ -415,6 +416,16 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
           const SizedBox(height: 20),
          // const SizedBox(height: 12),
 
+          // Health Records Section
+          Obx(() => ConsultationHealthRecordsSection(
+            healthRecords: c.healthRecords,
+            isLoading: c.isLoadingHealthRecords.value,
+            error: c.healthRecordsError.value,
+            onRefresh: () => c.refreshHealthRecords(widget.appointmentId),
+          )),
+          
+          const SizedBox(height: 20),
+
           // Document Upload Section
           _buildDocumentUploadSection(),
         ],
@@ -643,8 +654,8 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
     );
 
     if (result == true) {
-      // Document uploaded successfully
-      // You can refresh any document list here if needed
+      // Document uploaded successfully - refresh health records
+      await c.refreshHealthRecords(widget.appointmentId);
     }
   }
 
