@@ -10,6 +10,7 @@ import '../controller/pending_consultation_controller.dart';
 import '../entities/appointment_detail.dart';
 import 'components/upload_document_dialog.dart';
 import 'components/consultation_health_records_section.dart';
+import 'components/consultation_document_upload_section.dart';
 
 class PendingConsultationScreen extends StatefulWidget {
   final String appointmentId;
@@ -427,7 +428,10 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
           const SizedBox(height: 20),
 
           // Document Upload Section
-          _buildDocumentUploadSection(),
+          ConsultationDocumentUploadSection(
+            appointmentId: widget.appointmentId,
+            onDocumentUploaded: () => c.refreshHealthRecords(widget.appointmentId),
+          ),
         ],
       ),
     );
@@ -476,188 +480,5 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
       ],
     );
   }
-
-  Widget _buildDocumentUploadSection() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Header Section
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withOpacity(0.05),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.upload_file_rounded,
-                    color: AppColors.primaryBlue,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Share Documents',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.grey.shade900,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Upload medical reports, test results, or photos',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Content Section
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                // Upload Benefits
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildUploadBenefit(
-                        icon: Icons.speed_rounded,
-                        title: 'Faster Diagnosis',
-                        subtitle: 'Help doctor understand your condition',
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildUploadBenefit(
-                        icon: Icons.security_rounded,
-                        title: 'Secure & Private',
-                        subtitle: 'Your documents are encrypted',
-                      ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 20),
-                
-                // Upload Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: OutlinedButton.icon(
-                    onPressed: _showUploadDialog,
-                    icon: const Icon(Icons.add_rounded, size: 20),
-                    label: const Text(
-                      'Upload Document',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primaryBlue,
-                      side: BorderSide(color: AppColors.primaryBlue, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUploadBenefit({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 16, color: AppColors.primaryBlue),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade900,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _showUploadDialog() async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => UploadDocumentDialog(
-        appointmentId: widget.appointmentId,
-      ),
-    );
-
-    if (result == true) {
-      // Document uploaded successfully - refresh health records
-      await c.refreshHealthRecords(widget.appointmentId);
-    }
-  }
-
 
 }
