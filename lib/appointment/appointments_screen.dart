@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../_shared/routing/routing.dart';
 import '../_shared/patient/current_patient_controller.dart';
+import '../_shared/patient/current_patient.dart';
 import '../_shared/consultation/consultation_flow_manager.dart';
 import '../_shared/utils/date_time_formatter.dart';
 import 'controler/appointments_controller.dart';
@@ -28,13 +29,34 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     currentPatientController = Get.put(CurrentPatientController());
     _scrollController = ScrollController();
     
-    // Set initial patient ID
+    // Wait for current patient to load, then set patient ID
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      c.setPatientId(currentPatientController.current.value?.id);
+      _initializePatientAndAppointments();
+    });
+    
+    // Listen to current patient changes
+    ever(currentPatientController.current, (CurrentPatient? patient) {
+      if (patient != null && patient.id != c.currentPatientId) {
+        c.setPatientId(patient.id);
+      }
     });
     
     // Add scroll listener for pagination
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _initializePatientAndAppointments() async {
+    // Ensure current patient is loaded from preferences
+    await currentPatientController.refreshFromPrefs();
+    
+    // Set patient ID and load appointments
+    final currentPatientId = currentPatientController.current.value?.id;
+    if (currentPatientId != null) {
+      c.setPatientId(currentPatientId);
+    } else {
+      // If no current patient, still try to load appointments
+      c.fetchInitialAppointments();
+    }
   }
 
   @override
@@ -273,10 +295,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           // If a patient was selected, reload appointments
           if (selectedPatientId != null) {
             // Refresh current patient from prefs
-            currentPatientController.refreshFromPrefs();
+            await currentPatientController.refreshFromPrefs();
             
-            // Reload appointments with the selected patient ID
-            c.setPatientId(selectedPatientId as String);
+            // The listener will automatically reload appointments when current patient changes
+            // But we can also explicitly reload to ensure it happens immediately
+            final newPatientId = currentPatientController.current.value?.id;
+            if (newPatientId != null) {
+              c.setPatientId(newPatientId);
+            }
           }
         },
       );

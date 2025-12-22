@@ -22,16 +22,18 @@ class AppointmentsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchInitialAppointments();
+    // Don't fetch appointments automatically - let the screen control this
+    // fetchInitialAppointments();
   }
 
   /// Set patient ID and reload appointments
   void setPatientId(String? patientId) {
-    if (_currentPatientId != patientId) {
-      _currentPatientId = patientId;
-      fetchInitialAppointments();
-    }
+    _currentPatientId = patientId;
+    fetchInitialAppointments();
   }
+
+  /// Get current patient ID
+  String? get currentPatientId => _currentPatientId;
 
   /// Fetch initial appointments (first page)
   Future<void> fetchInitialAppointments() async {
