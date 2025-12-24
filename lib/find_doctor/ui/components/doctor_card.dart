@@ -281,37 +281,37 @@ class DoctorCard extends StatelessWidget {
                         ),
                       
                       // If offline
-                      if (!doctor.isOnline)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade500,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Offline',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      // if (!doctor.isOnline)
+                      //   Container(
+                      //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.grey.shade100,
+                      //       borderRadius: BorderRadius.circular(12),
+                      //       border: Border.all(color: Colors.grey.shade300),
+                      //     ),
+                      //     child: Row(
+                      //       mainAxisSize: MainAxisSize.min,
+                      //       children: [
+                      //         Container(
+                      //           width: 6,
+                      //           height: 6,
+                      //           decoration: BoxDecoration(
+                      //             color: Colors.grey.shade500,
+                      //             shape: BoxShape.circle,
+                      //           ),
+                      //         ),
+                      //         const SizedBox(width: 4),
+                      //         Text(
+                      //           'Offline',
+                      //           style: TextStyle(
+                      //             fontSize: 11,
+                      //             fontWeight: FontWeight.w600,
+                      //             color: Colors.grey.shade600,
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
                     ],
                   ),
 
