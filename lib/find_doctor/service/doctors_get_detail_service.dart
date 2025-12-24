@@ -153,6 +153,10 @@ class DoctorsApiService {
     final isOnline = availabilityStatus == 'online';
     final availableToday = json['available_today'] as bool? ?? false;
 
+    // Map consultation types from API
+    final consultationTypesRaw = json['consultation_types'] as List<dynamic>? ?? [];
+    final consultationTypes = consultationTypesRaw.map((e) => e.toString()).toList();
+
     return DoctorListItem(
       id: '${json['id']}',
       name: (user != null ? (user['name'] as String?) : null) ?? 'Doctor',
@@ -166,6 +170,7 @@ class DoctorsApiService {
       education: qualification,
       isOnline: isOnline,
       availableToday: availableToday,
+      consultationTypes: consultationTypes,
     );
   }
 }

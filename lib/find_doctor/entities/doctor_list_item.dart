@@ -12,7 +12,7 @@ class DoctorListItem {
   final String education;
   final String consultationFee;
   final bool availableToday;
-
+  final List<String> consultationTypes;
 
   const DoctorListItem({
     required this.id,
@@ -23,12 +23,17 @@ class DoctorListItem {
     required this.rating,
     required this.reviews,
     this.favorite = false,
-    this.isOnline=true,
-    this.experience=5,
+    this.isOnline = true,
+    this.experience = 5,
     required this.education,
     required this.consultationFee,
-    this.availableToday=true
-
+    this.availableToday = true,
+    this.consultationTypes = const [],
   });
+
+  // Helper method to check if instant or online consultation is available
+  bool get hasInstantOrOnlineConsultation {
+    return consultationTypes.contains('instant') || consultationTypes.contains('online');
+  }
 }
 

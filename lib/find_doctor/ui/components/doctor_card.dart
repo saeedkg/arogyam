@@ -83,7 +83,7 @@ class DoctorCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Name + Favorite
+                        // Name + Rating
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -99,12 +99,20 @@ class DoctorCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Icon(
-                              doctor.favorite
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              color: doctor.favorite ? Colors.red : Colors.grey.shade400,
-                              size: 20,
+                            // Rating instead of favorite
+                            Row(
+                              children: [
+                                Icon(Icons.star_rounded, color: Colors.amber.shade600, size: 16),
+                                const SizedBox(width: 2),
+                                Text(
+                                  doctor.rating.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -195,141 +203,145 @@ class DoctorCard extends StatelessWidget {
               Divider(height: 1, color: Colors.grey.shade300),
               const SizedBox(height: 12),
 
-              /// ✅ Availability + Rating
+              /// ✅ Availability + Book Now Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Availability Status
-                  Row(
-                    children: [
-                      // Online Status Tag
-                      if (doctor.isOnline)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.green.shade200),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade500,
-                                  shape: BoxShape.circle,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // Online Status Tag
+                        if (doctor.isOnline)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade500,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Online',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        
+                        // Available Today (if online, add spacing)
+                      //  if (doctor.isOnline && doctor.availableToday) const SizedBox(width: 8),
+                        
+                        // if (doctor.availableToday)
+                        //   Row(
+                        //     children: [
+                        //       Icon(
+                        //         Icons.schedule_rounded,
+                        //         color: doctor.isOnline ? Colors.blue.shade600 : Colors.green.shade600,
+                        //         size: 16,
+                        //       ),
+                        //       const SizedBox(width: 4),
+                        //       Text(
+                        //         'Available Today',
+                        //         style: TextStyle(
+                        //           fontSize: 12,
+                        //           fontWeight: FontWeight.w500,
+                        //           color: doctor.isOnline ? Colors.blue.shade700 : Colors.green.shade700,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        
+                        // If not available today but online
+                        if (doctor.isOnline && !doctor.availableToday)
+                          Row(
+                            children: [
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.schedule_rounded,
+                                color: Colors.orange.shade600,
+                                size: 16,
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                'Online',
+                                'Next Available',
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.green.shade700,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.orange.shade700,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      
-                      // Available Today (if online, add spacing)
-                      if (doctor.isOnline && doctor.availableToday) const SizedBox(width: 8),
-                      
-                      if (doctor.availableToday)
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.schedule_rounded,
-                              color: doctor.isOnline ? Colors.blue.shade600 : Colors.green.shade600,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Available Today',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: doctor.isOnline ? Colors.blue.shade700 : Colors.green.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      
-                      // If not available today but online
-                      if (doctor.isOnline && !doctor.availableToday)
-                        Row(
-                          children: [
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.schedule_rounded,
-                              color: Colors.orange.shade600,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Next Available',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.orange.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      
-                      // If offline
-                      // if (!doctor.isOnline)
-                      //   Container(
-                      //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      //     decoration: BoxDecoration(
-                      //       color: Colors.grey.shade100,
-                      //       borderRadius: BorderRadius.circular(12),
-                      //       border: Border.all(color: Colors.grey.shade300),
-                      //     ),
-                      //     child: Row(
-                      //       mainAxisSize: MainAxisSize.min,
-                      //       children: [
-                      //         Container(
-                      //           width: 6,
-                      //           height: 6,
-                      //           decoration: BoxDecoration(
-                      //             color: Colors.grey.shade500,
-                      //             shape: BoxShape.circle,
-                      //           ),
-                      //         ),
-                      //         const SizedBox(width: 4),
-                      //         Text(
-                      //           'Offline',
-                      //           style: TextStyle(
-                      //             fontSize: 11,
-                      //             fontWeight: FontWeight.w600,
-                      //             color: Colors.grey.shade600,
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                    ],
+                      ],
+                    ),
                   ),
 
-                  // Rating
-                  Row(
-                    children: [
-                      Icon(Icons.star_rounded, color: Colors.amber.shade600, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        doctor.rating.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                  // Book Now Button (if instant or online consultation available)
+                  if (doctor.hasInstantOrOnlineConsultation)
+                    Container(
+                      height: 36,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF2196F3), // Primary blue
+                            const Color(0xFF1976D2), // Darker blue
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF2196F3).withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: () => AppNavigation.toDoctorBooking(doctor.id),
+                        icon: Icon(
+                          Icons.video_call_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Book Consult',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
                 ],
               ),
             ],
