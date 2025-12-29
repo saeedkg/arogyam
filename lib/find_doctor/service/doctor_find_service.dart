@@ -67,7 +67,10 @@ class DoctorBookingService {
     // Map new API fields
     final qualifications = (json['qualifications'] as List<dynamic>?)?.cast<String>();
     final languages = (json['languages'] as List<dynamic>?)?.cast<String>();
+    final consultationTypes = (json['consultation_types'] as List<dynamic>?)?.cast<String>();
     final specializations = (json['specializations'] as List<dynamic>?)?.cast<Map<String, dynamic>>();
+    final clinics = (json['clinics'] as List<dynamic>?)?.cast<Map<String, dynamic>>();
+    final hospitals = (json['hospitals'] as List<dynamic>?)?.cast<Map<String, dynamic>>();
     final availabilityStatus = json['availability_status'] as String?;
     final availableToday = json['available_today'] as bool?;
     final todaySlotsCount = json['today_slots_count'] as int?;
@@ -93,7 +96,10 @@ class DoctorBookingService {
       availableDates: days,
       qualifications: qualifications,
       languages: languages,
+      consultationTypes: consultationTypes,
       specializations: specializations,
+      clinics: clinics,
+      hospitals: hospitals,
       availabilityStatus: availabilityStatus,
       availableToday: availableToday,
       todaySlotsCount: todaySlotsCount,

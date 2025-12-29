@@ -138,9 +138,16 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         children: [
           _buildDoctorProfileCard(doctorDetail),
           const SizedBox(height: 16),
-          _buildAboutAndSpecializationsCard(doctorDetail),
+         // const SizedBox(height: 16),
+          if ((doctorDetail.clinics != null && doctorDetail.clinics!.isNotEmpty) ||
+              (doctorDetail.hospitals != null && doctorDetail.hospitals!.isNotEmpty))
+            _buildClinicsHospitalsCard(doctorDetail),
           const SizedBox(height: 16),
-          _buildConsultationTypesCard(doctorDetail),
+
+          _buildAboutAndSpecializationsCard(doctorDetail),
+          // const SizedBox(height: 16),
+          // _buildConsultationTypesCard(doctorDetail),
+
           const SizedBox(height: 100), // Space for floating button
         ],
       ),
@@ -590,6 +597,148 @@ class DoctorDetailInfoScreen extends StatelessWidget {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildClinicsHospitalsCard(DoctorDetail doctorDetail) {
+    final hasClinics = doctorDetail.clinics != null && doctorDetail.clinics!.isNotEmpty;
+    final hasHospitals = doctorDetail.hospitals != null && doctorDetail.hospitals!.isNotEmpty;
+    final hasOfflineConsultation = doctorDetail.consultationTypes?.any(
+      (type) => type.toLowerCase() == 'offline'
+    ) ?? false;
+
+    String title = 'Locations';
+    if (hasClinics && hasHospitals) {
+      title = 'Clinics & Hospitals';
+    } else if (hasClinics) {
+      title = 'Clinic';
+    } else if (hasHospitals) {
+      title = 'Hospital';
+    }
+
+    return _buildCard(
+      title,
+      Icons.location_city_rounded,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Clinics Section
+          if (hasClinics) ...[
+            ...doctorDetail.clinics!.map((clinic) => _buildLocationItem(
+              name: clinic['name'] ?? 'Unknown Clinic',
+              address: clinic['address'],
+              isClinic: true,
+            )),
+            if (hasHospitals) const SizedBox(height: 16),
+          ],
+          
+          // Hospitals Section
+          if (hasHospitals) ...[
+            if (hasClinics) ...[
+              Container(
+                height: 1,
+                color: Colors.grey.shade200,
+                margin: const EdgeInsets.only(bottom: 16),
+              ),
+            ],
+            ...doctorDetail.hospitals!.map((hospital) => _buildLocationItem(
+              name: hospital['name'] ?? 'Unknown Hospital',
+              address: hospital['address'],
+              isClinic: false,
+            )),
+          ],
+          
+          // Contact Clinic Button for Offline Consultations
+          if (hasOfflineConsultation) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // TODO: Implement contact clinic functionality
+                },
+                icon: const Icon(Icons.phone_rounded, size: 20),
+                label: const Text(
+                  'Contact Clinic',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationItem({
+    required String name,
+    String? address,
+    required bool isClinic,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isClinic ? Colors.blue.shade50 : Colors.green.shade50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              isClinic ? Icons.local_hospital_rounded : Icons.business_rounded,
+              color: isClinic ? Colors.blue.shade600 : Colors.green.shade600,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                if (address != null && address.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    address,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

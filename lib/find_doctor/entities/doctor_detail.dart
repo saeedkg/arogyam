@@ -16,6 +16,8 @@ class DoctorDetail {
   final List<String>? languages;
   final List<String>? consultationTypes;
   final List<Map<String, dynamic>>? specializations;
+  final List<Map<String, dynamic>>? clinics;
+  final List<Map<String, dynamic>>? hospitals;
   final String? availabilityStatus;
   final bool? availableToday;
   final int? todaySlotsCount;
@@ -39,6 +41,8 @@ class DoctorDetail {
     this.languages,
     this.consultationTypes,
     this.specializations,
+    this.clinics,
+    this.hospitals,
     this.availabilityStatus,
     this.availableToday,
     this.todaySlotsCount,
