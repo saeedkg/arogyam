@@ -80,6 +80,14 @@ class AppNavigation {
     Get.toNamed(AppRoutes.doctorBooking, arguments: {'id': doctorId});
   }
 
+  // Navigate to Doctor Profile
+  static void toDoctorProfile(String doctorId) {
+    Get.toNamed(AppRoutes.doctorProfile, arguments: doctorId);
+  }
+
+  static void toDoctorDetailScreen(String doctorId) {
+    Get.toNamed(AppRoutes.doctorDetailScreen, arguments: doctorId);
+  }
   // Navigate and clear all previous routes
   static void offAllToLanding() {
     Get.offAllNamed(AppRoutes.landing);

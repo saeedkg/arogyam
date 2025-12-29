@@ -14,6 +14,7 @@ class DoctorDetail {
   // New fields from API
   final List<String>? qualifications;
   final List<String>? languages;
+  final List<String>? consultationTypes;
   final List<Map<String, dynamic>>? specializations;
   final String? availabilityStatus;
   final bool? availableToday;
@@ -36,6 +37,7 @@ class DoctorDetail {
     required this.availableDates,
     this.qualifications,
     this.languages,
+    this.consultationTypes,
     this.specializations,
     this.availabilityStatus,
     this.availableToday,

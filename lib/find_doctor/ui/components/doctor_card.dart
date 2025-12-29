@@ -25,7 +25,7 @@ class DoctorCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => AppNavigation.toDoctorBooking(doctor.id),
+        onTap: () => AppNavigation.toDoctorDetailScreen(doctor.id),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
