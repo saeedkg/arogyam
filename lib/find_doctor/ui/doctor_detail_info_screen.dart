@@ -23,19 +23,19 @@ class DoctorDetailInfoScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: Obx(() => Text(
           controller.detail.value?.name ?? 'Doctor Details',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: Colors.black87,
           ),
         )),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
         centerTitle: true,
       ),
       body: Obx(() {
@@ -155,8 +155,8 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -242,7 +242,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1A1A1A),
+                          color: Colors.black87,
                           letterSpacing: -0.3,
                         ),
                       ),
@@ -603,7 +603,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
+            blurRadius: 12,
             offset: const Offset(0, 3),
           ),
         ],
@@ -654,8 +654,8 @@ class DoctorDetailInfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primaryBlue,
-            AppColors.primaryBlue.withValues(alpha: 0.8),
+            AppColors.primaryGreen,
+            AppColors.primaryGreen.withValues(alpha: 0.8),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -663,7 +663,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withValues(alpha: 0.3),
+            color: AppColors.primaryGreen.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
