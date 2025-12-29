@@ -355,7 +355,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
 
   Widget _buildAboutAndSpecializationsCard(DoctorDetail doctorDetail) {
     return _buildCard(
-      'About & Specializations',
+      'About',
       Icons.person_outline_rounded,
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
