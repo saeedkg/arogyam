@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../_shared/routing/app_navigation.dart';
 import '../../entities/doctor_list_item.dart';
 
+import '../../../_shared/ui/app_colors.dart';
+
 class DoctorCard extends StatelessWidget {
   final DoctorListItem doctor;
   const DoctorCard({required this.doctor, super.key});
@@ -294,50 +296,24 @@ class DoctorCard extends StatelessWidget {
 
                   // Book Now Button (if instant or online consultation available)
                   if (doctor.hasInstantOrOnlineConsultation)
-                    Container(
+                    SizedBox(
                       height: 36,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            const Color(0xFF2196F3), // Primary blue
-                            const Color(0xFF1976D2), // Darker blue
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF2196F3).withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
+                      child: ElevatedButton(
                         onPressed: () => AppNavigation.toDoctorBooking(doctor.id),
-                        icon: Icon(
-                          Icons.video_call_rounded,
-                          size: 16,
-                          color: Colors.white,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryBlue,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        label: const Text(
+                        child: const Text(
                           'Book Consult',
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
