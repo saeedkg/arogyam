@@ -40,7 +40,9 @@ class DoctorBookingService {
 
   DoctorDetail _mapToDoctorDetail(Map<String, dynamic> json) {
     final id = '${json['id']}';
-    final name = json['name'] as String? ?? 'Doctor';
+    final user = json['user'] as Map<String, dynamic>?;
+
+    final name = user?['name'] as String? ?? 'Doctor';
     final bio = json['bio'] as String? ?? '';
     final specializationName = ((json['specializations'] as List<dynamic>? ?? const [])
             .cast<Map<String, dynamic>>()
