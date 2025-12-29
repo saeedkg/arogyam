@@ -50,5 +50,12 @@ class DoctorDetail {
     this.isVerified,
     this.consultationFee,
   });
+
+  /// Check if doctor has instant or online consultation types available
+  bool get hasInstantOrOnlineConsultation {
+    return consultationTypes?.any(
+      (type) => type.toLowerCase() == 'instant' || type.toLowerCase() == 'online'
+    ) ?? false;
+  }
 }
 

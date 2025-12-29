@@ -796,6 +796,11 @@ class DoctorDetailInfoScreen extends StatelessWidget {
   }
 
   Widget _buildBookingButton(DoctorDetail doctorDetail) {
+    // Only show booking button if doctor offers instant or online consultations
+    if (!doctorDetail.hasInstantOrOnlineConsultation) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
       width: double.infinity,
       height: 56,
