@@ -121,73 +121,88 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         foregroundColor: Colors.black87,
       ),
 
-      // ✅ Fixed bottom button
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
+      // ✅ Floating action button with gradient style (only show when slot is selected)
+      floatingActionButton: Obx(() {
+        // Only show button when a slot is selected
+        if (c.selectedSlot.value == null) {
+          return const SizedBox.shrink();
+        }
+        
+        final isDisabled = bookingController.isBooking.value;
+        
+        return Container(
+          width: double.infinity,
+          height: 56,
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: isDisabled ? null : LinearGradient(
+              colors: [
+                AppColors.primaryGreen,
+                AppColors.primaryGreen.withValues(alpha: 0.8),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Obx(() {
-            return ElevatedButton(
-              onPressed: c.selectedSlot.value == null || bookingController.isBooking.value
-                  ? null
-                  : () async {
-                // Show patient selection bottom sheet first
-                await _showPatientSelectionAndProceed();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryGreen,
-                disabledBackgroundColor: Colors.grey.shade300,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+            color: isDisabled ? Colors.grey.shade300 : null,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isDisabled ? [] : [
+              BoxShadow(
+                color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              child: bookingController.isBooking.value
-                  ? const SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: isDisabled
+                ? null
+                : () async {
+              // Show patient selection bottom sheet first
+              await _showPatientSelectionAndProceed();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: bookingController.isBooking.value
+                ? const SizedBox(
+              height: 18,
+              width: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+                : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.payment_rounded, 
+                  color: isDisabled ? Colors.grey.shade600 : Colors.white, 
+                  size: 20
                 ),
-              )
-                  : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    bookingController.pricing.value != null
-                        ? 'Pay ₹${bookingController.pricing.value!.totalAmount}'
-                        : 'Proceed to Payment',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                const SizedBox(width: 10),
+                Text(
+                  bookingController.pricing.value != null
+                      ? 'Pay ₹${bookingController.pricing.value!.totalAmount.toStringAsFixed(0)}'
+                      : 'Proceed to Payment',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: isDisabled ? Colors.grey.shade600 : Colors.white,
+                    letterSpacing: -0.3,
                   ),
-                  // if (bookingController.pricing.value != null)
-                  //   Text(
-                  //     'Proceed to Payment',
-                  //     style: TextStyle(
-                  //       fontSize: 12,
-                  //       fontWeight: FontWeight.w400,
-                  //       color: Colors.white.withOpacity(0.9),
-                  //     ),
-                  //   ),
-                ],
-              ),
-            );
-          }),
-        ),
-      ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
 
       body: Obx(() {
         if (c.isLoading.value || c.detail.value == null) {
@@ -203,7 +218,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
               _AvailabilitySection(controller: c, doctor: d),
               const SizedBox(height: 24),
               _PaymentDetailsSection(bookingController: bookingController),
-              const SizedBox(height: 100), // space before bottom button
+              const SizedBox(height: 100), // Space for floating button
             ],
           ),
         );
