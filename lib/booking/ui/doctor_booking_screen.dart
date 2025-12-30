@@ -18,14 +18,68 @@ class DoctorBookingScreen extends StatefulWidget {
 }
 
 class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
-  final c = Get.put(DoctorDetailController());
+  final c = Get.put(DoctorDetailController(), tag: 'booking');
   final bookingController = Get.put(BookingController());
+  
+  // Store the worker references for disposal
+  late Worker _appointmentIdWorker;
+  late Worker _bookingErrorWorker;
 
   @override
   void initState() {
     super.initState();
     c.load(widget.doctorId);
     bookingController.loadPricing(widget.doctorId);
+    
+    // Listen to appointment ID changes (payment success)
+    _appointmentIdWorker = ever(bookingController.appointmentId, (String? appointmentId) {
+      if (appointmentId != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Get.back(); // Go back to previous screen
+            ConsultationFlowManager.instance.navigateToPendingConsultation(appointmentId);
+            bookingController.appointmentId.value = null; // Reset
+          }
+        });
+      }
+    });
+    
+    // Listen to booking error changes
+    _bookingErrorWorker = ever(bookingController.bookingError, (String? error) {
+      if (error != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Payment Failed'),
+                content: Text(error),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      bookingController.bookingError.value = null; // Reset
+                    },
+                    child: const Text('Close'),
+                  ),
+                ],
+              ),
+            );
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Dispose workers to prevent memory leaks
+    _appointmentIdWorker.dispose();
+    _bookingErrorWorker.dispose();
+    
+    // Clean up controllers
+    Get.delete<DoctorDetailController>(tag: 'booking');
+    super.dispose();
   }
 
   Future<void> _showPatientSelectionAndProceed() async {
@@ -82,38 +136,6 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         ),
         child: SafeArea(
           child: Obx(() {
-            // Listen to appointment ID changes (payment success)
-            if (bookingController.appointmentId.value != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final apptId = bookingController.appointmentId.value!;
-                Get.back(); // Go back to previous screen
-                ConsultationFlowManager.instance.navigateToPendingConsultation(apptId);
-                bookingController.appointmentId.value = null; // Reset
-              });
-            }
-            
-            // Listen to booking error changes
-            if (bookingController.bookingError.value != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Payment Failed'),
-                    content: Text(bookingController.bookingError.value!),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          bookingController.bookingError.value = null; // Reset
-                        },
-                        child: const Text('Close'),
-                      ),
-                    ],
-                  ),
-                );
-              });
-            }
-            
             return ElevatedButton(
               onPressed: c.selectedSlot.value == null || bookingController.isBooking.value
                   ? null
