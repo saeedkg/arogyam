@@ -123,14 +123,68 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
 
       // ✅ Floating action button with gradient style (only show when slot is selected)
       floatingActionButton: Obx(() {
-        // Only show button when a slot is selected
+        // Show professional indicator when no slot is selected
         if (c.selectedSlot.value == null) {
-          return const SizedBox.shrink();
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: double.infinity,
+            height: 56,
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: AppColors.primaryBlue.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.schedule_rounded,
+                      color: AppColors.primaryBlue,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Please select a time slot to continue',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade600,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
         
         final isDisabled = bookingController.isBooking.value;
         
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
           width: double.infinity,
           height: 56,
           margin: const EdgeInsets.all(16),
@@ -450,13 +504,51 @@ class _AvailabilitySection extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Available Slots',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade700,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Available Slots',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    // Add indicator when no slot is selected
+                    if (controller.selectedSlot.value == null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.touch_app_rounded,
+                              size: 14,
+                              color: AppColors.primaryBlue,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Select one',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 12),
                 controller.timesForSelectedDate.isEmpty
