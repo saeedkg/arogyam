@@ -59,6 +59,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   }
 
   Widget _buildDoctorsList(DoctorsController c) {
+    // Show loading state when initially loading (no doctors yet and loading)
     if (c.isLoading.value && c.doctors.isEmpty) {
       return const Center(
         child: Column(
@@ -75,6 +76,24 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
       );
     }
 
+    // Show loading state when specializations are still loading
+    if (c.isLoadingSpecializations.value) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              'Loading specializations...',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show error state when there's an error and no doctors
     if (c.errorMessage.value.isNotEmpty && c.doctors.isEmpty) {
       return Center(
         child: Padding(
@@ -113,7 +132,15 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
       );
     }
 
-    if (!c.hasDoctors) {
+    // Show "No doctors found" only when:
+    // 1. Not loading AND
+    // 2. No error AND  
+    // 3. No doctors available AND
+    // 4. Initial load has completed (not in loading specializations state)
+    if (!c.isLoading.value && 
+        c.errorMessage.value.isEmpty && 
+        !c.hasDoctors && 
+        !c.isLoadingSpecializations.value) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
