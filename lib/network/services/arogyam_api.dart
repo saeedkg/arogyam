@@ -131,7 +131,7 @@ class AROGYAMAPI implements NetworkAdapter {
         var responseData = json.decode(apiException.responseData);
         var responseMap = responseData as Map<String, dynamic>;
         var errorCode = responseMap['code'];
-        if (errorCode == 1022) return true;
+        if (errorCode == 401) return true;
       } catch (e) {
         //ignore exception as the response data is optional
       }
