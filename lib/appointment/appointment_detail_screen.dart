@@ -5,6 +5,7 @@ import '../_shared/ui/app_colors.dart';
 import 'entities/booking_detail.dart';
 import 'service/appointment_service.dart';
 import 'ui/prescription_viewer_screen.dart';
+import '../follow_up/ui/follow_up_chat_screen.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -493,17 +494,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       height: 44,
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: Implement instant consultation logic
-                          Get.snackbar(
-                            'Instant Consultation',
-                            'Instant consultation feature coming soon!',
-                            backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.1),
-                            colorText: AppColors.primaryGreen,
-                            snackPosition: SnackPosition.TOP,
-                            margin: const EdgeInsets.all(16),
-                            borderRadius: 12,
-                            duration: const Duration(seconds: 2),
-                          );
+                          // Navigate to follow-up chat
+                          Get.to(() => FollowUpChatScreen(
+                            appointmentId: d.id,
+                          ));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryGreen,
