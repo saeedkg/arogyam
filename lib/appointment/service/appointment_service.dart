@@ -68,6 +68,7 @@ class AppointmentService {
       prescriptionUrl: data['prescription']?['id'].toString(),
       amountPaid: totalAmount,
       paymentType: paymentMode,
+      isFollowUpEligible: data['is_follow_up_eligible'] as bool? ?? false,
     );
   }
 }

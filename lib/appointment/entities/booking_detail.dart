@@ -16,6 +16,9 @@ class BookingDetail {
   final double amountPaid;
   final String paymentType;
 
+  // follow-up
+  final bool isFollowUpEligible;
+
   const BookingDetail({
     required this.id,
     required this.doctorName,
@@ -29,6 +32,7 @@ class BookingDetail {
     this.prescriptionUrl,
     required this.amountPaid,
     required this.paymentType,
+    required this.isFollowUpEligible,
   });
 }
 
