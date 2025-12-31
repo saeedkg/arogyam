@@ -7,6 +7,7 @@ import '../../network/exceptions/server_sent_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../entities/follow_up_chat.dart';
+import '../entities/follow_up_eligibility.dart';
 import '../../_shared/constants/network_config.dart';
 
 class FollowUpChatService {
@@ -14,6 +15,36 @@ class FollowUpChatService {
   
   FollowUpChatService({NetworkAdapter? networkAdapter}) 
       : _networkAdapter = networkAdapter ?? AROGYAMAPI();
+
+  /// Check follow-up eligibility for a specific appointment
+  Future<FollowUpEligibility> checkFollowUpEligibility(String appointmentId) async {
+    final url = '${NetworkConfig.baseUrl}/follow-up-chats/appointments/$appointmentId/eligibility';
+    final apiRequest = APIRequest(url);
+    
+    try {
+      final apiResponse = await _networkAdapter.get(apiRequest);
+      if (apiResponse.data is Map<String, dynamic>) {
+        return FollowUpEligibility.fromJson(apiResponse.data as Map<String, dynamic>);
+      }
+      throw Exception('Invalid response format');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to check follow-up eligibility', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
 
   /// Get follow-up chat for a specific appointment
   Future<FollowUpChat> getFollowUpChat(String appointmentId) async {

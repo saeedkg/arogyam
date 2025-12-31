@@ -6,6 +6,8 @@ import 'entities/booking_detail.dart';
 import 'service/appointment_service.dart';
 import 'ui/prescription_viewer_screen.dart';
 import '../follow_up/ui/follow_up_chat_screen.dart';
+import '../follow_up/service/follow_up_chat_service.dart';
+import '../follow_up/entities/follow_up_eligibility.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -17,12 +19,22 @@ class AppointmentDetailScreen extends StatefulWidget {
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   final _api = AppointmentService();
+  final _followUpService = FollowUpChatService();
   Future<BookingDetail>? _future;
+  Future<FollowUpEligibility?>? _eligibilityFuture;
 
   @override
   void initState() {
     super.initState();
     _future = _api.getAppointmentDetail(widget.bookingId);
+    _loadFollowUpEligibility();
+  }
+
+  void _loadFollowUpEligibility() {
+    _eligibilityFuture = _followUpService.checkFollowUpEligibility(widget.bookingId).catchError((error) {
+      // Silently handle errors - follow-up is optional
+      return null;
+    });
   }
 
   void _viewPrescription(BookingDetail d) {
@@ -38,6 +50,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Future<void> _refreshAppointmentDetails() async {
     setState(() {
       _future = _api.getAppointmentDetail(widget.bookingId);
+      _loadFollowUpEligibility();
     });
     await _future;
   }
@@ -218,13 +231,25 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           // Prescription Section
           _buildPrescriptionSection(d),
           
-          // Follow-up Section (only show if eligible)
-          if (d.isFollowUpEligible) ...[
-            const SizedBox(height: 20),
-            const Divider(height: 1, color: Colors.grey),
-            const SizedBox(height: 20),
-            _buildFollowUpSection(d),
-          ],
+          // Follow-up Section (check eligibility dynamically)
+          FutureBuilder<FollowUpEligibility?>(
+            future: _eligibilityFuture,
+            builder: (context, eligibilitySnapshot) {
+              if (eligibilitySnapshot.hasData && 
+                  eligibilitySnapshot.data != null && 
+                  eligibilitySnapshot.data!.isEligible) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    const Divider(height: 1, color: Colors.grey),
+                    const SizedBox(height: 20),
+                    _buildFollowUpSection(d, eligibilitySnapshot.data!),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ],
       ),
     );
@@ -412,7 +437,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     );
   }
 
-  Widget _buildFollowUpSection(BookingDetail d) {
+  Widget _buildFollowUpSection(BookingDetail d, FollowUpEligibility eligibility) {
+    // Determine the current state
+    final bool hasExistingChat = eligibility.hasExistingChat;
+    final bool isActive = eligibility.hasActiveChat;
+    final String buttonText = hasExistingChat ? 'Continue Chat' : 'Start Chat';
+    final String statusText = hasExistingChat 
+        ? (isActive ? 'Active chat available' : 'Chat created')
+        : 'New follow-up available';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -429,16 +462,30 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                AppColors.primaryBlue.withValues(alpha: 0.08),
-                AppColors.primaryBlue.withValues(alpha: 0.04),
-              ],
+              colors: eligibility.isExpired
+                  ? [
+                      Colors.orange.shade50,
+                      Colors.orange.shade100,
+                    ]
+                  : hasExistingChat
+                      ? [
+                          AppColors.primaryGreen.withValues(alpha: 0.08),
+                          AppColors.primaryGreen.withValues(alpha: 0.04),
+                        ]
+                      : [
+                          AppColors.primaryBlue.withValues(alpha: 0.08),
+                          AppColors.primaryBlue.withValues(alpha: 0.04),
+                        ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.primaryBlue.withValues(alpha: 0.2),
+              color: eligibility.isExpired
+                  ? Colors.orange.shade200
+                  : hasExistingChat
+                      ? AppColors.primaryGreen.withValues(alpha: 0.2)
+                      : AppColors.primaryBlue.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -449,13 +496,23 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryBlue,
+                      color: eligibility.isExpired
+                          ? Colors.orange.shade100
+                          : hasExistingChat
+                              ? AppColors.primaryGreen
+                              : AppColors.primaryBlue,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      Icons.medical_services_rounded,
+                    child: Icon(
+                      eligibility.isExpired
+                          ? Icons.schedule_rounded
+                          : hasExistingChat
+                              ? Icons.chat_rounded
+                              : Icons.medical_services_rounded,
                       size: 20,
-                      color: Colors.white,
+                      color: eligibility.isExpired
+                          ? Colors.orange.shade700
+                          : Colors.white,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -463,19 +520,29 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Follow-up Available',
+                        Text(
+                          eligibility.isExpired
+                              ? 'Follow-up Period Expired'
+                              : hasExistingChat
+                                  ? 'Follow-up Chat Active'
+                                  : 'Follow-up Available',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: Colors.black87,
+                            color: eligibility.isExpired
+                                ? Colors.orange.shade800
+                                : Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'You can book a follow-up consultation with ${d.doctorName}',
+                          eligibility.isExpired
+                              ? 'The follow-up consultation period has ended'
+                              : '$statusText • ${eligibility.formattedExpiryTime}',
                           style: TextStyle(
-                            color: Colors.grey.shade700,
+                            color: eligibility.isExpired
+                                ? Colors.orange.shade700
+                                : Colors.grey.shade700,
                             fontSize: 12,
                           ),
                         ),
@@ -484,48 +551,56 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 44,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Navigate to follow-up chat
-                          Get.to(() => FollowUpChatScreen(
-                            appointmentId: d.id,
-                          ));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryGreen,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat_bubble_rounded, size: 18),
-                            SizedBox(width: 8),
-                            Text(
-                              'Instant Chat',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
+              if (!eligibility.isExpired) ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Navigate to follow-up chat
+                            Get.to(() => FollowUpChatScreen(
+                              appointmentId: d.id,
+                            ));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: hasExistingChat 
+                                ? AppColors.primaryGreen 
+                                : AppColors.primaryBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ],
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                hasExistingChat 
+                                    ? Icons.chat_bubble_rounded 
+                                    : Icons.add_comment_rounded, 
+                                size: 18
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                buttonText,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
