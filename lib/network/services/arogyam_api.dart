@@ -128,10 +128,10 @@ class AROGYAMAPI implements NetworkAdapter {
   bool _shouldRefreshTokenOnException(APIException apiException) {
     if (apiException is HTTPException) {
       try {
-        var responseData = json.decode(apiException.responseData);
-        var responseMap = responseData as Map<String, dynamic>;
-        var errorCode = responseMap['code'];
-        if (errorCode == 401) return true;
+        // var responseData = json.decode(apiException.responseData);
+        // var responseMap = responseData as Map<String, dynamic>;
+        // var errorCode = responseMap['code'];
+        if (apiException.httpCode == 401) return true;
       } catch (e) {
         //ignore exception as the response data is optional
       }
