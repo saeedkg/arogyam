@@ -66,9 +66,9 @@ class AppointmentCard extends StatelessWidget {
         border: Border.all(color: AppColors.grey200, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -115,10 +115,10 @@ class AppointmentCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              name,
+                              'Dr. $name',
                               style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 color: Colors.black87,
                               ),
                               maxLines: 1,
@@ -238,7 +238,7 @@ class AppointmentCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              type.toUpperCase(),
+                              _getTypeDisplayText(),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -400,6 +400,19 @@ class AppointmentCard extends StatelessWidget {
         return AppColors.infoBlue;
       default:
         return AppColors.primaryGreen;
+    }
+  }
+
+  String _getTypeDisplayText() {
+    switch (type.toLowerCase()) {
+      case 'instant':
+        return 'INSTANT CONSULT';
+      case 'online':
+        return 'VIDEO CALL';
+      case 'offline':
+        return 'IN-PERSON';
+      default:
+        return type.toUpperCase();
     }
   }
 
