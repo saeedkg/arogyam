@@ -261,6 +261,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             time: (DateTimeFormatter.formatTime(appointment.scheduledAt)),
             status: appointment.status,
             type: appointment.type,
+            // Enhanced fields
+            consultationFee: appointment.consultationFee,
+            hasPrescription: appointment.hasPrescription,
+            isFollowUpEligible: appointment.isFollowUpEligible,
+            consultationStatus: appointment.consultationStatus,
+            doctorExperience: appointment.doctorExperience,
+            doctorQualifications: appointment.doctorQualifications,
+            canJoinNow: appointment.canJoinNow,
             onView: () {
               // If status is confirmed and type is instant, go to pending consultation screen
               if (appointment.status == AppointmentStatus.confirmed ||
