@@ -34,6 +34,15 @@ class HealthRecordsService {
       final apiResponse = await _networkAdapter.get(apiRequest);
       if (apiResponse.data is Map<String, dynamic>) {
         final map = apiResponse.data as Map<String, dynamic>;
+        
+        // Handle the new API response structure with pagination
+        if (map['success'] == true && map['data'] is Map<String, dynamic>) {
+          final dataMap = map['data'] as Map<String, dynamic>;
+          final list = dataMap['data'] as List<dynamic>? ?? const [];
+          return list.map((e) => _mapToHealthRecord(e as Map<String, dynamic>)).toList();
+        }
+        
+        // Fallback for older response structure
         final list = (map['data'] is Map<String, dynamic>)
             ? (map['data']['data'] as List<dynamic>? ?? const [])
             : (map['data'] as List<dynamic>? ?? const []);
@@ -143,10 +152,38 @@ class HealthRecordsService {
       date = DateTime.now();
     }
 
+    // Extract category name - handle both direct string and nested object
+    String category;
+    if (json['category'] != null) {
+      if (json['category'] is Map<String, dynamic>) {
+        category = json['category']['name'] as String? ?? 'General';
+      } else {
+        category = json['category'] as String? ?? 'General';
+      }
+    } else {
+      // Map type to category for display
+      switch (json['type'] as String?) {
+        case 'lab_report':
+          category = 'Lab Report';
+          break;
+        case 'prescription':
+          category = 'Prescription';
+          break;
+        case 'radiology':
+          category = 'Radiology';
+          break;
+        case 'medical_report':
+          category = 'Medical Report';
+          break;
+        default:
+          category = 'General';
+      }
+    }
+
     return HealthRecord(
       id: '${json['id']}',
       title: json['title'] as String? ?? 'Untitled Record',
-      category: json['category']?['name'] as String? ?? 'General',
+      category: category,
       notes: json['description'] as String?,
       date: date,
       fileUrl: json['file_path'] as String?,

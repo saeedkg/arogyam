@@ -130,7 +130,7 @@ class _HealthRecordCardState extends State<HealthRecordCard> {
         border: Border.all(color: Colors.grey.shade100, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -152,15 +152,15 @@ class _HealthRecordCardState extends State<HealthRecordCard> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppColors.primaryGreen.withValues(alpha: 0.2),
-                        AppColors.primaryGreen.withValues(alpha: 0.1),
+                        _getFileTypeColor().withOpacity(0.2),
+                        _getFileTypeColor().withOpacity(0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
-                    Icons.description_rounded,
-                    color: AppColors.primaryGreen,
+                    _getFileTypeIcon(),
+                    color: _getFileTypeColor(),
                     size: 28,
                   ),
                 ),
@@ -204,7 +204,7 @@ class _HealthRecordCardState extends State<HealthRecordCard> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                              color: AppColors.primaryGreen.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -217,15 +217,23 @@ class _HealthRecordCardState extends State<HealthRecordCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Icon(Icons.calendar_today_rounded, size: 14, color: Colors.grey.shade500),
-                          const SizedBox(width: 4),
-                          Text(
-                            // _formatDate(widget.record.date),
-                            DateTimeFormatter.formatDateShortYear(widget.record.date),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Icon(Icons.calendar_today_rounded, size: 14, color: Colors.grey.shade500),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    DateTimeFormatter.formatDateShortYear(widget.record.date),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -269,5 +277,25 @@ class _HealthRecordCardState extends State<HealthRecordCard> {
   }
 
   String _formatDate(DateTime d) => '${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.month-1]} ${d.day}, \'${d.year%100}';
+
+  IconData _getFileTypeIcon() {
+    if (widget.record.fileType?.startsWith('image/') == true) {
+      return Icons.image_rounded;
+    } else if (widget.record.fileType == 'application/pdf') {
+      return Icons.picture_as_pdf_rounded;
+    } else {
+      return Icons.description_rounded;
+    }
+  }
+
+  Color _getFileTypeColor() {
+    if (widget.record.fileType?.startsWith('image/') == true) {
+      return AppColors.primaryBlue;
+    } else if (widget.record.fileType == 'application/pdf') {
+      return AppColors.errorRed;
+    } else {
+      return AppColors.primaryGreen;
+    }
+  }
 
 }

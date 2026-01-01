@@ -38,92 +38,138 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
       appBar: AppBar(
         title: const Text(
           'Health Records',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: Colors.black87,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () {
-              controller.refreshRecords();
-            },
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.grey100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.refresh_rounded,
+                  color: AppColors.grey700,
+                  size: 20,
+                ),
+              ),
+              onPressed: () {
+                controller.refreshRecords();
+              },
+              tooltip: 'Refresh Records',
+            ),
           ),
         ],
       ),
       body: Obx(() => _buildRecordsList()),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showUploadDialog(context),
-        backgroundColor: AppColors.primaryGreen,
-        icon: const Icon(Icons.upload_file_rounded,color: Colors.white,),
-        label: const Text(
-          'Add Record',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      ),
+      floatingActionButton: Obx(() {
+        // Only show floating button when there are health records
+        if (controller.healthRecords.isNotEmpty) {
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: FloatingActionButton.extended(
+              onPressed: () => _showUploadDialog(context),
+              backgroundColor: AppColors.primaryGreen,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              icon: const Icon(Icons.add_rounded, size: 22),
+              label: const Text(
+                'Add Record',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          );
+        }
+        return Container(); // Hide floating button when no records
+      }),
     );
   }
 
   Widget _buildRecordsList() {
     // Loading state - first load
     if (controller.isLoading.value && controller.healthRecords.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryBlue),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Loading Health Records',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
             Text(
-              'Loading health records...',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              'Please wait while we fetch your medical documents...',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.grey600,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
       );
     }
 
-    // Empty state
-    if (controller.healthRecords.isEmpty) {
+    // Empty state - only show when not loading and no records
+    if (!controller.isLoading.value && controller.healthRecords.isEmpty) {
       return RefreshIndicator(
         onRefresh: controller.refreshRecords,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             _buildPatientCard(),
-            const SizedBox(height: 32),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.medical_services_outlined,
-                    size: 64,
-                    color: Colors.grey.shade300,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No Health Records',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Upload your medical documents here',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const SizedBox(height: 40),
+            _buildEmptyState(),
           ],
         ),
       );
@@ -150,6 +196,125 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
           final record = controller.healthRecords[index - 1];
           return HealthRecordCard(record: record);
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.grey200, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Medical illustration
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryBlue.withValues(alpha: 0.1),
+                    AppColors.primaryGreen.withValues(alpha: 0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.folder_open_rounded,
+                size: 40,
+                color: AppColors.primaryBlue,
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Title
+            const Text(
+              'No Health Records Yet',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // Description
+            Text(
+              'Keep your medical documents organized and accessible.\nUpload lab reports, prescriptions, and medical records.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.grey600,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Action button
+            ElevatedButton.icon(
+              onPressed: () => _showUploadDialog(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.upload_file_rounded, size: 20),
+              label: const Text(
+                'Upload First Record',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Help text
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
+                  color: AppColors.grey500,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Supported formats: PDF, JPG, PNG',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.grey500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
