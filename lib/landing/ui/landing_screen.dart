@@ -1,10 +1,12 @@
 import 'package:arogyam/appointment/appointments_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import 'pages/dashboard_screen.dart';
 import '../../profile/profile_screen.dart';
 import '../../health_records/ui/health_records_screen.dart';
+import '../../_shared/ui/app_colors.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -15,6 +17,7 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   int _currentIndex = 0;
+  DateTime? _lastBackPressed;
 
   final _pages = const [
     HomePage(),
@@ -29,22 +32,94 @@ class _LandingPageState extends State<LandingPage> {
     Get.put(HomeController());
   }
 
+  Future<bool> _onWillPop() async {
+    // Only handle back press on home tab (index 0)
+    if (_currentIndex != 0) {
+      setState(() => _currentIndex = 0);
+      return false;
+    }
+
+    final now = DateTime.now();
+    const exitTimeLimit = Duration(seconds: 2);
+
+    if (_lastBackPressed == null || now.difference(_lastBackPressed!) > exitTimeLimit) {
+      _lastBackPressed = now;
+      _showExitSnackBar();
+      return false;
+    }
+
+    // Exit the app
+    SystemNavigator.pop();
+    return true;
+  }
+
+  void _showExitSnackBar() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.info_outline_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Press back again to exit',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.primaryGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+        elevation: 8,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        elevation: 10,
-        surfaceTintColor: Colors.white,
-        indicatorColor: Colors.green.withOpacity(0.16),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Appointment'),
-          NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder), label: 'Records'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
-        ],
-        onDestinationSelected: (i) => setState(() => _currentIndex = i),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          await _onWillPop();
+        }
+      },
+      child: Scaffold(
+        body: _pages[_currentIndex],
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _currentIndex,
+          elevation: 10,
+          surfaceTintColor: Colors.white,
+          indicatorColor: Colors.green.withOpacity(0.16),
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+            NavigationDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Appointment'),
+            NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder), label: 'Records'),
+            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+          ],
+          onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        ),
       ),
     );
   }
