@@ -197,10 +197,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildLoadingState() {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
+        margin: const EdgeInsets.only(top: 100),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -235,10 +236,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
+        margin: const EdgeInsets.only(top: 100),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -283,10 +285,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildNoResultsState() {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
+        margin: const EdgeInsets.only(top: 100),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
