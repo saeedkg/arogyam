@@ -469,27 +469,49 @@ class _AvailabilitySection extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             height: 70,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: doctor.availableDates.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (_, index) {
-                final date = doctor.availableDates[index];
-                return Obx(() {
-                  final isSelected = controller.selectedDateIndex.value == index;
-                  return _DateChip(
-                    date: date,
-                    isSelected: isSelected,
-                    onTap: () {
-                      controller.selectedDateIndex.value = index;
-                      controller.selectedTime.value = '';
-                      controller.selectedSlot.value = null;
-                      controller.loadSlotsForSelectedDate();
+            child: doctor.availableDates.isEmpty
+                ? Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        'No dates available',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: doctor.availableDates.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (_, index) {
+                      final date = doctor.availableDates[index];
+                      return Obx(() {
+                        final isSelected = controller.selectedDateIndex.value == index;
+                        return _DateChip(
+                          date: date,
+                          isSelected: isSelected,
+                          onTap: () {
+                            controller.selectedDateIndex.value = index;
+                            controller.selectedTime.value = '';
+                            controller.selectedSlot.value = null;
+                            controller.loadSlotsForSelectedDate();
+                          },
+                        );
+                      });
                     },
-                  );
-                });
-              },
-            ),
+                  ),
           ),
           const SizedBox(height: 20),
           Obx(() {

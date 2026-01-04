@@ -35,7 +35,15 @@ class DoctorDetailController extends GetxController {
 
   Future<void> loadSlotsForSelectedDate() async {
     final d = detail.value;
-    if (d == null) return;
+    if (d == null || d.availableDates.isEmpty) {
+      availableSlots.value = [];
+      return;
+    }
+    
+    // Ensure selectedDateIndex is within bounds
+    if (selectedDateIndex.value >= d.availableDates.length) {
+      selectedDateIndex.value = 0;
+    }
     
     final date = d.availableDates[selectedDateIndex.value];
     final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -52,9 +60,13 @@ class DoctorDetailController extends GetxController {
   }
 
   List<String> get timesForSelectedDate {
+    if (availableSlots.isEmpty) {
+      return [];
+    }
+    
     print("-----");
     print(availableSlots[0].datetime);
-    final convertedSlots = availableSlots.map((slot) =>DateTimeFormatter.toLocal (slot.datetime)).toList();
+    final convertedSlots = availableSlots.map((slot) => DateTimeFormatter.toLocal(slot.datetime)).toList();
 
     return convertedSlots.map((dt) {
       final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
