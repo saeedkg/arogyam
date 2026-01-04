@@ -359,15 +359,15 @@ class _SearchScreenState extends State<SearchScreen> {
           // Specializations Section
           if (_controller.filteredSpecializations.isNotEmpty) ...[
             _buildSectionHeader('Specialties', _controller.filteredSpecializations.length),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ..._controller.filteredSpecializations.map((spec) => _buildSpecializationItem(spec)),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
           
           // Doctors Section
           if (_controller.filteredDoctors.isNotEmpty) ...[
             _buildSectionHeader('Doctors', _controller.filteredDoctors.length),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ..._controller.filteredDoctors.map((doctor) => _buildDoctorItem(doctor)),
           ],
           
@@ -378,196 +378,311 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSectionHeader(String title, int count) {
-    return Text(
-      '$title ($count)',
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: Colors.black87,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 24,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryGreen,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSpecializationItem(Specialization specialization) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppColors.primaryGreen.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            Icons.local_hospital_rounded,
-            color: AppColors.primaryGreen,
-            size: 24,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => AppNavigation.toDoctors(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Professional Icon Container
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primaryGreen,
+                        AppColors.primaryGreen.withValues(alpha: 0.8),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    Icons.local_hospital_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                
+                // Content - Two Rows Only
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // First Row: Specialization Name and Badge
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              specialization.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Specialty',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryGreen,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      
+                      // Second Row: Description and Arrow
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Find specialized doctors',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.grey600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 14,
+                            color: AppColors.grey400,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        title: Text(
-          specialization.name,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        subtitle: Text(
-          'Specialty',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.grey600,
-          ),
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 16,
-          color: AppColors.grey400,
-        ),
-        onTap: () {
-          // Navigate to doctors with this specialty
-          AppNavigation.toDoctors();
-        },
       ),
     );
   }
 
   Widget _buildDoctorItem(DoctorListItem doctor) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        leading: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: AppColors.grey200,
-            borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(
-              image: NetworkImage(doctor.imageUrl),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: doctor.isOnline
-              ? Positioned(
-                  bottom: 2,
-                  right: 2,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: AppColors.successGreen,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                  ),
-                )
-              : null,
-        ),
-        title: Text(
-          doctor.name,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              doctor.specialization,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.grey600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => AppNavigation.toDoctors(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Icon(
-                  Icons.star_rounded,
-                  size: 16,
-                  color: AppColors.warningOrange,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${doctor.rating} (${doctor.reviews})',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.grey600,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                if (doctor.availableToday)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.successGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Available Today',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.successGreen,
+                // Doctor Avatar with Status
+                Stack(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.grey200,
+                          width: 2,
+                        ),
+                        image: DecorationImage(
+                          image: NetworkImage(doctor.imageUrl),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
+                    if (doctor.isOnline)
+                      Positioned(
+                        bottom: 2,
+                        right: 2,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: AppColors.successGreen,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                
+                // Doctor Info - Two Rows Only
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // First Row: Name and Fee
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              doctor.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Fee
+                          Text(
+                            '₹${doctor.consultationFee}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      
+                      // Second Row: Specialization and Status Badges
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              doctor.specialization,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.grey600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          
+                          // Available Today Badge
+                          if (doctor.availableToday)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Available',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryGreen,
+                                ),
+                              ),
+                            ),
+                          
+                          const SizedBox(width: 8),
+                          
+                          // Arrow
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 14,
+                            color: AppColors.grey400,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
               ],
             ),
-          ],
+          ),
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '₹${doctor.consultationFee}',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryGreen,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: AppColors.grey400,
-            ),
-          ],
-        ),
-        onTap: () {
-          // Navigate to doctor detail
-          AppNavigation.toDoctors();
-        },
       ),
     );
   }
