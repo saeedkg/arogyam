@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/routing.dart';
+import '../../_shared/consultation/consultation_flow_manager.dart';
 import '../controller/search_controller.dart';
 import '../../common_services/entities/specialization.dart';
 import '../../find_doctor/entities/doctor_list_item.dart';
+import '../../find_doctor/ui/doctor_detail_info_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -441,7 +443,13 @@ class _SearchScreenState extends State<SearchScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => AppNavigation.toDoctors(),
+          onTap: () {
+            // Navigate to consultation type selection screen for specialization
+            ConsultationFlowManager.instance.navigateFromCareDiscovery(
+              speciality: specialization.name,
+              preSelectedType: null, // No pre-selected type, show selection screen
+            );
+          },
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -559,7 +567,10 @@ class _SearchScreenState extends State<SearchScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => AppNavigation.toDoctors(),
+          onTap: () {
+            // Navigate to doctor detail screen
+            Get.to(() => DoctorDetailInfoScreen(doctorId: doctor.id));
+          },
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
