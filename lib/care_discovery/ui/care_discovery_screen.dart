@@ -5,6 +5,7 @@ import '../../_shared/consultation/consultation_type.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../controller/care_discovery_controller.dart';
 import 'components/specialization_grid.dart';
+import 'search_screen.dart';
 
 class CareDiscoveryScreen extends StatefulWidget {
   final String entry;
@@ -21,15 +22,6 @@ class CareDiscoveryScreen extends StatefulWidget {
 }
 
 class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = Get.put(CareDiscoveryController());
@@ -110,208 +102,62 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
           );
         }
         
-        // Filter specializations based on search query
-        final filteredSpecializations = _searchQuery.isEmpty
-            ? c.specializations
-            : c.specializations.where((spec) =>
-                spec.name.toLowerCase().contains(_searchQuery.toLowerCase())
-              ).toList();
-        
         return SingleChildScrollView(
           child: Column(
             children: [
-              // Enhanced Header Section
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+              // Compact Search Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: GestureDetector(
+                  onTap: () => Get.to(() => const SearchScreen()),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.grey200,
+                        width: 1,
+                      ),
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Welcome text
-                      Text(
-                        'Find the right care',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Search for doctors and specialties',
-                        style: TextStyle(
-                          fontSize: 16,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search_rounded,
                           color: AppColors.grey600,
-                          fontWeight: FontWeight.w500,
+                          size: 20,
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Enhanced Search Bar
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Search doctor or speciality',
-                            hintStyle: TextStyle(
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Search doctor or speciality',
+                            style: TextStyle(
                               color: AppColors.grey500,
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.w400,
                             ),
-                            prefixIcon: Container(
-                              padding: const EdgeInsets.all(12),
-                              child: Icon(
-                                Icons.search_rounded,
-                                color: AppColors.grey600,
-                                size: 22,
-                              ),
-                            ),
-                            suffixIcon: _searchQuery.isNotEmpty
-                                ? IconButton(
-                                    icon: Icon(
-                                      Icons.clear_rounded,
-                                      color: AppColors.grey600,
-                                      size: 20,
-                                    ),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() {
-                                        _searchQuery = '';
-                                      });
-                                    },
-                                  )
-                                : Container(
-                                    margin: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primaryGreen,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                      onPressed: () => AppNavigation.toDoctors(),
-                                    ),
-                                  ),
-                            filled: true,
-                            fillColor: AppColors.grey50,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: AppColors.grey200,
-                                width: 1,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: AppColors.primaryGreen,
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 18,
-                            ),
                           ),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          onSubmitted: (q) => AppNavigation.toDoctors(),
                         ),
-                      ),
-                    ],
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: AppColors.grey400,
+                          size: 16,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               
               // Specializations Section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: filteredSpecializations.isEmpty && _searchQuery.isNotEmpty
-                    ? Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off_rounded,
-                              size: 48,
-                              color: AppColors.grey400,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No specialties found',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.grey700,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Try searching with different keywords',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.grey500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : SpecializationGrid(
-                        specializations: filteredSpecializations,
-                        preSelectedAppointmentType: widget.preSelectedAppointmentType,
-                      ),
+                child: SpecializationGrid(
+                  specializations: c.specializations,
+                  preSelectedAppointmentType: widget.preSelectedAppointmentType,
+                ),
               ),
               
               const SizedBox(height: 32),
