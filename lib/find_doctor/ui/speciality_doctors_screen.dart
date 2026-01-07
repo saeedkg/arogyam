@@ -28,7 +28,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   Timer? _searchDebounceTimer;
   
   // Simplified appointment filter options
-  AppointmentFilterType _selectedAppointmentFilter = AppointmentFilterType.all;
+  AppointmentFilterType _selectedAppointmentFilter = AppointmentFilterType.video;
 
   @override
   void initState() {
@@ -426,18 +426,6 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                     padding: EdgeInsets.zero,
                     children: [
                       _AppointmentFilterChip(
-                        label: 'All',
-                        isSelected: _selectedAppointmentFilter == AppointmentFilterType.all,
-                        onTap: () {
-                          if (_selectedAppointmentFilter != AppointmentFilterType.all) {
-                            setState(() {
-                              _selectedAppointmentFilter = AppointmentFilterType.all;
-                            });
-                            c.clearQuickFilters();
-                          }
-                        },
-                      ),
-                      _AppointmentFilterChip(
                         label: 'Video Consult',
                         isSelected: _selectedAppointmentFilter == AppointmentFilterType.video,
                         onTap: () {
@@ -445,9 +433,12 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                             setState(() {
                               _selectedAppointmentFilter = AppointmentFilterType.video;
                             });
-                            // Apply video consultation filter logic here
-                            c.clearQuickFilters();
-                            c.toggleQuickFilter(DoctorQuickFilter.videoConsult);
+                            // Apply video consultation filter in one operation
+                            c.currentFilter.value = c.currentFilter.value.copyWith(
+                              specialization: widget.category != 'All' ? widget.category : null,
+                              quickFilters: {DoctorQuickFilter.videoConsult},
+                            );
+                            c.fetchInitialDoctors();
                           }
                         },
                       ),
@@ -487,7 +478,6 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
 
 // Simplified appointment filter types
 enum AppointmentFilterType {
-  all,
   video,
   physical,
 }
