@@ -208,8 +208,105 @@ class InstantConsultScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Bottom Proceed Button
-            Container(
+            // Bottom Button - Hide when loading, Refresh when no doctors, Proceed when doctors available
+            Obx(() {
+              // Hide button completely when loading
+              if (controller.isLoading.value) {
+                return const SizedBox.shrink();
+              }
+              
+              if (controller.availableDoctors.isEmpty) {
+                // Show professional refresh section when no doctors available
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Professional message
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue.shade100),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                color: AppColors.primaryBlue,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'All doctors are currently busy. Please try refreshing to check for availability.',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue.shade800,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Professional refresh button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              controller.loadAvailableDoctors();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.refresh_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Check for Available Doctors',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              
+              // Show proceed button when doctors are available
+              return Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -298,8 +395,8 @@ class InstantConsultScreen extends StatelessWidget {
                     );
                   }),
                 ),
-              ),
-            ),
+              ) );
+            }),
           ],
         ),
       ),
