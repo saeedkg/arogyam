@@ -109,7 +109,9 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: GestureDetector(
-                  onTap: () => Get.to(() => const SearchScreen()),
+                  onTap: () => Get.to(() => SearchScreen(
+                    preSelectedAppointmentType: widget.preSelectedAppointmentType,
+                  )),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(

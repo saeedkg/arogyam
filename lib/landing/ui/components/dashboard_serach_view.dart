@@ -3,16 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../_shared/ui/app_colors.dart';
+import '../../../_shared/consultation/consultation_type.dart';
 import '../../../care_discovery/ui/search_screen.dart';
 
 class SearchSection extends StatelessWidget {
-  const SearchSection();
+  final String? initialQuery;
+  final String? searchType;
+  final AppointmentType? preSelectedAppointmentType;
+  
+  const SearchSection({
+    super.key,
+    this.initialQuery,
+    this.searchType,
+    this.preSelectedAppointmentType,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => const SearchScreen());
+        Get.to(() => SearchScreen(
+          searchType: searchType ?? 'dashboard',
+          initialQuery: initialQuery ?? '',
+          preSelectedAppointmentType: preSelectedAppointmentType,
+        ));
       },
       child: Container(
         decoration: BoxDecoration(

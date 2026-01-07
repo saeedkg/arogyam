@@ -3,13 +3,23 @@ import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/routing.dart';
 import '../../_shared/consultation/consultation_flow_manager.dart';
+import '../../_shared/consultation/consultation_type.dart';
 import '../controller/search_controller.dart';
 import '../../common_services/entities/specialization.dart';
 import '../../find_doctor/entities/doctor_list_item.dart';
 import '../../find_doctor/ui/doctor_detail_info_screen.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String? initialQuery;
+  final String? searchType;
+  final AppointmentType? preSelectedAppointmentType;
+  
+  const SearchScreen({
+    super.key,
+    this.initialQuery,
+    this.searchType,
+    this.preSelectedAppointmentType,
+  });
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -23,6 +33,16 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _controller = Get.put(CareSearchController());
+    
+    // Set initial query if provided
+    if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+      _searchController.text = widget.initialQuery!;
+      // Perform initial search after a short delay to ensure controller is ready
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.performSearch(widget.initialQuery!);
+      });
+    }
+    
     // Auto-focus the search field when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(FocusNode());
@@ -447,7 +467,7 @@ class _SearchScreenState extends State<SearchScreen> {
             // Navigate to consultation type selection screen for specialization
             ConsultationFlowManager.instance.navigateFromCareDiscovery(
               speciality: specialization.name,
-              preSelectedType: null, // No pre-selected type, show selection screen
+              preSelectedType: widget.preSelectedAppointmentType, // Pass pre-selected appointment type
             );
           },
           child: Padding(
