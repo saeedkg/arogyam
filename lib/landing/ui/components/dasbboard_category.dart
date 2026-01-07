@@ -5,6 +5,7 @@ import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/consultation/consultation_flow_manager.dart';
 import '../../entities/category_item.dart';
+import '../all_categories_screen.dart';
 
 class CategoriesGrid extends StatelessWidget {
   final List<CategoryItem> categories;
@@ -15,7 +16,18 @@ class CategoriesGrid extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText.titleLarge('Categories'),
+        _SectionHeader(
+          title: 'Categories',
+          onSeeAllPressed: () {
+            // Navigate to full categories list
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AllCategoriesScreen(categories: categories),
+              ),
+            );
+          },
+        ),
         const SizedBox(height: 12),
         GridView.builder(
           shrinkWrap: true,
@@ -182,5 +194,28 @@ class CategoriesGrid extends StatelessWidget {
         final hash = categoryName.hashCode.abs();
         return _availableColors[hash % _availableColors.length];
     }
+  }
+}
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback? onSeeAllPressed;
+  
+  const _SectionHeader({
+    required this.title,
+    this.onSeeAllPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        AppText.titleLarge(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+        const Spacer(),
+        TextButton(
+          onPressed: onSeeAllPressed,
+          child: const Text('See all'),
+        ),
+      ],
+    );
   }
 }

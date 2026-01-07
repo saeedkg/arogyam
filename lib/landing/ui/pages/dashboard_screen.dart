@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 16),
                       BannerCarousel(banners: controller.banners),
                       const SizedBox(height: 16),
-                      const SizedBox(height: 8),
+                     /// const SizedBox(height: 8),
                       CategoriesGrid(categories: controller.categories),
                       const SizedBox(height: 16),
                       _SectionHeader(title: 'Top doctors'),
