@@ -270,26 +270,26 @@ class DoctorCard extends StatelessWidget {
                         //   ),
                         
                         // If not available today but online
-                        if (doctor.isOnline && !doctor.availableToday)
-                          Row(
-                            children: [
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.schedule_rounded,
-                                color: Colors.orange.shade600,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Next Available',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.orange.shade700,
-                                ),
-                              ),
-                            ],
-                          ),
+                        // if (doctor.isOnline && !doctor.availableToday)
+                        //   Row(
+                        //     children: [
+                        //       const SizedBox(width: 8),
+                        //       Icon(
+                        //         Icons.schedule_rounded,
+                        //         color: Colors.orange.shade600,
+                        //         size: 16,
+                        //       ),
+                        //       const SizedBox(width: 4),
+                        //       Text(
+                        //         'Next Available',
+                        //         style: TextStyle(
+                        //           fontSize: 12,
+                        //           fontWeight: FontWeight.w500,
+                        //           color: Colors.orange.shade700,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
                       ],
                     ),
                   ),
