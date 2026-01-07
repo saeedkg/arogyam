@@ -2,7 +2,14 @@ import '../../_shared/constants/network_config.dart';
 
 class HealthRecordsUrls {
   static String getHealthRecordsUrl({String? patientId}) {
-    return '${NetworkConfig.baseUrl}/patient/health-records';
+    final baseUrl = '${NetworkConfig.baseUrl}/patient/health-records';
+    
+    // Don't append patientId if it's null or "self"
+    if (patientId == null || patientId.toLowerCase() == 'self') {
+      return baseUrl;
+    }
+    
+    return '$baseUrl/patient_id=$patientId';
   }
 
   static String getHealthRecordsForAppointmentUrl(String appointmentId) {

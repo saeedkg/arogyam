@@ -8,6 +8,7 @@ import '../_shared/utils/date_time_formatter.dart';
 import 'controler/appointments_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
+import 'components/appointment_empty_state_card.dart';
 import 'entities/appointment_status.dart';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -185,27 +186,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             _buildPatientCard(),
-            const SizedBox(height: 32),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 64,
-                    color: Colors.grey.shade300,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No appointments found',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+            const AppointmentEmptyStateCard(),
           ],
         ),
       );
