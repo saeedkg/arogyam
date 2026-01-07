@@ -32,17 +32,8 @@ class DoctorsController extends GetxController {
   void onInit() {
     super.onInit();
     loadSpecializations();
-    // Debounce search query changes
-    // ever(query, (_) {
-    //   _searchDebounceTimer?.cancel();
-    //   _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-    //     fetchInitialDoctors();
-    //   });
-    // });
-    // ever(activeFilter, (_) {
-    //   // Trigger fetch when filter changes (only if not initial default 'All' fetch)
-    //   fetchInitialDoctors();
-    // });
+    // Note: Search debouncing is handled manually in the UI
+    // to avoid conflicts with initialization
   }
 
   @override
@@ -115,14 +106,22 @@ class DoctorsController extends GetxController {
 
   /// Toggle quick filter and fetch
   void toggleQuickFilter(DoctorQuickFilter filter) {
-    currentFilter.value = currentFilter.value.toggleQuickFilter(filter);
-    fetchInitialDoctors();
+    final newFilter = currentFilter.value.toggleQuickFilter(filter);
+    // Only fetch if the filter actually changed
+    if (newFilter != currentFilter.value) {
+      currentFilter.value = newFilter;
+      fetchInitialDoctors();
+    }
   }
 
   /// Clear quick filters and fetch
   void clearQuickFilters() {
-    currentFilter.value = currentFilter.value.clearQuickFilters();
-    fetchInitialDoctors();
+    final newFilter = currentFilter.value.clearQuickFilters();
+    // Only fetch if there were actually filters to clear
+    if (newFilter != currentFilter.value) {
+      currentFilter.value = newFilter;
+      fetchInitialDoctors();
+    }
   }
 
   Future<void> loadSpecializations() async {
@@ -136,18 +135,11 @@ class DoctorsController extends GetxController {
       // Update filters with 'All' + specialization names
       filters.assignAll(['All', ...specializationNames]);
       
-      // If there was a preselected category waiting, apply it now and fetch
+      // If there was a preselected category waiting, apply it now but don't fetch
       if (_pendingFilter != null && filters.contains(_pendingFilter)) {
         activeFilter.value = _pendingFilter!;
         _pendingFilter = null;
-        // Trigger fetch with the applied filter
-        fetchInitialDoctors();
-      } else if (_pendingFilter == null && activeFilter.value == 'All' && doctors.isEmpty) {
-        // No pending filter and default 'All' - fetch initial doctors
-        fetchInitialDoctors();
-      } else if (_pendingFilter == null && activeFilter.value != 'All' && doctors.isEmpty) {
-        // Filter was already set (not 'All') and no doctors - fetch with that filter
-        fetchInitialDoctors();
+        // Don't trigger fetch here - let the caller handle it
       }
     } catch (e) {
       // If API fails, fall back to default filters
@@ -157,12 +149,7 @@ class DoctorsController extends GetxController {
       if (_pendingFilter != null && filters.contains(_pendingFilter)) {
         activeFilter.value = _pendingFilter!;
         _pendingFilter = null;
-        fetchInitialDoctors();
-      } else if (_pendingFilter == null && activeFilter.value == 'All' && doctors.isEmpty) {
-        fetchInitialDoctors();
-      } else if (_pendingFilter == null && activeFilter.value != 'All' && doctors.isEmpty) {
-        // Filter was already set - fetch with that filter
-        fetchInitialDoctors();
+        // Don't trigger fetch here - let the caller handle it
       }
     } finally {
       isLoadingSpecializations.value = false;
@@ -199,28 +186,18 @@ class DoctorsController extends GetxController {
 
   // Method to set active filter from outside (for category navigation)
   void setActiveFilter(String filter) {
+    // Just set the filter without triggering fetch - let the caller handle the fetch
+    activeFilter.value = filter;
+    
     if (filter == 'All') {
-      // Always allow 'All' filter
-      activeFilter.value = filter;
-      // Always trigger fetch when filter changes (since ever() is commented out)
-      fetchInitialDoctors();
       return;
     }
 
     if (isLoadingSpecializations.value || filters.length <= 1) {
       // Still loading or filters not loaded yet, store for later
-      // Will be applied in loadSpecializations() which will trigger fetch
       _pendingFilter = filter;
-    } else if (filters.contains(filter)) {
-      // Filter exists, set it immediately and always trigger fetch
-      // (since ever() listener is commented out, we need to manually trigger)
-      if (activeFilter.value != filter || doctors.isEmpty) {
-        activeFilter.value = filter;
-        fetchInitialDoctors();
-      }
-    } else {
+    } else if (!filters.contains(filter)) {
       // Filter doesn't exist yet, store it for when specializations load
-      // Will be applied in loadSpecializations() which will trigger fetch
       _pendingFilter = filter;
     }
   }

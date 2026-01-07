@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
@@ -24,6 +25,10 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final c = Get.put(DoctorsController());
   DoctorSortBy _selectedSortOption = DoctorSortBy.recommended;
+  Timer? _searchDebounceTimer;
+  
+  // Simplified appointment filter options
+  AppointmentFilterType _selectedAppointmentFilter = AppointmentFilterType.all;
 
   @override
   void initState() {
@@ -33,29 +38,74 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     c.doctors.clear();
     c.query.value = ''; // Clear any previous search query
     
-    // Set filter immediately - this will trigger fetchInitialDoctors
-    // If specializations are already loaded, it will trigger immediately
-    // If not, it will be stored as _pendingFilter and applied when specializations load
-    c.setActiveFilter(widget.category);
-    
-    // Ensure fetch happens after frame is built
-    // This handles cases where specializations are already loaded but filter wasn't applied yet
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // If specializations are loaded, filter is set, but no doctors - fetch now
-      if (!c.isLoadingSpecializations.value && 
-          c.filters.contains(widget.category) && 
-          c.activeFilter.value == widget.category &&
-          c.doctors.isEmpty &&
-          !c.isLoading.value) {
-        c.fetchInitialDoctors();
+    // Auto-select filter based on appointmentType parameter
+    if (widget.appointmentType != null) {
+      switch (widget.appointmentType!) {
+        case AppointmentType.video:
+          _selectedAppointmentFilter = AppointmentFilterType.video;
+          break;
+        case AppointmentType.clinic:
+          _selectedAppointmentFilter = AppointmentFilterType.physical;
+          break;
       }
+    }
+    
+    // Set the specialization filter but don't trigger fetch yet
+    c.activeFilter.value = widget.category;
+    
+    // Apply all filters together in a single post-frame callback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Wait for specializations to load if needed
+      _waitForSpecializationsAndApplyFilters();
     });
+  }
+  
+  void _waitForSpecializationsAndApplyFilters() async {
+    // Wait for specializations to load
+    while (c.isLoadingSpecializations.value) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
+    
+    // Now apply all filters at once
+    if (widget.appointmentType != null) {
+      switch (widget.appointmentType!) {
+        case AppointmentType.video:
+          c.currentFilter.value = c.currentFilter.value.copyWith(
+            specialization: widget.category != 'All' ? widget.category : null,
+            quickFilters: {DoctorQuickFilter.videoConsult},
+          );
+          break;
+        case AppointmentType.clinic:
+          c.currentFilter.value = c.currentFilter.value.copyWith(
+            specialization: widget.category != 'All' ? widget.category : null,
+            quickFilters: {DoctorQuickFilter.physicalConsult},
+          );
+          break;
+      }
+    } else {
+      // No appointment type, just set specialization
+      c.currentFilter.value = c.currentFilter.value.copyWith(
+        specialization: widget.category != 'All' ? widget.category : null,
+      );
+    }
+    
+    // Make single API call with all filters applied
+    c.fetchInitialDoctors();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchDebounceTimer?.cancel();
     super.dispose();
+  }
+  
+  void _onSearchChanged(String value) {
+    _searchDebounceTimer?.cancel();
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 800), () {
+      c.query.value = value;
+      c.fetchInitialDoctors();
+    });
   }
 
   Widget _buildDoctorsList(DoctorsController c) {
@@ -167,6 +217,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
               onPressed: () {
                 _searchController.clear();
                 c.query.value = '';
+                c.fetchInitialDoctors();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,
@@ -334,7 +385,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                   ),
                   child: TextField(
                     controller: _searchController,
-                    onChanged: (v) => c.query.value = v,
+                    onChanged: _onSearchChanged,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
                       hintText: 'Search doctors, specialization or clinic...',
@@ -349,6 +400,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                         onPressed: () {
                           _searchController.clear();
                           c.query.value = '';
+                          c.fetchInitialDoctors();
                         },
                       )
                           : null,
@@ -366,25 +418,58 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
 
                 const SizedBox(height: 14),
 
-                // Filter Chips Row
+                // Simplified Appointment Type Filter
                 SizedBox(
                   height: 42,
-                  child: Obx(() => ListView(
+                  child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.zero,
                     children: [
-                      _FilterChip(
+                      _AppointmentFilterChip(
                         label: 'All',
-                        isSelected: c.currentFilter.value.quickFilters.isEmpty,
-                        onTap: () => c.clearQuickFilters(),
+                        isSelected: _selectedAppointmentFilter == AppointmentFilterType.all,
+                        onTap: () {
+                          if (_selectedAppointmentFilter != AppointmentFilterType.all) {
+                            setState(() {
+                              _selectedAppointmentFilter = AppointmentFilterType.all;
+                            });
+                            c.clearQuickFilters();
+                          }
+                        },
                       ),
-                      ...DoctorQuickFilter.values.map((filter) => _FilterChip(
-                        label: filter.displayName,
-                        isSelected: c.currentFilter.value.hasQuickFilter(filter),
-                        onTap: () => c.toggleQuickFilter(filter),
-                      )),
+                      _AppointmentFilterChip(
+                        label: 'Video Consult',
+                        isSelected: _selectedAppointmentFilter == AppointmentFilterType.video,
+                        onTap: () {
+                          if (_selectedAppointmentFilter != AppointmentFilterType.video) {
+                            setState(() {
+                              _selectedAppointmentFilter = AppointmentFilterType.video;
+                            });
+                            // Apply video consultation filter logic here
+                            c.clearQuickFilters();
+                            c.toggleQuickFilter(DoctorQuickFilter.videoConsult);
+                          }
+                        },
+                      ),
+                      _AppointmentFilterChip(
+                        label: 'Physical Appointment',
+                        isSelected: _selectedAppointmentFilter == AppointmentFilterType.physical,
+                        onTap: () {
+                          if (_selectedAppointmentFilter != AppointmentFilterType.physical) {
+                            setState(() {
+                              _selectedAppointmentFilter = AppointmentFilterType.physical;
+                            });
+                            // Apply physical appointment filter in one operation
+                            c.currentFilter.value = c.currentFilter.value.copyWith(
+                              specialization: widget.category != 'All' ? widget.category : null,
+                              quickFilters: {DoctorQuickFilter.physicalConsult},
+                            );
+                            c.fetchInitialDoctors();
+                          }
+                        },
+                      ),
                     ],
-                  )),
+                  ),
                 ),
               ],
             ),
@@ -400,13 +485,20 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   }
 }
 
-// 🔘 FilterChip Widget
-class _FilterChip extends StatelessWidget {
+// Simplified appointment filter types
+enum AppointmentFilterType {
+  all,
+  video,
+  physical,
+}
+
+// 🔘 Simplified AppointmentFilterChip Widget
+class _AppointmentFilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
   
-  const _FilterChip({
+  const _AppointmentFilterChip({
     required this.label,
     this.isSelected = false,
     required this.onTap,

@@ -42,7 +42,8 @@ enum DoctorQuickFilter {
   availableToday,
   nearMe,
   topRated,
-  videoConsult;
+  videoConsult,
+  physicalConsult;
 
   String get displayName {
     switch (this) {
@@ -54,6 +55,8 @@ enum DoctorQuickFilter {
         return 'Top Rated';
       case DoctorQuickFilter.videoConsult:
         return 'Video Consult';
+      case DoctorQuickFilter.physicalConsult:
+        return 'Physical Consult';
     }
   }
 
@@ -67,6 +70,8 @@ enum DoctorQuickFilter {
         return 'top_rated';
       case DoctorQuickFilter.videoConsult:
         return 'video_consult';
+      case DoctorQuickFilter.physicalConsult:
+        return 'physical_consult';
     }
   }
 }

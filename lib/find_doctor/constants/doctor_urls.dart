@@ -40,9 +40,19 @@ class DoctorUrls {
       params.write('&sort_by=${filter.sortBy!.apiValue}');
     }
     
-    // Add quick filters
+    // Add availability parameter based on consultation type filters
+    if (filter.quickFilters.contains(DoctorQuickFilter.videoConsult)) {
+      params.write('&availability=online');
+    } else if (filter.quickFilters.contains(DoctorQuickFilter.physicalConsult)) {
+      params.write('&availability=offline');
+    }
+    
+    // Add quick filters (excluding videoConsult and physicalConsult as they're handled by availability)
     for (final quickFilter in filter.quickFilters) {
-      params.write('&${quickFilter.apiKey}=1');
+      if (quickFilter != DoctorQuickFilter.videoConsult && 
+          quickFilter != DoctorQuickFilter.physicalConsult) {
+        params.write('&${quickFilter.apiKey}=1');
+      }
     }
     
     return params.toString();
