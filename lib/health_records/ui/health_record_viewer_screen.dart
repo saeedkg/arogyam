@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
@@ -112,7 +113,31 @@ class _HealthRecordViewerScreenState extends State<HealthRecordViewerScreen> {
     });
 
     try {
-      final fileName = '${widget.healthRecord.title.replaceAll(' ', '_')}_${widget.healthRecord.id}.pdf';
+      // Generate appropriate file extension based on file type
+      String fileExtension = '.pdf'; // default
+      
+      if (widget.healthRecord.isImage) {
+        // For images, try to get extension from file type
+        if (widget.healthRecord.fileType != null) {
+          final type = widget.healthRecord.fileType!.split('/').last;
+          fileExtension = '.$type';
+        } else {
+          fileExtension = '.jpg'; // fallback
+        }
+      } else if (widget.healthRecord.isPdf) {
+        fileExtension = '.pdf';
+      } else {
+        // For other file types, try to get extension from original filename
+        if (widget.healthRecord.fileName?.contains('.') == true) {
+          final parts = widget.healthRecord.fileName!.split('.');
+          fileExtension = '.${parts.last}';
+        } else if (widget.healthRecord.fileType != null) {
+          final type = widget.healthRecord.fileType!.split('/').last;
+          fileExtension = '.$type';
+        }
+      }
+      
+      final fileName = '${widget.healthRecord.title.replaceAll(' ', '_')}_${widget.healthRecord.id}$fileExtension';
       
       final success = await _healthRecordsService.downloadHealthRecordPermanently(
         recordId: widget.healthRecord.id,
@@ -320,7 +345,14 @@ class _HealthRecordViewerScreenState extends State<HealthRecordViewerScreen> {
       return _buildErrorState();
     }
 
-    return _buildPdfViewer();
+    // Check file type and show appropriate viewer
+    if (widget.healthRecord.isImage) {
+      return _buildImageViewer();
+    } else if (widget.healthRecord.isPdf) {
+      return _buildPdfViewer();
+    } else {
+      return _buildUnsupportedFileViewer();
+    }
   }
 
   Widget _buildLoadingState() {
@@ -493,6 +525,144 @@ class _HealthRecordViewerScreenState extends State<HealthRecordViewerScreen> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildImageViewer() {
+    if (_localFilePath == null) {
+      return Center(
+        child: Text(
+          'No health record image available',
+          style: TextStyle(
+            color: AppColors.grey600,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      color: Colors.black,
+      child: InteractiveViewer(
+        minScale: 0.5,
+        maxScale: 4.0,
+        child: Center(
+          child: Image.file(
+            File(_localFilePath!),
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.broken_image_rounded,
+                      size: 80,
+                      color: AppColors.grey400,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Unable to display image',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'The image file may be corrupted or in an unsupported format',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnsupportedFileViewer() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.description_outlined,
+              size: 80,
+              color: AppColors.grey400,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Unsupported File Type',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'This file type (${widget.healthRecord.fileType ?? 'unknown'}) is not supported for viewing.\nYou can still download and share the file.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.grey600,
+                fontSize: 15,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _localFilePath == null ? null : _downloadHealthRecord,
+                  icon: const Icon(
+                    Icons.download_rounded,
+                    size: 18,
+                  ),
+                  label: const Text('Download'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    elevation: 0,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                OutlinedButton.icon(
+                  onPressed: _localFilePath == null ? null : _shareHealthRecord,
+                  icon: const Icon(
+                    Icons.share_rounded,
+                    size: 18,
+                  ),
+                  label: const Text('Share'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryBlue,
+                    side: BorderSide(color: AppColors.primaryBlue),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
