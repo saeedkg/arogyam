@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/utils/date_time_formatter.dart';
 import '../../_shared/consultation/consultation_flow_manager.dart';
+import '../../_shared/components/guest_mode_handler.dart';
+import '../../auth/user_management/service/auth_token_provider.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
 import '../entities/appointment_booking_request.dart';
@@ -20,6 +22,7 @@ class DoctorBookingScreen extends StatefulWidget {
 class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
   final c = Get.put(DoctorDetailController(), tag: 'booking');
   final bookingController = Get.put(BookingController());
+  bool _isGuestMode = false;
   
   // Store the worker references for disposal
   late Worker _appointmentIdWorker;
@@ -30,6 +33,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
     super.initState();
     c.load(widget.doctorId);
     bookingController.loadPricing(widget.doctorId);
+    _checkGuestMode();
     
     // Listen to appointment ID changes (payment success)
     _appointmentIdWorker = ever(bookingController.appointmentId, (String? appointmentId) {
@@ -68,6 +72,14 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
           }
         });
       }
+    });
+  }
+
+  Future<void> _checkGuestMode() async {
+    final authTokenProvider = AuthTokenProvider();
+    final token = await authTokenProvider.getToken();
+    setState(() {
+      _isGuestMode = token == null;
     });
   }
 
@@ -123,6 +135,70 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
 
       // ✅ Floating action button with gradient style (only show when slot is selected)
       floatingActionButton: Obx(() {
+        // Guest mode handling - show sign in prompt
+        if (_isGuestMode) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: double.infinity,
+            height: 56,
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primaryGreen,
+                  AppColors.primaryGreen.withValues(alpha: 0.8),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                GuestModeHandler.showGuestModePrompt(
+                  context,
+                  featureName: 'appointment booking',
+                  customMessage: 'To book an appointment with this doctor, please sign in to your account. This helps us provide personalized healthcare services.',
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.login_rounded, 
+                    color: Colors.white, 
+                    size: 20
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Sign In to Book Appointment',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
         // Show professional indicator when no slot is selected
         if (c.selectedSlot.value == null) {
           return AnimatedContainer(
@@ -269,7 +345,7 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
             children: [
               _DoctorProfileCard(d: d),
               const SizedBox(height: 24),
-              _AvailabilitySection(controller: c, doctor: d),
+              _AvailabilitySection(controller: c, doctor: d, isGuestMode: _isGuestMode),
               const SizedBox(height: 24),
               _PaymentDetailsSection(bookingController: bookingController),
               const SizedBox(height: 100), // Space for floating button
@@ -433,7 +509,8 @@ class _DetailItem extends StatelessWidget {
 class _AvailabilitySection extends StatelessWidget {
   final DoctorDetailController controller;
   final dynamic doctor;
-  const _AvailabilitySection({required this.controller, required this.doctor});
+  final bool isGuestMode;
+  const _AvailabilitySection({required this.controller, required this.doctor, this.isGuestMode = false});
 
   @override
   Widget build(BuildContext context) {
@@ -502,11 +579,20 @@ class _AvailabilitySection extends StatelessWidget {
                         return _DateChip(
                           date: date,
                           isSelected: isSelected,
+                          isGuestMode: isGuestMode,
                           onTap: () {
-                            controller.selectedDateIndex.value = index;
-                            controller.selectedTime.value = '';
-                            controller.selectedSlot.value = null;
-                            controller.loadSlotsForSelectedDate();
+                            if (!isGuestMode) {
+                              controller.selectedDateIndex.value = index;
+                              controller.selectedTime.value = '';
+                              controller.selectedSlot.value = null;
+                              controller.loadSlotsForSelectedDate();
+                            } else {
+                              GuestModeHandler.showGuestModePrompt(
+                                context,
+                                featureName: 'appointment booking',
+                                customMessage: 'To select appointment slots, please sign in to your account.',
+                              );
+                            }
                           },
                         );
                       });
@@ -593,9 +679,18 @@ class _AvailabilitySection extends StatelessWidget {
                           return _TimeChip(
                             time: timeStr,
                             isSelected: isSelected,
+                            isGuestMode: isGuestMode,
                             onTap: () {
-                              controller.selectedTime.value = timeStr;
-                              controller.selectedSlot.value = slot;
+                              if (!isGuestMode) {
+                                controller.selectedTime.value = timeStr;
+                                controller.selectedSlot.value = slot;
+                              } else {
+                                GuestModeHandler.showGuestModePrompt(
+                                  context,
+                                  featureName: 'appointment booking',
+                                  customMessage: 'To select appointment slots, please sign in to your account.',
+                                );
+                              }
                             },
                           );
                         }).toList(),
@@ -612,8 +707,9 @@ class _AvailabilitySection extends StatelessWidget {
 class _DateChip extends StatelessWidget {
   final DateTime date;
   final bool isSelected;
+  final bool isGuestMode;
   final VoidCallback onTap;
-  const _DateChip({required this.date, required this.isSelected, required this.onTap});
+  const _DateChip({required this.date, required this.isSelected, required this.onTap, this.isGuestMode = false});
 
   @override
   Widget build(BuildContext context) {
@@ -637,7 +733,7 @@ class _DateChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : Colors.grey.shade600,
+                color: isSelected ? Colors.white : (isGuestMode ? Colors.grey.shade400 : Colors.grey.shade600),
               ),
             ),
             const SizedBox(height: 4),
@@ -646,7 +742,7 @@ class _DateChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected ? Colors.white : (isGuestMode ? Colors.grey.shade400 : Colors.black87),
               ),
             ),
           ],
@@ -663,8 +759,9 @@ class _DateChip extends StatelessWidget {
 class _TimeChip extends StatelessWidget {
   final String time;
   final bool isSelected;
+  final bool isGuestMode;
   final VoidCallback onTap;
-  const _TimeChip({required this.time, required this.isSelected, required this.onTap});
+  const _TimeChip({required this.time, required this.isSelected, required this.onTap, this.isGuestMode = false});
 
   @override
   Widget build(BuildContext context) {
@@ -692,7 +789,7 @@ class _TimeChip extends StatelessWidget {
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.grey.shade700,
+            color: isSelected ? Colors.white : (isGuestMode ? Colors.grey.shade400 : Colors.grey.shade700),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../appointment/entities/appointment.dart';
+import '../../auth/user_management/service/auth_token_provider.dart';
 import '../../common_services/entities/doctor.dart' as common_doctor;
 import '../../common_services/entities/specialization.dart';
 import '../../common_services/services/doctor_service.dart';
@@ -45,19 +46,41 @@ class HomeController extends GetxController {
   Future<void> loadAll() async {
     isLoading.value = true;
     try {
-      final results = await Future.wait([
-        dashboardService.fetchDashboardData(),
+      // Check if user is in guest mode
+      final authTokenProvider = AuthTokenProvider();
+      final token = await authTokenProvider.getToken();
+      final isGuestMode = token == null;
+      
+      List<Future> futures = [];
+      
+      // Only call dashboard API if user is authenticated
+      if (!isGuestMode) {
+        futures.add(dashboardService.fetchDashboardData());
+      }
+      
+      // Always load public data (specializations, banners, doctors)
+      futures.addAll([
         specializationService.fetchSpecializations(),
         api.fetchBanners(),
         doctorService.fetchDoctors(),
       ]);
       
-      // Store dashboard data
-      dashboardData.value = results[0] as DashboardData;
-      upcomingAppointments.assignAll(dashboardData.value!.upcomingAppointments);
+      final results = await Future.wait(futures);
+      
+      int resultIndex = 0;
+      
+      // Process dashboard data only if user is authenticated
+      if (!isGuestMode) {
+        dashboardData.value = results[resultIndex] as DashboardData;
+        upcomingAppointments.assignAll(dashboardData.value!.upcomingAppointments);
+        resultIndex++;
+      } else {
+        // Clear appointments for guest users
+        upcomingAppointments.clear();
+      }
       
       // Map specializations to categories
-      final specializations = results[1] as List<Specialization>;
+      final specializations = results[resultIndex] as List<Specialization>;
       categories.assignAll(
         specializations.take(8).map((s) => CategoryItem(
           id: s.id.toString(),
@@ -65,11 +88,13 @@ class HomeController extends GetxController {
           svgIcon: s.svgIcon,
         )).toList(),
       );
+      resultIndex++;
       
-      banners.assignAll(results[2] as List<BannerItem>);
+      banners.assignAll(results[resultIndex] as List<BannerItem>);
+      resultIndex++;
       
       // Map doctors from common service to landing entity
-      final doctors = results[3] as List<common_doctor.Doctor>;
+      final doctors = results[resultIndex] as List<common_doctor.Doctor>;
       topDoctors.assignAll(
         doctors.take(10).map((d) => Doctor(
           id: d.id.toString(),
