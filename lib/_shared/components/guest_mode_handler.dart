@@ -138,7 +138,10 @@ class GuestModeHandler {
                 
                 // Continue as Guest Button
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    // Do nothing - user is already browsing as guest
+                    // This button is just for UI consistency
+                  },
                   child: Text(
                     'Continue Browsing',
                     style: TextStyle(
@@ -377,7 +380,16 @@ class GuestModePromptSheet extends StatelessWidget {
               
               // Continue as Guest Button
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  try {
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    // If pop fails, try to navigate back safely
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  }
+                },
                 child: Text(
                   'Continue as Guest',
                   style: TextStyle(

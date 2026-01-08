@@ -25,6 +25,10 @@ class DoctorDetailInfoScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, size: 20, color: Colors.black87),
+          onPressed: () => Get.back(),
+        ),
         title:  Text(
            'Doctor Details',
           style: const TextStyle(
