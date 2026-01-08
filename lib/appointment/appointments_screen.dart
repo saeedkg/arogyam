@@ -5,6 +5,8 @@ import '../_shared/patient/current_patient_controller.dart';
 import '../_shared/patient/current_patient.dart';
 import '../_shared/consultation/consultation_flow_manager.dart';
 import '../_shared/utils/date_time_formatter.dart';
+import '../_shared/components/guest_mode_handler.dart';
+import '../auth/user_management/service/auth_token_provider.dart';
 import 'controler/appointments_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
@@ -22,6 +24,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   late AppointmentsController c;
   late CurrentPatientController currentPatientController;
   late ScrollController _scrollController;
+  bool _isGuestMode = false;
+  bool _showGuestBanner = true;
 
   @override
   void initState() {
@@ -29,6 +33,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     c = Get.put(AppointmentsController());
     currentPatientController = Get.put(CurrentPatientController());
     _scrollController = ScrollController();
+    
+    // Check if user is in guest mode
+    _checkGuestMode();
     
     // Wait for current patient to load, then set patient ID
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -44,6 +51,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     
     // Add scroll listener for pagination
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _checkGuestMode() async {
+    final authTokenProvider = AuthTokenProvider();
+    final token = await authTokenProvider.getToken();
+    setState(() {
+      _isGuestMode = token == null;
+    });
   }
 
   Future<void> _initializePatientAndAppointments() async {
@@ -96,6 +111,29 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   Widget _buildAppointmentsList() {
+    // Guest mode handling
+    if (_isGuestMode) {
+      return Column(
+        children: [
+          // Guest banner
+          if (_showGuestBanner)
+            GuestModeHandler.buildGuestBanner(
+              onDismiss: () => setState(() => _showGuestBanner = false),
+            ),
+          
+          // Guest empty state
+          Expanded(
+            child: GuestModeHandler.buildGuestEmptyState(
+              title: 'Sign In to View Appointments',
+              description: 'Access your appointment history, upcoming consultations, and manage your healthcare schedule.',
+              featureName: 'appointments',
+              icon: Icons.calendar_today_rounded,
+            ),
+          ),
+        ],
+      );
+    }
+
     // Loading state - first load
     if (c.isLoading.value && c.appointments.isEmpty) {
       return const Center(

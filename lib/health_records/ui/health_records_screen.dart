@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/patient/current_patient_controller.dart';
 import '../../_shared/routing/routing.dart';
+import '../../_shared/components/guest_mode_handler.dart';
+import '../../auth/user_management/service/auth_token_provider.dart';
 import '../../appointment/components/patient_card.dart';
 import '../controller/health_records_controller.dart';
 import 'componets/health_record_card.dart';
@@ -19,6 +21,8 @@ class HealthRecordsScreen extends StatefulWidget {
 class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
   late HealthRecordsController controller;
   late CurrentPatientController currentPatientController;
+  bool _isGuestMode = false;
+  bool _showGuestBanner = true;
 
   @override
   void initState() {
@@ -26,9 +30,20 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
     controller = Get.put(HealthRecordsController());
     currentPatientController = Get.put(CurrentPatientController());
     
+    // Check if user is in guest mode
+    _checkGuestMode();
+    
     // Set initial patient ID
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.setPatientId(currentPatientController.current.value?.id);
+    });
+  }
+
+  Future<void> _checkGuestMode() async {
+    final authTokenProvider = AuthTokenProvider();
+    final token = await authTokenProvider.getToken();
+    setState(() {
+      _isGuestMode = token == null;
     });
   }
 
@@ -46,7 +61,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
+      //  backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         shadowColor: Colors.black.withValues(alpha: 0.1),
         actions: [
@@ -75,6 +90,11 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
       ),
       body: Obx(() => _buildRecordsList()),
       floatingActionButton: Obx(() {
+        // Don't show floating button for guest users
+        if (_isGuestMode) {
+          return Container();
+        }
+        
         // Only show floating button when there are health records
         if (controller.healthRecords.isNotEmpty) {
           return Container(
@@ -113,6 +133,29 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
   }
 
   Widget _buildRecordsList() {
+    // Guest mode handling
+    if (_isGuestMode) {
+      return Column(
+        children: [
+          // Guest banner
+          if (_showGuestBanner)
+            GuestModeHandler.buildGuestBanner(
+              onDismiss: () => setState(() => _showGuestBanner = false),
+            ),
+          
+          // Guest empty state
+          Expanded(
+            child: GuestModeHandler.buildGuestEmptyState(
+              title: 'Sign In to Access Health Records',
+              description: 'Securely store and access your medical documents, lab reports, prescriptions, and health history.',
+              featureName: 'health records',
+              icon: Icons.folder_open_rounded,
+            ),
+          ),
+        ],
+      );
+    }
+
     // Loading state - first load
     if (controller.isLoading.value && controller.healthRecords.isEmpty) {
       return Center(

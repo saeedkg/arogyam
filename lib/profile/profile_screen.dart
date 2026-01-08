@@ -4,18 +4,82 @@ import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 import '../_shared/ui/app_colors.dart';
 import '../_shared/routing/app_navigation.dart';
+import '../_shared/components/guest_mode_handler.dart';
+import '../auth/user_management/service/auth_token_provider.dart';
 import '../auth/provider/auth_provider.dart';
 import 'controller/profile_controller.dart';
 
 
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  bool _isGuestMode = false;
+  bool _showGuestBanner = true;
+
+  @override
+  void initState() {
+    super.initState();
     // Ensure controller is available
     Get.put(ProfileController());
+    _checkGuestMode();
+  }
+
+  Future<void> _checkGuestMode() async {
+    final authTokenProvider = AuthTokenProvider();
+    final token = await authTokenProvider.getToken();
+    setState(() {
+      _isGuestMode = token == null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Guest mode handling
+    if (_isGuestMode) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Profile',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              color: Colors.black87,
+            ),
+          ),
+          centerTitle: true,
+          elevation: 0,
+          //backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shadowColor: Colors.black.withOpacity(0.1),
+        ),
+        body: Column(
+          children: [
+            // Guest banner
+            if (_showGuestBanner)
+              GuestModeHandler.buildGuestBanner(
+                onDismiss: () => setState(() => _showGuestBanner = false),
+              ),
+            
+            // Guest empty state
+            Expanded(
+              child: GuestModeHandler.buildGuestEmptyState(
+                title: 'Sign In to Access Profile',
+                description: 'View your personal information, health insights, manage settings, and access your complete healthcare profile.',
+                featureName: 'profile',
+                icon: Icons.person_rounded,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
     //  backgroundColor: Colors.grey.shade50,
       body: SingleChildScrollView(
