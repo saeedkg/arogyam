@@ -646,6 +646,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
               name: hospital['name'] ?? 'Unknown Hospital',
               address: hospital['address'],
               isClinic: false,
+              hospitalId: hospital['id']?.toString(),
             )),
           ],
           
@@ -687,58 +688,71 @@ class DoctorDetailInfoScreen extends StatelessWidget {
     required String name,
     String? address,
     required bool isClinic,
+    String? hospitalId,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isClinic ? Colors.blue.shade50 : Colors.green.shade50,
-              borderRadius: BorderRadius.circular(8),
+    return InkWell(
+      onTap: hospitalId != null && !isClinic 
+          ? () => AppNavigation.toHospitalDetail(hospitalId)
+          : null,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isClinic ? Colors.blue.shade50 : Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                isClinic ? Icons.local_hospital_rounded : Icons.business_rounded,
+                color: isClinic ? Colors.blue.shade600 : Colors.green.shade600,
+                size: 20,
+              ),
             ),
-            child: Icon(
-              isClinic ? Icons.local_hospital_rounded : Icons.business_rounded,
-              color: isClinic ? Colors.blue.shade600 : Colors.green.shade600,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                if (address != null && address.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    address,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
-                      height: 1.4,
+                    name,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
                     ),
                   ),
+                  if (address != null && address.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      address,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+            if (hospitalId != null && !isClinic)
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: Colors.grey.shade400,
+              ),
+          ],
+        ),
       ),
     );
   }
