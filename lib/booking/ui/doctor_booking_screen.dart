@@ -37,12 +37,16 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
     
     // Listen to appointment ID changes (payment success)
     _appointmentIdWorker = ever(bookingController.appointmentId, (String? appointmentId) {
-      if (appointmentId != null && mounted) {
+      if (appointmentId != null && appointmentId.isNotEmpty && mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            Get.back(); // Go back to previous screen
-            ConsultationFlowManager.instance.navigateToPendingConsultation(appointmentId);
-            bookingController.appointmentId.value = null; // Reset
+          if (mounted && context.mounted) {
+            try {
+              Get.back(); // Go back to previous screen
+              ConsultationFlowManager.instance.navigateToPendingConsultation(appointmentId);
+              bookingController.appointmentId.value = null; // Reset
+            } catch (e) {
+              print('Error in appointment success navigation: $e');
+            }
           }
         });
       }
@@ -50,25 +54,40 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
     
     // Listen to booking error changes
     _bookingErrorWorker = ever(bookingController.bookingError, (String? error) {
-      if (error != null && mounted) {
+      if (error != null && error.isNotEmpty && mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Payment Failed'),
-                content: Text(error),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      bookingController.bookingError.value = null; // Reset
-                    },
-                    child: const Text('Close'),
+          if (mounted && context.mounted) {
+            try {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Payment Failed'),
+                  content: Text(error),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
+                        bookingController.bookingError.value = null; // Reset
+                      },
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              );
+            } catch (e) {
+              print('Error showing payment error dialog: $e');
+              // Fallback: show snackbar instead
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Payment failed: $error'),
+                    backgroundColor: Colors.red,
                   ),
-                ],
-              ),
-            );
+                );
+              }
+            }
           }
         });
       }
@@ -85,39 +104,84 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
 
   @override
   void dispose() {
-    // Dispose workers to prevent memory leaks
-    _appointmentIdWorker.dispose();
-    _bookingErrorWorker.dispose();
-    
-    // Clean up controllers
-    Get.delete<DoctorDetailController>(tag: 'booking');
+    try {
+      // Dispose workers to prevent memory leaks
+      _appointmentIdWorker.dispose();
+      _bookingErrorWorker.dispose();
+      
+      // Clean up controllers
+      Get.delete<DoctorDetailController>(tag: 'booking');
+    } catch (e) {
+      print('Error in dispose: $e');
+    }
     super.dispose();
   }
 
   Future<void> _showPatientSelectionAndProceed() async {
-    // Show patient selection bottom sheet
-    final selectedPatientId = await Get.bottomSheet<String>(
-      const FamilyMembersBottomSheet(),
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
-    );
+    try {
+      // Show patient selection bottom sheet
+      final selectedPatientId = await Get.bottomSheet<String>(
+        const FamilyMembersBottomSheet(),
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+        ),
+      );
 
-    // If a patient was selected, proceed with payment
-    if (selectedPatientId != null) {
-      final d = c.detail.value!;
-      final selectedSlot = c.selectedSlot.value!;
+      // Check if widget is still mounted and patient was selected
+      if (!mounted || selectedPatientId == null) {
+        return;
+      }
+
+      // Ensure we have required data before proceeding
+      final doctorDetail = c.detail.value;
+      final selectedSlot = c.selectedSlot.value;
+      
+      if (doctorDetail == null || selectedSlot == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please select a time slot first'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Safely get the scheduled time
       final scheduledAt = selectedSlot.dateTimeString;
+      if (scheduledAt.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid time slot selected'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
 
-      // Initiate Razorpay payment
+      // Initiate Razorpay payment with error handling
       await bookingController.initiatePayment(
-        doctorId: d.id,
+        doctorId: doctorDetail.id,
         scheduledAt: scheduledAt,
         familyMemberId: selectedPatientId,
         patientNotes: "First consultation",
       );
+    } catch (e) {
+      // Handle any errors that occur during the process
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      print('Error in _showPatientSelectionAndProceed: $e');
     }
   }
 

@@ -29,15 +29,23 @@ class BookingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    try {
+      _razorpay = Razorpay();
+      _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+      _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+      _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    } catch (e) {
+      print('Error initializing Razorpay: $e');
+    }
   }
 
   @override
   void onClose() {
-    _razorpay.clear();
+    try {
+      _razorpay.clear();
+    } catch (e) {
+      print('Error clearing Razorpay: $e');
+    }
     super.onClose();
   }
 
@@ -83,12 +91,22 @@ class BookingController extends GetxController {
     _currentPatientNotes = patientNotes;
     
     try {
+      // Validate required parameters
+      if (doctorId.isEmpty || scheduledAt.isEmpty) {
+        throw Exception('Invalid doctor ID or scheduled time');
+      }
+      
       // Step 1: Create payment order
       final paymentOrder = await service.createVideoConsultationOrder(
         doctorId: doctorId,
         scheduledAt: scheduledAt,
         familyMemberId: familyMemberId,
       );
+      
+      // Validate payment order response
+      if (paymentOrder.orderId.isEmpty || paymentOrder.razorpayKey.isEmpty) {
+        throw Exception('Invalid payment order received');
+      }
       
       // Step 2: Open Razorpay checkout
       var options = {
@@ -107,41 +125,69 @@ class BookingController extends GetxController {
         }
       };
       
+      // Ensure Razorpay is properly initialized before opening
+      if (_razorpay == null) {
+        throw Exception('Payment gateway not initialized');
+      }
+      
       _razorpay.open(options);
     } catch (e) {
-      bookingError.value = e.toString();
+      bookingError.value = 'Payment initialization failed: ${e.toString()}';
       isBooking.value = false;
+      print('Error in initiatePayment: $e');
     }
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     try {
+      // Validate response data
+      if (response.paymentId == null || response.paymentId!.isEmpty ||
+          response.orderId == null || response.orderId!.isEmpty ||
+          response.signature == null || response.signature!.isEmpty) {
+        throw Exception('Invalid payment response data');
+      }
+      
+      // Validate stored context
+      if (_currentDoctorId == null || _currentScheduledAt == null) {
+        throw Exception('Payment context lost');
+      }
+      
       // Step 3: Complete payment and create appointment
       final result = await service.completeVideoConsultationPayment(
-        razorpayPaymentId: response.paymentId ?? '',
-        razorpayOrderId: response.orderId ?? '',
-        razorpaySignature: response.signature ?? '',
+        razorpayPaymentId: response.paymentId!,
+        razorpayOrderId: response.orderId!,
+        razorpaySignature: response.signature!,
         doctorId: _currentDoctorId!,
         scheduledAt: _currentScheduledAt!,
         familyMemberId: _currentFamilyMemberId,
         patientNotes: _currentPatientNotes,
       );
       
+      // Validate appointment creation result
+      if (result.appointmentId.isEmpty) {
+        throw Exception('Failed to create appointment');
+      }
+      
       appointmentId.value = result.appointmentId;
     } catch (e) {
-      bookingError.value = e.toString();
+      bookingError.value = 'Payment completion failed: ${e.toString()}';
+      print('Error in _handlePaymentSuccess: $e');
     } finally {
       isBooking.value = false;
     }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    bookingError.value = 'Payment failed: ${response.message}';
+    final errorMessage = response.message ?? 'Payment failed';
+    bookingError.value = 'Payment failed: $errorMessage';
     isBooking.value = false;
+    print('Payment error: ${response.code} - $errorMessage');
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    bookingError.value = 'External wallet selected: ${response.walletName}';
+    final walletName = response.walletName ?? 'Unknown wallet';
+    bookingError.value = 'External wallet not supported: $walletName';
     isBooking.value = false;
+    print('External wallet selected: $walletName');
   }
 }
