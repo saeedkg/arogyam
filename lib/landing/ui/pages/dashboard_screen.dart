@@ -18,62 +18,71 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: controller.loadAll,
-        color: AppColors.primaryGreen,
-        backgroundColor: Colors.white,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            DashboardAppBar(),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height - 200,
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
-                    );
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SearchSection(),
-                      const SizedBox(height: 20),
-                      
-                      // Upcoming Appointments - Now as a prominent floating card
-                      UpcomingAppointmentsSection(
-                        appointments: controller.upcomingAppointments,
-                      ),
-                      if (controller.upcomingAppointments.isNotEmpty)
-                        const SizedBox(height: 20),
-                      
-                      QuickActions(),
-                      const SizedBox(height: 16),
-                      BannerCarousel(banners: controller.banners),
-                      const SizedBox(height: 16),
-                     /// const SizedBox(height: 8),
-                      CategoriesGrid(categories: controller.categories),
-                      const SizedBox(height: 16),
-                      _SectionHeader(title: 'Top doctors'),
-                      const SizedBox(height: 8),
-                      TopDoctors(doctors: controller.topDoctors),
-                      const SizedBox(height: 20), // Bottom padding
-                    ],
-                  );
-                }),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: controller.loadAll,
+              color: AppColors.primaryGreen,
+              backgroundColor: Colors.white,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  DashboardAppBar(),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Obx(() {
+                        if (controller.isLoading.value) {
+                          return SizedBox(
+                            height: MediaQuery.of(context).size.height - 200,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primaryGreen,
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SearchSection(),
+                            const SizedBox(height: 20),
+                            
+                            QuickActions(),
+                            const SizedBox(height: 16),
+                            BannerCarousel(banners: controller.banners),
+                            const SizedBox(height: 16),
+                           /// const SizedBox(height: 8),
+                            CategoriesGrid(categories: controller.categories),
+                            const SizedBox(height: 16),
+                            _SectionHeader(title: 'Top doctors'),
+                            const SizedBox(height: 8),
+                            TopDoctors(doctors: controller.topDoctors),
+                            const SizedBox(height: 80), // Extra bottom padding for floating widget
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ],
               ),
             ),
+            // Floating appointment widget
+            Obx(() {
+              if (controller.upcomingAppointments.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return FloatingAppointmentWidget(
+                appointments: controller.upcomingAppointments,
+              );
+            }),
           ],
         ),
       ),
     );
   }
+
 }
 
 class _SectionHeader extends StatelessWidget {
