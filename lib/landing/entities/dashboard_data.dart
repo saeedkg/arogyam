@@ -80,12 +80,12 @@ class ConsultationToJoin {
   factory ConsultationToJoin.fromJson(Map<String, dynamic> json) {
     return ConsultationToJoin(
       id: json['id'] as int,
-      type: json['type'] as String,
-      status: json['status'] as String,
-      scheduledAt: DateTime.parse(json['scheduled_at'] as String),
-      doctorName: json['doctor_name'] as String,
+      type: json['type'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      scheduledAt: DateTime.parse(json['scheduled_at'] as String? ?? DateTime.now().toIso8601String()),
+      doctorName: json['doctor_name'] as String? ?? '',
       doctorImage: json['doctor_image'] as String?,
-      doctorSlug: json['doctor_slug'] as String,
+      doctorSlug: json['doctor_slug'] as String? ?? '',
     );
   }
 }
@@ -112,12 +112,12 @@ class RecentConsultation {
   factory RecentConsultation.fromJson(Map<String, dynamic> json) {
     return RecentConsultation(
       id: json['id'] as int,
-      type: json['type'] as String,
-      status: json['status'] as String,
-      scheduledAt: DateTime.parse(json['scheduled_at'] as String),
-      doctorName: json['doctor_name'] as String,
+      type: json['type'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      scheduledAt: DateTime.parse(json['scheduled_at'] as String? ?? DateTime.now().toIso8601String()),
+      doctorName: json['doctor_name'] as String? ?? '',
       doctorImage: json['doctor_image'] as String?,
-      doctorSlug: json['doctor_slug'] as String,
+      doctorSlug: json['doctor_slug'] as String? ?? '',
     );
   }
 }
@@ -150,14 +150,14 @@ class UpcomingAppointment {
   factory UpcomingAppointment.fromJson(Map<String, dynamic> json) {
     return UpcomingAppointment(
       id: json['id'] as int,
-      type: json['type'] as String,
-      status: json['status'] as String,
-      scheduledAt: DateTime.parse(json['scheduled_at'] as String),
-      doctorName: json['doctor_name'] as String,
+      type: json['type'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      scheduledAt: DateTime.parse(json['scheduled_at'] as String? ?? DateTime.now().toIso8601String()),
+      doctorName: json['doctor_name'] as String? ?? '',
       doctorImage: json['doctor_image'] as String?,
-      doctorSlug: json['doctor_slug'] as String,
-      patientName: json['patient_name'] as String,
-      patientType: json['patient_type'] as String,
+      doctorSlug: json['doctor_slug'] as String? ?? '',
+      patientName: json['patient_name'] as String? ?? '',
+      patientType: json['patient_type'] as String? ?? 'self',
       relationship: json['relationship'] as String?,
     );
   }

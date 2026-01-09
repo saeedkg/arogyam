@@ -44,14 +44,14 @@ class HomePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SearchSection(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       
-                      // Upcoming Appointments Section
+                      // Upcoming Appointments - Now as a prominent floating card
                       UpcomingAppointmentsSection(
                         appointments: controller.upcomingAppointments,
                       ),
                       if (controller.upcomingAppointments.isNotEmpty)
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                       
                       QuickActions(),
                       const SizedBox(height: 16),
