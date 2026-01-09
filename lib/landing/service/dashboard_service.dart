@@ -20,10 +20,14 @@ class DashboardService {
     
     try {
       final res = await _networkAdapter.get(apiRequest);
+      
       if (res.data is Map<String, dynamic>) {
-        return DashboardData.fromJson(res.data as Map<String, dynamic>);
+        final dashboardData = DashboardData.fromJson(res.data as Map<String, dynamic>);
+        return dashboardData;
       }
-      throw Exception('Invalid response');
+      
+      throw Exception('Invalid response format');
+      
     } on NetworkFailureException {
       throw NetworkFailureException();
     } on APIException catch (exception) {
