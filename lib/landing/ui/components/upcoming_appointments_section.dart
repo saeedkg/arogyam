@@ -145,7 +145,7 @@ class _FloatingAppointmentWidgetState extends State<FloatingAppointmentWidget>
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     
     return Positioned(
-      bottom: _isExpanded ? (80 + bottomPadding) : 16, // Safe area + bottom nav padding
+      bottom: 16, // Keep consistent bottom position
       right: 16, // Fixed right padding
       child: AnimatedBuilder(
         animation: Listenable.merge([_scaleAnimation, _expandAnimation, _fadeAnimation]),
@@ -160,7 +160,7 @@ class _FloatingAppointmentWidgetState extends State<FloatingAppointmentWidget>
                 width: _isExpanded ? (screenWidth - 32).clamp(260.0, 320.0) : 160, // Animated width transition
                 constraints: BoxConstraints(
                   maxHeight: _isExpanded ? 
-                    (screenHeight * 0.6).clamp(300.0, 450.0) : 200.0, // Use finite value instead of infinity
+                    (screenHeight - 120 - bottomPadding).clamp(200.0, 400.0) : 200.0, // Ensure it doesn't go into bottom nav
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
