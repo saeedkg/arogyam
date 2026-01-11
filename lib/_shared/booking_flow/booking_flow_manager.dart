@@ -117,7 +117,13 @@ class BookingFlowManager {
   /// Start flow from specialization filter
   Future<void> _startFromSpecializationFilter(String? selectedSpecialization, AppointmentType? appointmentType) async {
     if (selectedSpecialization != null) {
-      _navigateToSpecialityDoctors(selectedSpecialization, appointmentType);
+      if (appointmentType != null) {
+        // Appointment type already selected, go directly to doctors
+        _navigateToSpecialityDoctors(selectedSpecialization, appointmentType);
+      } else {
+        // Need to select consultation type first
+        _navigateToConsultationTypeSelection(selectedSpecialization);
+      }
     } else {
       _startFromDashboard(appointmentType);
     }
