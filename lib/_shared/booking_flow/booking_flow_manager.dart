@@ -5,7 +5,6 @@ import '../../care_discovery/ui/care_discovery_screen.dart';
 import '../../care_discovery/ui/consultation_type_selection_screen.dart';
 import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
-import '../../payment/ui/payment_screen.dart';
 import '../../consultation_pending/ui/pending_consultation_screen.dart';
 import 'entities/flow_result.dart';
 
@@ -185,10 +184,10 @@ class BookingFlowManager {
       if (result != null) {
         if (result.isSuccess && result.data != null) {
           final appointmentId = result.data!['appointmentId'] as String?;
-          final consultationFee = result.data!['consultationFee'] as double?;
           
-          if (appointmentId != null && consultationFee != null) {
-            _navigateToPayment(appointmentId, consultationFee);
+          if (appointmentId != null) {
+            // Payment is handled inside DoctorBookingScreen, go directly to PendingConsultation
+            _navigateToPendingConsultation(appointmentId);
           }
         } else if (result.isError) {
           _handleFlowError(result.errorMessage ?? 'Booking failed');
@@ -198,34 +197,14 @@ class BookingFlowManager {
     });
   }
 
-  /// Navigate to payment screen
-  void _navigateToPayment(String appointmentId, double consultationFee) {
-    Navigator.push<FlowResult<String>>(
+  /// Navigate to pending consultation (normal navigation, don't clear stack yet)
+  void _navigateToPendingConsultation(String appointmentId) {
+    // Use normal navigation - let PendingConsultationScreen handle back navigation
+    Navigator.push(
       Get.context!,
       MaterialPageRoute(
-        builder: (context) => PaymentScreen(
-          consultationFee: consultationFee,
-          appointmentId: appointmentId,
-        ),
+        builder: (context) => PendingConsultationScreen(appointmentId: appointmentId),
       ),
-    ).then((result) {
-      if (result != null) {
-        if (result.isSuccess && result.data != null) {
-          _navigateToPendingConsultation(result.data!);
-        } else if (result.isError) {
-          _handleFlowError(result.errorMessage ?? 'Payment failed');
-        }
-        // If cancelled, do nothing (user backed out)
-      }
-    });
-  }
-
-  /// Navigate to pending consultation and clear stack
-  void _navigateToPendingConsultation(String appointmentId) {
-    // Clear navigation stack and go to pending consultation
-    Get.offAll(
-      () => PendingConsultationScreen(appointmentId: appointmentId),
-      predicate: (route) => route.settings.name == '/landing',
     );
   }
 
