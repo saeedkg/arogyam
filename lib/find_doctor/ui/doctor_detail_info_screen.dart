@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/app_navigation.dart';
+import '../../_shared/booking_flow/booking_flow_manager.dart';
 import '../entities/doctor_detail.dart';
 import '../controller/doctor_detail_controller.dart';
 
@@ -842,7 +843,13 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () => AppNavigation.toDoctorBooking(doctorDetail.id.toString()),
+        onPressed: () {
+          // Use BookingFlowManager for centralized booking flow
+          BookingFlowManager.instance.startBookingFlow(
+            entry: BookingFlowEntry.doctorProfile,
+            selectedDoctorId: doctorDetail.id.toString(),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
