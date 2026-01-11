@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../entities/doctor_list_item.dart';
 import '../../../_shared/ui/app_colors.dart';
+import '../../../_shared/booking_flow/booking_flow_manager.dart';
+import '../doctor_detail_info_screen.dart';
 
 class DoctorCard extends StatelessWidget {
   final DoctorListItem doctor;
@@ -32,24 +35,8 @@ class DoctorCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          if (onDoctorSelected != null) {
-            // Use callback for flow-based navigation
-            final doctorData = {
-              'id': doctor.id,
-              'name': doctor.name,
-              'specialization': doctor.specialization,
-              'consultationFee': doctor.consultationFee,
-              'imageUrl': doctor.imageUrl,
-              'rating': doctor.rating,
-              'experience': doctor.experience,
-              'education': doctor.education,
-              'isOnline': doctor.isOnline,
-            };
-            onDoctorSelected!(doctor.id, doctorData);
-          } else {
-            // Fallback to direct navigation for backward compatibility
-            // AppNavigation.toDoctorDetailScreen(doctor.id);
-          }
+          // Container click -> Navigate to DoctorDetailInfoScreen
+          Get.to(() => DoctorDetailInfoScreen(doctorId: doctor.id));
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -323,22 +310,11 @@ class DoctorCard extends StatelessWidget {
                       height: 36,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (onDoctorSelected != null) {
-                            // Use callback for flow-based navigation
-                            final doctorData = {
-                              'id': doctor.id,
-                              'name': doctor.name,
-                              'specialization': doctor.specialization,
-                              'consultationFee': doctor.consultationFee,
-                              'imageUrl': doctor.imageUrl,
-                              'rating': doctor.rating,
-                              'experience': doctor.experience,
-                              'education': doctor.education,
-                              'isOnline': doctor.isOnline,
-                            };
-                            onDoctorSelected!(doctor.id, doctorData);
-                          }
-                          // Fallback removed as we want to use the flow
+                          // Button press -> Use BookingFlowManager for direct booking
+                          BookingFlowManager.instance.startBookingFlow(
+                            entry: BookingFlowEntry.doctorProfile,
+                            selectedDoctorId: doctor.id,
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
