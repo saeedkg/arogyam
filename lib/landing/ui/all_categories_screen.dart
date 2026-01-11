@@ -210,9 +210,10 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
 
                       return GestureDetector(
                         onTap: () {
-                          // Navigate using new BookingFlowManager
+                          // Navigate using new BookingFlowManager with specializationFilter entry
+                          // This skips CareDiscoveryScreen since we already know the specialization
                           BookingFlowManager.instance.startBookingFlow(
-                            entry: BookingFlowEntry.dashboard,
+                            entry: BookingFlowEntry.specializationFilter,
                             selectedSpecialization: c.name,
                           );
                         },
