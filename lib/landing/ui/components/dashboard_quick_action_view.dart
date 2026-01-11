@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../_shared/ui/app_colors.dart';
+import '../../../_shared/booking_flow/booking_flow_manager.dart';
 import '../../../_shared/consultation/consultation_flow_manager.dart';
 import '../../../_shared/consultation/consultation_type.dart';
 
@@ -90,7 +91,8 @@ class _QuickActionCard extends StatelessWidget {
         onTap: () {
           switch (type) {
             case QuickActionType.videoConsult:
-              ConsultationFlowManager.instance.startScheduledConsultation(
+              BookingFlowManager.instance.startBookingFlow(
+                entry: BookingFlowEntry.quickAction,
                 appointmentType: AppointmentType.video,
               );
               break;
@@ -98,7 +100,8 @@ class _QuickActionCard extends StatelessWidget {
               ConsultationFlowManager.instance.startInstantConsultation();
               break;
             case QuickActionType.hospitalAppointment:
-              ConsultationFlowManager.instance.startScheduledConsultation(
+              BookingFlowManager.instance.startBookingFlow(
+                entry: BookingFlowEntry.quickAction,
                 appointmentType: AppointmentType.clinic,
               );
               break;

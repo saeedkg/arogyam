@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/consultation/consultation_type.dart';
+import '../../_shared/booking_flow/entities/flow_result.dart';
 import '../controller/doctors_controller.dart';
 import '../entities/doctor_filter.dart';
 import 'components/doctor_card.dart';
@@ -29,6 +30,10 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   
   // Simplified appointment filter options
   AppointmentFilterType _selectedAppointmentFilter = AppointmentFilterType.video;
+
+  void _onDoctorSelected(String doctorId, Map<String, dynamic> doctorData) {
+    Navigator.pop(context, FlowResult.success(doctorId));
+  }
 
   @override
   void initState() {
@@ -266,7 +271,10 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
             final d = c.doctors[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: DoctorCard(doctor: d),
+              child: DoctorCard(
+                doctor: d,
+                onDoctorSelected: _onDoctorSelected,
+              ),
             );
           },
         ),

@@ -7,6 +7,7 @@ import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../../instant_consultation/ui/instant_consult_screen.dart';
 import '../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../../payment/ui/payment_screen.dart';
+import '../booking_flow/booking_flow_manager.dart';
 import 'consultation_type.dart';
 
 enum ConsultationType {
@@ -32,15 +33,18 @@ class ConsultationFlowManager {
     Get.to(() => const InstantConsultScreen());
   }
 
-  /// Start scheduled consultation flow
+  /// Start scheduled consultation flow using new BookingFlowManager
   /// Flow: CareDiscoveryScreen -> SpecialityDoctorsScreen -> PaymentScreen -> PendingConsultationScreen -> VideoCallScreen
   /// Optional appointmentType parameter to skip the selection screen
   void startScheduledConsultation({AppointmentType? appointmentType}) {
     _preSelectedAppointmentType = appointmentType;
-    Get.to(() => CareDiscoveryScreen(
-      entry: 'Find Care',
-      preSelectedAppointmentType: appointmentType,
-    ));
+    
+    BookingFlowManager.instance.startBookingFlow(
+      entry: appointmentType != null 
+          ? BookingFlowEntry.quickAction 
+          : BookingFlowEntry.dashboard,
+      appointmentType: appointmentType,
+    );
   }
 
   /// Clear the pre-selected appointment type
@@ -50,13 +54,15 @@ class ConsultationFlowManager {
 
   /// Navigate from CareDiscovery to either selection screen or doctors screen
   /// If appointmentType is pre-selected (from QuickAction), skip selection screen
+  /// DEPRECATED: Use BookingFlowManager instead
+  @deprecated
   void navigateFromCareDiscovery({
     required String speciality,
     AppointmentType? preSelectedType,
   }) {
+    // Fallback to new flow manager
     if (preSelectedType != null) {
-      // Skip selection screen, go directly to doctors
-      navigateToSpecialityDoctors(
+      BookingFlowManager.instance.navigateToSpecialityDoctors(
         category: speciality,
         appointmentType: preSelectedType,
       );
@@ -68,28 +74,34 @@ class ConsultationFlowManager {
 
   /// Navigate to speciality doctors screen (from CareDiscoveryScreen)
   /// Optional appointmentType parameter for filtering
+  /// DEPRECATED: Use BookingFlowManager instead
+  @deprecated
   void navigateToSpecialityDoctors({
     required String category,
     AppointmentType? appointmentType,
   }) {
-    Get.to(() => SpecialityDoctorsScreen(
+    BookingFlowManager.instance.navigateToSpecialityDoctors(
       category: category,
       appointmentType: appointmentType,
-    ));
+    );
   }
 
   /// Navigate from selection screen to doctors with selected appointment type
+  /// DEPRECATED: Use BookingFlowManager instead
+  @deprecated
   void navigateWithAppointmentType({
     required String speciality,
     required AppointmentType appointmentType,
   }) {
-    navigateToSpecialityDoctors(
+    BookingFlowManager.instance.navigateToSpecialityDoctors(
       category: speciality,
       appointmentType: appointmentType,
     );
   }
 
   /// Navigate to payment screen (from SpecialityDoctorsScreen after booking)
+  /// DEPRECATED: Use BookingFlowManager instead
+  @deprecated
   void navigateToPayment({
     required double consultationFee,
     required String appointmentId,
@@ -103,11 +115,15 @@ class ConsultationFlowManager {
   }
 
   /// Navigate to pending consultation screen (after booking/payment)
+  /// DEPRECATED: Use BookingFlowManager instead
+  @deprecated
   void navigateToPendingConsultation(String appointmentId) {
-    Get.to(() => PendingConsultationScreen(appointmentId: appointmentId));
+    BookingFlowManager.instance.navigateToPendingConsultation(appointmentId);
   }
 
   /// Complete flow: After payment success, go to pending consultation
+  /// DEPRECATED: Use BookingFlowManager instead
+  @deprecated
   void handlePaymentSuccess(String appointmentId) {
     Get.back(); // Close payment screen
     navigateToPendingConsultation(appointmentId);

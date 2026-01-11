@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/consultation/consultation_type.dart';
-import '../../_shared/consultation/consultation_flow_manager.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/booking_flow/entities/flow_result.dart';
 
 class ConsultationTypeSelectionScreen extends StatelessWidget {
   final String speciality;
@@ -11,6 +11,10 @@ class ConsultationTypeSelectionScreen extends StatelessWidget {
     super.key,
     required this.speciality,
   });
+
+  void _onConsultationTypeSelected(AppointmentType appointmentType) {
+    Navigator.pop(Get.context!, FlowResult.success(appointmentType));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +77,13 @@ class ConsultationTypeSelectionScreen extends StatelessWidget {
               _ConsultationTypeCard(
                 appointmentType: AppointmentType.clinic,
                 speciality: speciality,
+                onSelected: _onConsultationTypeSelected,
               ),
               const SizedBox(height: 16),
               _ConsultationTypeCard(
                 appointmentType: AppointmentType.video,
                 speciality: speciality,
+                onSelected: _onConsultationTypeSelected,
               ),
             ],
           ),
@@ -90,10 +96,12 @@ class ConsultationTypeSelectionScreen extends StatelessWidget {
 class _ConsultationTypeCard extends StatelessWidget {
   final AppointmentType appointmentType;
   final String speciality;
+  final Function(AppointmentType) onSelected;
 
   const _ConsultationTypeCard({
     required this.appointmentType,
     required this.speciality,
+    required this.onSelected,
   });
 
   Color get _backgroundColor {
@@ -122,10 +130,7 @@ class _ConsultationTypeCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
-          ConsultationFlowManager.instance.navigateWithAppointmentType(
-            speciality: speciality,
-            appointmentType: appointmentType,
-          );
+          onSelected(appointmentType);
         },
         child: Container(
           height: 160,

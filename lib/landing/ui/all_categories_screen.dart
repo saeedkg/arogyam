@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/ui/app_text.dart';
-import '../../_shared/consultation/consultation_flow_manager.dart';
+import '../../_shared/booking_flow/booking_flow_manager.dart';
 import '../../common_services/services/specialization_service.dart';
 import '../../common_services/entities/specialization.dart';
 import '../entities/category_item.dart';
@@ -210,10 +210,10 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
 
                       return GestureDetector(
                         onTap: () {
-                          // Navigate to consultation type selection screen
-                          ConsultationFlowManager.instance.navigateFromCareDiscovery(
-                            speciality: c.name,
-                            preSelectedType: null,
+                          // Navigate using new BookingFlowManager
+                          BookingFlowManager.instance.startBookingFlow(
+                            entry: BookingFlowEntry.dashboard,
+                            selectedSpecialization: c.name,
                           );
                         },
                         child: Column(

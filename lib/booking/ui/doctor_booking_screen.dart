@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/utils/date_time_formatter.dart';
-import '../../_shared/consultation/consultation_flow_manager.dart';
 import '../../_shared/components/guest_mode_handler.dart';
+import '../../_shared/booking_flow/entities/flow_result.dart';
 import '../../auth/user_management/service/auth_token_provider.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
@@ -41,8 +41,14 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && context.mounted) {
             try {
-              Get.back(); // Go back to previous screen
-              ConsultationFlowManager.instance.navigateToPendingConsultation(appointmentId);
+              // Create result with booking confirmation
+              final result = {
+                'appointmentId': appointmentId,
+                'consultationFee': bookingController.pricing.value?.totalAmount,
+              };
+              
+              // Return success result to trigger payment flow
+              Navigator.pop(context, FlowResult.success(result));
               bookingController.appointmentId.value = null; // Reset
             } catch (e) {
               print('Error in appointment success navigation: $e');
@@ -58,24 +64,9 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && context.mounted) {
             try {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Payment Failed'),
-                  content: Text(error),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        }
-                        bookingController.bookingError.value = null; // Reset
-                      },
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
-              );
+              // Return error result
+              Navigator.pop(context, FlowResult.error(error));
+              bookingController.bookingError.value = null; // Reset
             } catch (e) {
               print('Error showing payment error dialog: $e');
               // Fallback: show snackbar instead

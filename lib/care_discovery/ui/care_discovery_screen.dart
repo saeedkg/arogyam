@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../_shared/routing/routing.dart';
 import '../../_shared/consultation/consultation_type.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/booking_flow/entities/flow_result.dart';
 import '../controller/care_discovery_controller.dart';
 import 'components/specialization_grid.dart';
 import 'search_screen.dart';
@@ -22,6 +23,15 @@ class CareDiscoveryScreen extends StatefulWidget {
 }
 
 class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
+  
+  void _onSpecializationSelected(String specialization) {
+    final result = {
+      'selectedSpecialization': specialization,
+      'appointmentType': widget.preSelectedAppointmentType,
+    };
+    
+    Navigator.pop(context, FlowResult.success(result));
+  }
   @override
   Widget build(BuildContext context) {
     final c = Get.put(CareDiscoveryController());
@@ -224,6 +234,7 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
                 child: SpecializationGrid(
                   specializations: c.specializations,
                   preSelectedAppointmentType: widget.preSelectedAppointmentType,
+                  onSpecializationSelected: _onSpecializationSelected,
                 ),
               ),
               

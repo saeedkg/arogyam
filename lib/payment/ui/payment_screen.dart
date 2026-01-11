@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../_shared/booking_flow/entities/flow_result.dart';
 import '../controller/payment_controller.dart';
 import '../entities/payment_method.dart';
 
 class PaymentScreen extends StatelessWidget {
   final double consultationFee;
   final String appointmentId;
-  final VoidCallback? onPaymentSuccess;
+  final VoidCallback? onPaymentSuccess; // Keep for backward compatibility
 
   const PaymentScreen({
     super.key,
@@ -107,12 +108,17 @@ class PaymentScreen extends StatelessWidget {
                             ? null
                             : () async {
                                 final success = await c.processPayment(appointmentId);
-                                if (success ) {
+                                if (success) {
                                   if (onPaymentSuccess != null) {
+                                    // Backward compatibility
                                     onPaymentSuccess!();
                                   } else {
-                                    Get.back(result: true);
+                                    // Return success result for flow-based navigation
+                                    Navigator.pop(context, FlowResult.success(appointmentId));
                                   }
+                                } else {
+                                  // Return error result
+                                  Navigator.pop(context, FlowResult.error(c.error.value ?? 'Payment failed'));
                                 }
                               },
                         style: ElevatedButton.styleFrom(

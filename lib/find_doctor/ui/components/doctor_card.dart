@@ -1,14 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../_shared/routing/app_navigation.dart';
 import '../../entities/doctor_list_item.dart';
-
 import '../../../_shared/ui/app_colors.dart';
 
 class DoctorCard extends StatelessWidget {
   final DoctorListItem doctor;
-  const DoctorCard({required this.doctor, super.key});
+  final Function(String doctorId, Map<String, dynamic> doctorData)? onDoctorSelected;
+  
+  const DoctorCard({
+    required this.doctor, 
+    this.onDoctorSelected,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +31,26 @@ class DoctorCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => AppNavigation.toDoctorDetailScreen(doctor.id),
+        onTap: () {
+          if (onDoctorSelected != null) {
+            // Use callback for flow-based navigation
+            final doctorData = {
+              'id': doctor.id,
+              'name': doctor.name,
+              'specialization': doctor.specialization,
+              'consultationFee': doctor.consultationFee,
+              'imageUrl': doctor.imageUrl,
+              'rating': doctor.rating,
+              'experience': doctor.experience,
+              'education': doctor.education,
+              'isOnline': doctor.isOnline,
+            };
+            onDoctorSelected!(doctor.id, doctorData);
+          } else {
+            // Fallback to direct navigation for backward compatibility
+            // AppNavigation.toDoctorDetailScreen(doctor.id);
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -299,7 +322,24 @@ class DoctorCard extends StatelessWidget {
                     SizedBox(
                       height: 36,
                       child: ElevatedButton(
-                        onPressed: () => AppNavigation.toDoctorBooking(doctor.id),
+                        onPressed: () {
+                          if (onDoctorSelected != null) {
+                            // Use callback for flow-based navigation
+                            final doctorData = {
+                              'id': doctor.id,
+                              'name': doctor.name,
+                              'specialization': doctor.specialization,
+                              'consultationFee': doctor.consultationFee,
+                              'imageUrl': doctor.imageUrl,
+                              'rating': doctor.rating,
+                              'experience': doctor.experience,
+                              'education': doctor.education,
+                              'isOnline': doctor.isOnline,
+                            };
+                            onDoctorSelected!(doctor.id, doctorData);
+                          }
+                          // Fallback removed as we want to use the flow
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,

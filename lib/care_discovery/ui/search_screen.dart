@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/routing.dart';
-import '../../_shared/consultation/consultation_flow_manager.dart';
+import '../../_shared/booking_flow/booking_flow_manager.dart';
 import '../../_shared/consultation/consultation_type.dart';
 import '../controller/search_controller.dart';
 import '../../common_services/entities/specialization.dart';
@@ -464,10 +464,11 @@ class _SearchScreenState extends State<SearchScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            // Navigate to consultation type selection screen for specialization
-            ConsultationFlowManager.instance.navigateFromCareDiscovery(
-              speciality: specialization.name,
-              preSelectedType: widget.preSelectedAppointmentType, // Pass pre-selected appointment type
+            // Navigate using new BookingFlowManager
+            BookingFlowManager.instance.startBookingFlow(
+              entry: BookingFlowEntry.specializationFilter,
+              selectedSpecialization: specialization.name,
+              appointmentType: widget.preSelectedAppointmentType,
             );
           },
           child: Padding(

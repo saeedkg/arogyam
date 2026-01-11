@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
-import '../../../_shared/consultation/consultation_flow_manager.dart';
+import '../../../_shared/booking_flow/booking_flow_manager.dart';
 import '../../entities/category_item.dart';
 import '../all_categories_screen.dart';
 
@@ -45,11 +45,10 @@ class CategoriesGrid extends StatelessWidget {
 
             return GestureDetector(
               onTap: () {
-                // Navigate to consultation type selection screen
-                // No pre-selected type, so user will see the selection screen
-                ConsultationFlowManager.instance.navigateFromCareDiscovery(
-                  speciality: c.name,
-                  preSelectedType: null,
+                // Navigate using new BookingFlowManager
+                BookingFlowManager.instance.startBookingFlow(
+                  entry: BookingFlowEntry.dashboard,
+                  selectedSpecialization: c.name,
                 );
               },
               child: Column(
