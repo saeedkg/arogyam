@@ -13,6 +13,7 @@ import '../components/dashboard_quick_action_view.dart' show QuickActions;
 import '../components/dashboard_serach_view.dart';
 import '../components/top_doctors_view.dart';
 import '../components/upcoming_appointments_section.dart';
+import '../all_categories_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -200,7 +201,19 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                         
+                          _SectionHeader(
+                            title: 'Top Specialities',
+                            onSeeAllPressed: () {
+                              // Navigate to full categories list
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AllCategoriesScreen(categories: controller.categories),
+                                ),
+                              );
+                            },
+                          ),
+                         const SizedBox(height: 16),
                           CategoriesGrid(categories: controller.categories),
                         ],
                       ),
@@ -241,7 +254,8 @@ class HomePage extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final VoidCallback? onSeeAllPressed;
+  const _SectionHeader({required this.title, this.onSeeAllPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +271,7 @@ class _SectionHeader extends StatelessWidget {
         ),
         const Spacer(),
         TextButton(
-          onPressed: () {},
+          onPressed: onSeeAllPressed ?? () {},
           child: const Text(
             'See all',
             style: TextStyle(

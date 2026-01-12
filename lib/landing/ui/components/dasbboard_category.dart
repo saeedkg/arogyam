@@ -16,24 +16,10 @@ class CategoriesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          title: 'Top Specialities',
-          onSeeAllPressed: () {
-            // Navigate to full categories list
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AllCategoriesScreen(categories: categories),
-              ),
-            );
-          },
-        ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+    return GridView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             crossAxisSpacing: 12,
@@ -101,7 +87,7 @@ class CategoriesGrid extends StatelessWidget {
                             ),
                           ),
                         ),
-                  
+
                         // 🌿 Icon and Text
                         Center(
                           child: Column(
@@ -141,9 +127,7 @@ class CategoriesGrid extends StatelessWidget {
             ),
             );
           },
-        ),
-      ],
-    );
+        );
   }
 
   // Helper method to get icon path based on category name
@@ -213,28 +197,5 @@ class CategoriesGrid extends StatelessWidget {
         final hash = categoryName.hashCode.abs();
         return _availableColors[hash % _availableColors.length];
     }
-  }
-}
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final VoidCallback? onSeeAllPressed;
-  
-  const _SectionHeader({
-    required this.title,
-    this.onSeeAllPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        AppText.titleLarge(title, maxLines: 2, overflow: TextOverflow.ellipsis),
-        const Spacer(),
-        TextButton(
-          onPressed: onSeeAllPressed,
-          child: const Text('See all'),
-        ),
-      ],
-    );
   }
 }
