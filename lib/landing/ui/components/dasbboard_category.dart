@@ -20,7 +20,7 @@ class CategoriesGrid extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: 'Categories',
+          title: 'Top Specialities',
           onSeeAllPressed: () {
             // Navigate to full categories list
             Navigator.push(
@@ -31,7 +31,6 @@ class CategoriesGrid extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 12),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

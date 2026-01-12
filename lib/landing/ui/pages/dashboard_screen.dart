@@ -35,7 +35,36 @@ class HomePage extends StatelessWidget {
               pinned: true,
               elevation: 0,
               backgroundColor: const Color(0xFF2E6BA8),
+              centerTitle: false,
+              titleSpacing: 20,
               flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsets.zero,
+                title: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Calculate collapse ratio (0 = fully expanded, 1 = fully collapsed)
+                    final double collapseRatio = (320 - constraints.maxHeight) / (320 - kToolbarHeight);
+                    final bool isCollapsed = collapseRatio > 0.5;
+                    
+                    return AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: isCollapsed ? 1.0 : 0.0,
+                      child: SafeArea(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.only(left: 20, bottom: 16),
+                          child: const Text(
+                            'Arogyam',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 background: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -127,8 +156,8 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              // Collapsed app bar content (no search bar)
-              title: null, // No title to avoid duplication with expanded content
+              // No title here - handled in FlexibleSpaceBar
+              title: null,
               leading: const SizedBox.shrink(), // Remove back button
               leadingWidth: 0,
             ),
@@ -171,15 +200,7 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Top Specialities',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                         
                           CategoriesGrid(categories: controller.categories),
                         ],
                       ),
