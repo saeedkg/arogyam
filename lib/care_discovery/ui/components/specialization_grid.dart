@@ -33,18 +33,40 @@ class _SpecializationGridState extends State<SpecializationGrid> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header row with "Categories" and "See all"
+        // Enhanced header row with "Categories" and "See all"
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AppText.titleLarge('Categories'),
+            Text(
+              'Medical Specialties',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Colors.black87,
+                letterSpacing: -0.3,
+              ),
+            ),
             if (widget.specializations.length > 8)
               GestureDetector(
                 onTap: () => setState(() => _showAll = !_showAll),
-                child: AppText.labelMedium(
-                  _showAll ? 'See less' : 'See all',
-                  color: AppColors.primaryGreen,
-                 // fontWeight: FontWeight.w600,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGreen.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.primaryGreen.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    _showAll ? 'See less' : 'See all',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.primaryGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
           ],
