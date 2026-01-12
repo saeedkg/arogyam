@@ -4,7 +4,10 @@ import 'package:get/get.dart';
 
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/ui/app_text.dart';
+import '../../_shared/consultation/consultation_type.dart';
 import '../../care_discovery/ui/care_discovery_screen.dart';
+import '../../care_discovery/ui/consultation_type_selection_screen.dart';
+import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../../common_services/services/specialization_service.dart';
 import '../../common_services/entities/specialization.dart';
 import '../entities/category_item.dart';
@@ -193,98 +196,20 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                   
                   const SizedBox(height: 24),
                   
-                  // Categories Grid - Same as Dashboard
+                  // Categories Grid - Same as Dashboard TopSpecialitiesHorizontal
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: .90,
+                      crossAxisCount: 4, // 4 items per row like dashboard
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 8, // Same as dashboard
+                      childAspectRatio: 0.85, // Same as dashboard
                     ),
                     itemCount: _allCategories.length,
                     itemBuilder: (context, index) {
-                      final c = _allCategories[index];
-                      final bgColor = _getCategoryColor(c.name);
-
-                      return GestureDetector(
-                        onTap: () {
-                          // Direct navigation to CareDiscoveryScreen with specialization pre-selected
-                          Get.to(() => CareDiscoveryScreen(
-                            entry: c.name,
-                            preSelectedAppointmentType: null, // User will select consultation type
-                          ));
-                        },
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: bgColor,
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 6),
-                                    ),
-                                  ],
-                                ),
-                                child: Stack(
-                                  children: [
-                                    // 🌙 Glossy ellipse overlay (top-left)
-                                    Positioned(
-                                      top: -90,
-                                      left: -90,
-                                      child: Container(
-                                        height: 120,
-                                        width: 120,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(25),
-                                        ),
-                                      ),
-                                    ),
-                              
-                                    // 🌿 Icon and Text
-                                    Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          c.svgIcon != null && c.svgIcon!.isNotEmpty
-                                              ? SvgPicture.string(
-                                                  c.svgIcon!,
-                                                  height: 36,
-                                                  colorFilter: const ColorFilter.mode(
-                                                    Colors.white,
-                                                    BlendMode.srcIn,
-                                                  ),
-                                                )
-                                              : SvgPicture.asset(
-                                                  _getCategoryIconPath(c.name),
-                                                  height: 36,
-                                                  colorFilter: const ColorFilter.mode(
-                                                    Colors.white,
-                                                    BlendMode.srcIn,
-                                                  ),
-                                                ),
-                                          const SizedBox(height: 8),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            AppText.label(
-                              c.name,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      );
+                      final category = _allCategories[index];
+                      return _CategoryCircleItem(category: category);
                     },
                   ),
                   
@@ -361,6 +286,150 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
       default:
         final hash = categoryName.hashCode.abs();
         return _availableColors[hash % _availableColors.length];
+    }
+  }
+}
+
+class _CategoryCircleItem extends StatelessWidget {
+  final CategoryItem category;
+
+  const _CategoryCircleItem({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = _getCategoryColor(category.name);
+    
+    return GestureDetector(
+      onTap: () {
+        // Direct navigation to consultation type selection screen (same as dashboard)
+        Navigator.push<AppointmentType>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ConsultationTypeSelectionScreen(
+              speciality: category.name,
+            ),
+          ),
+        ).then((appointmentType) {
+          // Handle the returned appointment type and navigate to doctor list
+          if (appointmentType != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SpecialityDoctorsScreen(
+                  category: category.name,
+                  appointmentType: appointmentType,
+                ),
+              ),
+            );
+          }
+        });
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 56, // Same as dashboard
+            height: 56, // Same as dashboard
+            decoration: BoxDecoration(
+              color: bgColor.withOpacity(0.15), // Same as dashboard
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: bgColor.withOpacity(0.3), // Same as dashboard
+                width: 1.5,
+              ),
+            ),
+            child: category.svgIcon != null && category.svgIcon!.isNotEmpty
+                ? Center(
+                    child: SizedBox(
+                      width: 28, // Same as dashboard
+                      height: 28, // Same as dashboard
+                      child: SvgPicture.string(
+                        category.svgIcon!,
+                        colorFilter: ColorFilter.mode(
+                          bgColor,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  )
+                : Icon(
+                    _getCategoryIcon(category.name),
+                    color: bgColor,
+                    size: 28, // Same as dashboard
+                  ),
+          ),
+          const SizedBox(height: 6), // Same as dashboard
+          SizedBox(
+            width: 70, // Same as dashboard
+            child: Text(
+              category.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11, // Same as dashboard
+                fontWeight: FontWeight.w500, // Same as dashboard
+                color: Colors.black87, // Same as dashboard
+                height: 1.2,
+              ),
+              maxLines: 1, // Same as dashboard
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String categoryName) {
+    final lowerName = categoryName.toLowerCase();
+    if (lowerName.contains('cardio')) {
+      return Icons.favorite_rounded;
+    } else if (lowerName.contains('pediatr') || lowerName.contains('kids')) {
+      return Icons.child_care_rounded;
+    } else if (lowerName.contains('mental') || lowerName.contains('psych')) {
+      return Icons.psychology_rounded;
+    } else if (lowerName.contains('neuro')) {
+      return Icons.memory_rounded;
+    } else if (lowerName.contains('gastro')) {
+      return Icons.restaurant_rounded;
+    }
+    return Icons.medical_services_rounded;
+  }
+
+  // Helper method to get color based on category name (same as dashboard)
+  Color _getCategoryColor(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'dentistry':
+        return AppColors.peach;
+      case 'cardiology':
+      case 'cardiolo...':
+        return AppColors.roseDust;
+      case 'pulmonology':
+      case 'pulmono...':
+        return AppColors.sageGreen;
+      case 'general':
+        return AppColors.blueBell;
+      case 'neurology':
+        return AppColors.mediumSkyBlue;
+      case 'gastroenterology':
+      case 'gastroen':
+        return AppColors.teal;
+      case 'laboratory':
+        return AppColors.blush;
+      case 'vaccination':
+      case 'vaccinat...':
+        return AppColors.deepPurple;
+      default:
+        final hash = categoryName.hashCode.abs();
+        final colors = [
+          AppColors.peach,
+          AppColors.roseDust,
+          AppColors.sageGreen,
+          AppColors.blueBell,
+          AppColors.mediumSkyBlue,
+          AppColors.teal,
+          AppColors.blush,
+          AppColors.deepPurple,
+        ];
+        return colors[hash % colors.length];
     }
   }
 }
