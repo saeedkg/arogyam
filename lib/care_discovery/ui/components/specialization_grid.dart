@@ -58,9 +58,9 @@ class _SpecializationGridState extends State<SpecializationGrid> {
           itemCount: visibleCount,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: .90,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.85,
           ),
           itemBuilder: (context, i) {
             final s = widget.specializations[i];
@@ -72,66 +72,60 @@ class _SpecializationGridState extends State<SpecializationGrid> {
               },
               child: Column(
                 children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: bgColor,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: bgColor.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: bgColor.withOpacity(0.3),
+                        width: 1.5,
                       ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: -90,
-                            left: -90,
-                            child: Container(
-                              height: 120,
-                              width: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: s.svgIcon != null && s.svgIcon!.isNotEmpty
+                        ? Center(
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: SvgPicture.string(
+                                s.svgIcon!,
+                                colorFilter: ColorFilter.mode(
+                                  bgColor,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: SvgPicture.asset(
+                                _getCategoryIconPath(s.name),
+                                colorFilter: ColorFilter.mode(
+                                  bgColor,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                             ),
                           ),
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                s.svgIcon != null && s.svgIcon!.isNotEmpty
-                                    ? SvgPicture.string(
-                                        s.svgIcon!,
-                                        height: 36,
-                                        colorFilter: const ColorFilter.mode(
-                                          Colors.white,
-                                          BlendMode.srcIn,
-                                        ),
-                                      )
-                                    : SvgPicture.asset(
-                                        _getCategoryIconPath(s.name),
-                                        height: 36,
-                                        colorFilter: const ColorFilter.mode(
-                                          Colors.white,
-                                          BlendMode.srcIn,
-                                        ),
-                                      ),
-                                const SizedBox(height: 8),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 6),
-                  AppText.label(
-                    s.name,
-                    maxLines: 1,
+                  SizedBox(
+                    width: 70,
+                    child: Text(
+                      s.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
