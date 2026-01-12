@@ -50,8 +50,8 @@ class _MonsoonCareTipsCardState extends State<MonsoonCareTipsCard> {
         _currentIndex = (_currentIndex + 1) % _tips.length;
         _pageController.animateToPage(
           _currentIndex,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOutCubic,
         );
       }
     });
