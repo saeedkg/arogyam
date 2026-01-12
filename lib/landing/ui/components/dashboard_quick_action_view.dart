@@ -17,50 +17,62 @@ class QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return SizedBox(
+      height: 100,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.zero,
         children: [
-
-          Row(
-            children: [
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.local_hospital_rounded,
-                  title: 'Hospital Appointment',
-                  color: AppColors.successGreen,
-                  gradient: LinearGradient(
-                    colors: [AppColors.successGreen.withOpacity(0.1), AppColors.successGreen.withOpacity(0.05)],
-                  ),
-                  type: QuickActionType.hospitalAppointment,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.videocam_rounded,
-                  title: 'Video\nConsult',
-                  color: AppColors.infoBlue,
-                  gradient: LinearGradient(
-                    colors: [AppColors.infoBlue.withOpacity(0.1), AppColors.infoBlue.withOpacity(0.05)],
-                  ),
-                  type: QuickActionType.videoConsult,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.bolt_rounded,
-                  title: 'Instant\nConsult',
-                  color: AppColors.warningOrange,
-                  gradient: LinearGradient(
-                    colors: [AppColors.warningOrange.withOpacity(0.1), AppColors.warningOrange.withOpacity(0.05)],
-                  ),
-                  type: QuickActionType.instantConsult,
-                ),
-              ),
-            ],
+          _CircularQuickAction(
+            icon: Icons.medical_services_rounded,
+            title: 'All',
+            color: AppColors.primaryBlue,
+            onTap: () {
+              Get.to(() => CareDiscoveryScreen(entry: 'All Services'));
+            },
+          ),
+          _CircularQuickAction(
+            icon: Icons.person_rounded,
+            title: 'General\nPhysician',
+            color: AppColors.successGreen,
+            onTap: () {
+              Get.to(() => CareDiscoveryScreen(
+                entry: 'General Physician',
+                preSelectedAppointmentType: AppointmentType.video,
+              ));
+            },
+          ),
+          _CircularQuickAction(
+            icon: Icons.spa_rounded,
+            title: 'Beauty',
+            color: AppColors.roseDust,
+            onTap: () {
+              Get.to(() => CareDiscoveryScreen(entry: 'Beauty'));
+            },
+          ),
+          _CircularQuickAction(
+            icon: Icons.home_rounded,
+            title: 'Decor',
+            color: AppColors.warningOrange,
+            onTap: () {
+              Get.to(() => CareDiscoveryScreen(entry: 'Decor'));
+            },
+          ),
+          _CircularQuickAction(
+            icon: Icons.child_care_rounded,
+            title: 'Kids',
+            color: AppColors.peach,
+            onTap: () {
+              Get.to(() => CareDiscoveryScreen(entry: 'Kids'));
+            },
+          ),
+          _CircularQuickAction(
+            icon: Icons.card_giftcard_rounded,
+            title: 'Gifts',
+            color: AppColors.deepPurple,
+            onTap: () {
+              Get.to(() => CareDiscoveryScreen(entry: 'Gifts'));
+            },
           ),
         ],
       ),
@@ -68,106 +80,66 @@ class QuickActions extends StatelessWidget {
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
+class _CircularQuickAction extends StatelessWidget {
   final IconData icon;
   final String title;
   final Color color;
-  final Gradient gradient;
-  final QuickActionType type;
+  final VoidCallback onTap;
 
-  const _QuickActionCard({
+  const _CircularQuickAction({
     required this.icon,
     required this.title,
     required this.color,
-    required this.gradient,
-    required this.type,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      borderRadius: BorderRadius.circular(20),
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          switch (type) {
-            case QuickActionType.videoConsult:
-              // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
-              Get.to(() => CareDiscoveryScreen(
-                entry: 'Video Consultation',
-                preSelectedAppointmentType: AppointmentType.video,
-              ));
-              break;
-            case QuickActionType.instantConsult:
-              // Direct navigation to instant consultation
-              Get.to(() => const InstantConsultScreen());
-              break;
-            case QuickActionType.hospitalAppointment:
-              // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
-              Get.to(() => CareDiscoveryScreen(
-                entry: 'Hospital Appointment',
-                preSelectedAppointmentType: AppointmentType.clinic,
-              ));
-              break;
-          }
-        },
-        highlightColor: color.withOpacity(0.1),
-        splashColor: color.withOpacity(0.2),
-        child: Container(
-          height: 140,
-          decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.grey.shade100, width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 70,
+        margin: const EdgeInsets.only(right: 16),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: color.withOpacity(0.2),
+                  width: 1,
                 ),
-                padding: const EdgeInsets.all(10),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 40, // Fixed height for exactly 2 lines
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                    height: 1.2,
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  maxLines: 3,
-                  overflow: TextOverflow.visible,
-                ),
+                ],
               ),
-            ],
-          ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
