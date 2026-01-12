@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/app_navigation.dart';
-import '../../_shared/booking_flow/booking_flow_manager.dart';
 import '../entities/doctor_detail.dart';
 import '../controller/doctor_detail_controller.dart';
+import '../../booking/ui/doctor_booking_screen.dart';
 
 class DoctorDetailInfoScreen extends StatelessWidget {
   final String doctorId;
@@ -56,7 +56,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         if (controller.isLoading.value || controller.detail.value == null) {
           return const SizedBox.shrink();
         }
-        return _buildBookingButton(controller.detail.value!);
+        return _buildBookingButton(context, controller.detail.value!);
       }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -814,7 +814,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBookingButton(DoctorDetail doctorDetail) {
+  Widget _buildBookingButton(BuildContext context, DoctorDetail doctorDetail) {
     // Only show booking button if doctor offers instant or online consultations
     if (!doctorDetail.hasInstantOrOnlineConsultation) {
       return const SizedBox.shrink();
@@ -844,10 +844,14 @@ class DoctorDetailInfoScreen extends StatelessWidget {
       ),
       child: ElevatedButton(
         onPressed: () {
-          // Use BookingFlowManager for centralized booking flow
-          BookingFlowManager.instance.startBookingFlow(
-            entry: BookingFlowEntry.doctorProfile,
-            selectedDoctorId: doctorDetail.id.toString(),
+          // Direct navigation to booking screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DoctorBookingScreen(
+                doctorId: doctorDetail.id.toString(),
+              ),
+            ),
           );
         },
         style: ElevatedButton.styleFrom(

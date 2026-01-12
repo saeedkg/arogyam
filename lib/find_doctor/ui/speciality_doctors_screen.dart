@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/consultation/consultation_type.dart';
-import '../../_shared/booking_flow/entities/flow_result.dart';
+import '../../booking/ui/doctor_booking_screen.dart';
 import '../controller/doctors_controller.dart';
 import '../entities/doctor_filter.dart';
 import 'components/doctor_card.dart';
@@ -32,7 +32,13 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   AppointmentFilterType _selectedAppointmentFilter = AppointmentFilterType.video;
 
   void _onDoctorSelected(String doctorId, Map<String, dynamic> doctorData) {
-    Navigator.pop(context, FlowResult.success(doctorId));
+    // Navigate directly to doctor booking screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DoctorBookingScreen(doctorId: doctorId),
+      ),
+    );
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../../_shared/booking_flow/entities/flow_result.dart';
+import '../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../controller/payment_controller.dart';
 import '../entities/payment_method.dart';
 
@@ -114,11 +114,11 @@ class PaymentScreen extends StatelessWidget {
                                     onPaymentSuccess!();
                                   } else {
                                     // Return success result for flow-based navigation
-                                    Navigator.pop(context, FlowResult.success(appointmentId));
+                                  //  Navigator.pop(context, FlowResult.success(appointmentId));
                                   }
                                 } else {
                                   // Return error result
-                                  Navigator.pop(context, FlowResult.error(c.error.value ?? 'Payment failed'));
+                               //   Navigator.pop(context, FlowResult.error(c.error.value ?? 'Payment failed'));
                                 }
                               },
                         style: ElevatedButton.styleFrom(

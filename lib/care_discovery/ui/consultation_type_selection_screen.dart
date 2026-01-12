@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/consultation/consultation_type.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../../_shared/booking_flow/entities/flow_result.dart';
 
 class ConsultationTypeSelectionScreen extends StatelessWidget {
   final String speciality;
@@ -13,7 +12,7 @@ class ConsultationTypeSelectionScreen extends StatelessWidget {
   });
 
   void _onConsultationTypeSelected(AppointmentType appointmentType) {
-    Navigator.pop(Get.context!, FlowResult.success(appointmentType));
+    Navigator.pop(Get.context!, appointmentType);
   }
 
   @override

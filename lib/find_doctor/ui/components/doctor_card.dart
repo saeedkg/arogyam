@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../../entities/doctor_list_item.dart';
 import '../../../_shared/ui/app_colors.dart';
-import '../../../_shared/booking_flow/booking_flow_manager.dart';
+import '../../../booking/ui/doctor_booking_screen.dart';
 import '../doctor_detail_info_screen.dart';
 
 class DoctorCard extends StatelessWidget {
@@ -310,10 +310,14 @@ class DoctorCard extends StatelessWidget {
                       height: 36,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Button press -> Use BookingFlowManager for direct booking
-                          BookingFlowManager.instance.startBookingFlow(
-                            entry: BookingFlowEntry.doctorProfile,
-                            selectedDoctorId: doctor.id,
+                          // Button press -> Direct navigation to booking
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DoctorBookingScreen(
+                                doctorId: doctor.id,
+                              ),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(

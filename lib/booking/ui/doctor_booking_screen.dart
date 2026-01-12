@@ -3,8 +3,9 @@ import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/utils/date_time_formatter.dart';
 import '../../_shared/components/guest_mode_handler.dart';
-import '../../_shared/booking_flow/entities/flow_result.dart';
+import '../../_shared/routing/app_navigation.dart';
 import '../../auth/user_management/service/auth_token_provider.dart';
+import '../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../controller/booking_controller.dart';
 import '../../find_doctor/controller/doctor_detail_controller.dart';
 import '../entities/appointment_booking_request.dart';
@@ -41,14 +42,10 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && context.mounted) {
             try {
-              // Create result with booking confirmation
-              final result = {
-                'appointmentId': appointmentId,
-                'consultationFee': bookingController.pricing.value?.totalAmount,
-              };
-              
-              // Return success result to trigger payment flow
-              Navigator.pop(context, FlowResult.success(result));
+              // Clear entire navigation stack back to landing/dashboard, then navigate to PendingConsultationScreen
+              AppNavigation.offAllToLanding();
+              // Navigate to PendingConsultationScreen after clearing stack
+              Get.to(() => PendingConsultationScreen(appointmentId: appointmentId));
               bookingController.appointmentId.value = null; // Reset
             } catch (e) {
               print('Error in appointment success navigation: $e');
@@ -64,20 +61,16 @@ class _DoctorBookingScreenState extends State<DoctorBookingScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && context.mounted) {
             try {
-              // Return error result
-              Navigator.pop(context, FlowResult.error(error));
+              // Show error snackbar instead of returning error result
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Payment failed: $error'),
+                  backgroundColor: Colors.red,
+                ),
+              );
               bookingController.bookingError.value = null; // Reset
             } catch (e) {
               print('Error showing payment error dialog: $e');
-              // Fallback: show snackbar instead
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Payment failed: $error'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
             }
           }
         });

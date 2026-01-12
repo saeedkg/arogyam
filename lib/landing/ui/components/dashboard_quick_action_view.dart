@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../_shared/ui/app_colors.dart';
-import '../../../_shared/booking_flow/booking_flow_manager.dart';
 import '../../../_shared/consultation/consultation_flow_manager.dart';
 import '../../../_shared/consultation/consultation_type.dart';
+import '../../../care_discovery/ui/care_discovery_screen.dart';
+import '../../../instant_consultation/ui/instant_consult_screen.dart';
 
 enum QuickActionType {
   hospitalAppointment,
@@ -91,19 +93,22 @@ class _QuickActionCard extends StatelessWidget {
         onTap: () {
           switch (type) {
             case QuickActionType.videoConsult:
-              BookingFlowManager.instance.startBookingFlow(
-                entry: BookingFlowEntry.quickAction,
-                appointmentType: AppointmentType.video,
-              );
+              // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
+              Get.to(() => CareDiscoveryScreen(
+                entry: 'Video Consultation',
+                preSelectedAppointmentType: AppointmentType.video,
+              ));
               break;
             case QuickActionType.instantConsult:
-              ConsultationFlowManager.instance.startInstantConsultation();
+              // Direct navigation to instant consultation
+              Get.to(() => const InstantConsultScreen());
               break;
             case QuickActionType.hospitalAppointment:
-              BookingFlowManager.instance.startBookingFlow(
-                entry: BookingFlowEntry.quickAction,
-                appointmentType: AppointmentType.clinic,
-              );
+              // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
+              Get.to(() => CareDiscoveryScreen(
+                entry: 'Hospital Appointment',
+                preSelectedAppointmentType: AppointmentType.clinic,
+              ));
               break;
           }
         },

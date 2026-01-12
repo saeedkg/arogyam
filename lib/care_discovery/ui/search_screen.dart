@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/routing.dart';
-import '../../_shared/booking_flow/booking_flow_manager.dart';
 import '../../_shared/consultation/consultation_type.dart';
+import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../controller/search_controller.dart';
 import '../../common_services/entities/specialization.dart';
 import '../../find_doctor/entities/doctor_list_item.dart';
 import '../../find_doctor/ui/doctor_detail_info_screen.dart';
+import 'consultation_type_selection_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -464,12 +465,41 @@ class _SearchScreenState extends State<SearchScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            // Navigate using new BookingFlowManager
-            BookingFlowManager.instance.startBookingFlow(
-              entry: BookingFlowEntry.specializationFilter,
-              selectedSpecialization: specialization.name,
-              appointmentType: widget.preSelectedAppointmentType,
-            );
+            // Direct navigation to specialization doctors
+            if (widget.preSelectedAppointmentType != null) {
+              // Appointment type already selected, go directly to doctors
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SpecialityDoctorsScreen(
+                    category: specialization.name,
+                    appointmentType: widget.preSelectedAppointmentType,
+                  ),
+                ),
+              );
+            } else {
+              // Need to select consultation type first
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ConsultationTypeSelectionScreen(
+                    speciality: specialization.name,
+                  ),
+                ),
+              ).then((result) {
+                if (result != null && result.isSuccess && result.data != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SpecialityDoctorsScreen(
+                        category: specialization.name,
+                        appointmentType: result.data!,
+                      ),
+                    ),
+                  );
+                }
+              });
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(16),

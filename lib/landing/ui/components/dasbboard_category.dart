@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/ui/app_text.dart';
-import '../../../_shared/booking_flow/booking_flow_manager.dart';
+import '../../../_shared/consultation/consultation_type.dart';
+import '../../../care_discovery/ui/consultation_type_selection_screen.dart';
+import '../../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../../entities/category_item.dart';
 import '../all_categories_screen.dart';
 
@@ -45,12 +48,29 @@ class CategoriesGrid extends StatelessWidget {
 
             return GestureDetector(
               onTap: () {
-                // Navigate using new BookingFlowManager with specializationFilter entry
-                // This skips CareDiscoveryScreen since we already know the specialization
-                BookingFlowManager.instance.startBookingFlow(
-                  entry: BookingFlowEntry.specializationFilter,
-                  selectedSpecialization: c.name,
-                );
+                // Direct navigation to consultation type selection screen
+                Navigator.push<AppointmentType>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ConsultationTypeSelectionScreen(
+                      speciality: c.name,
+                    ),
+                  ),
+                ).then((appointmentType) {
+                  // Handle the returned appointment type and navigate to doctor list
+                  if (appointmentType != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SpecialityDoctorsScreen(
+                          category: c.name,
+                          appointmentType: appointmentType,
+                        ),
+                      ),
+                    );
+                  }
+                  // If cancelled, stay on dashboard
+                });
               },
               child: Column(
                 children: [

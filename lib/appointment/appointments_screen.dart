@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import '../_shared/routing/routing.dart';
 import '../_shared/patient/current_patient_controller.dart';
 import '../_shared/patient/current_patient.dart';
-import '../_shared/consultation/consultation_flow_manager.dart';
 import '../_shared/utils/date_time_formatter.dart';
 import '../_shared/components/guest_mode_handler.dart';
 import '../auth/user_management/service/auth_token_provider.dart';
+import '../consultation_pending/ui/pending_consultation_screen.dart';
 import 'controler/appointments_controller.dart';
 import 'components/appontment_card.dart';
 import 'components/patient_card.dart';
@@ -293,8 +293,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               // If status is confirmed and type is instant, go to pending consultation screen
               if (appointment.status == AppointmentStatus.confirmed ||
                   appointment.status == AppointmentStatus.pending) {
-                ConsultationFlowManager.instance
-                    .navigateToPendingConsultation(appointment.id.toString());
+                Get.to(() => PendingConsultationScreen(appointmentId: appointment.id.toString()));
               } else {
                 // Otherwise, go to appointment detail screen
                 AppNavigation.toAppointmentDetail(appointment.id.toString());

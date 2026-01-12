@@ -61,7 +61,8 @@ class BookingFlowManager {
 
   /// Start flow from dashboard - goes to care discovery first
   Future<void> _startFromDashboard(AppointmentType? preSelectedAppointmentType) async {
-    Navigator.push<FlowResult<Map<String, dynamic>>>(
+    // Navigate to CareDiscoveryScreen and let it handle the next navigation
+    Navigator.push(
       Get.context!,
       MaterialPageRoute(
         builder: (context) => CareDiscoveryScreen(
@@ -69,27 +70,8 @@ class BookingFlowManager {
           preSelectedAppointmentType: preSelectedAppointmentType,
         ),
       ),
-    ).then((result) {
-      if (result != null) {
-        if (result.isSuccess && result.data != null) {
-          final selectedSpecialization = result.data!['selectedSpecialization'] as String?;
-          final appointmentType = result.data!['appointmentType'] as AppointmentType?;
-          
-          if (selectedSpecialization != null) {
-            if (appointmentType != null) {
-              // Appointment type already selected, go to doctors
-              _navigateToSpecialityDoctors(selectedSpecialization, appointmentType);
-            } else {
-              // Need to select consultation type
-              _navigateToConsultationTypeSelection(selectedSpecialization);
-            }
-          }
-        } else if (result.isError) {
-          _handleFlowError(result.errorMessage ?? 'Unknown error occurred');
-        }
-        // If cancelled, do nothing (user backed out)
-      }
-    });
+    );
+    // No .then() callback - let CareDiscoveryScreen handle its own navigation
   }
 
   /// Start flow with pre-selected appointment type

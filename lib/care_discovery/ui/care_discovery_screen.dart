@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import '../../_shared/routing/routing.dart';
 import '../../_shared/consultation/consultation_type.dart';
 import '../../_shared/ui/app_colors.dart';
-import '../../_shared/booking_flow/entities/flow_result.dart';
+import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../controller/care_discovery_controller.dart';
 import 'components/specialization_grid.dart';
 import 'search_screen.dart';
+import 'consultation_type_selection_screen.dart';
 
 class CareDiscoveryScreen extends StatefulWidget {
   final String entry;
@@ -25,12 +26,42 @@ class CareDiscoveryScreen extends StatefulWidget {
 class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
   
   void _onSpecializationSelected(String specialization) {
-    final result = {
-      'selectedSpecialization': specialization,
-      'appointmentType': widget.preSelectedAppointmentType,
-    };
-    
-    Navigator.pop(context, FlowResult.success(result));
+    // Navigate forward to next screen instead of popping
+    if (widget.preSelectedAppointmentType != null) {
+      // Appointment type already selected, go directly to doctors
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpecialityDoctorsScreen(
+            category: specialization,
+            appointmentType: widget.preSelectedAppointmentType,
+          ),
+        ),
+      );
+    } else {
+      // Need to select consultation type first
+      Navigator.push<AppointmentType>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConsultationTypeSelectionScreen(
+            speciality: specialization,
+          ),
+        ),
+      ).then((appointmentType) {
+        if (appointmentType != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SpecialityDoctorsScreen(
+                category: specialization,
+                appointmentType: appointmentType,
+              ),
+            ),
+          );
+        }
+        // If cancelled, stay on current screen (CareDiscoveryScreen remains in stack)
+      });
+    }
   }
   @override
   Widget build(BuildContext context) {
