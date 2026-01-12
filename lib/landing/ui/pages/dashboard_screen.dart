@@ -54,7 +54,7 @@ class HomePage extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.only(left: 20, bottom: 16),
                           child: const Text(
-                            'Arogyam',
+                            'Ask It',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -91,7 +91,7 @@ class HomePage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Arogyam',
+                                    'Ask It',
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w700,
