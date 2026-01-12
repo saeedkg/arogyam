@@ -107,18 +107,109 @@ class _LandingPageState extends State<LandingPage> {
       },
       child: Scaffold(
         body: _pages[_currentIndex],
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _currentIndex,
-          elevation: 10,
-          surfaceTintColor: Colors.white,
-          indicatorColor: Colors.green.withOpacity(0.16),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-            NavigationDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Appointment'),
-            NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder), label: 'Records'),
-            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
-          ],
-          onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                navigationBarTheme: NavigationBarThemeData(
+                  labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return const TextStyle(
+                       // color: Color(0xFF4DB6AC),
+                        color: AppColors.primaryGreen,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      );
+                    }
+                    return const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    );
+                  }),
+                ),
+              ),
+              child: NavigationBar(
+                selectedIndex: _currentIndex,
+                elevation: 0,
+                backgroundColor: Colors.white,
+                surfaceTintColor: Colors.transparent,
+                indicatorColor: Colors.transparent,
+                height: 80,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                destinations: [
+                  NavigationDestination(
+                    icon: Icon(
+                      Icons.home_outlined,
+                      color: _currentIndex == 0 ? const Color(0xFF4DB6AC) : Colors.grey,
+                      size: 24,
+                    ),
+                    selectedIcon: Icon(
+                      Icons.home,
+                      color: const Color(0xFF4DB6AC),
+                      size: 24,
+                    ),
+                    label: 'Home',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(
+                      Icons.calendar_today_outlined,
+                      color: _currentIndex == 1 ? const Color(0xFF4DB6AC) : Colors.grey,
+                      size: 24,
+                    ),
+                    selectedIcon: Icon(
+                      Icons.calendar_today,
+                      color: const Color(0xFF4DB6AC),
+                      size: 24,
+                    ),
+                    label: 'Appointment',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(
+                      Icons.folder_outlined,
+                      color: _currentIndex == 2 ? const Color(0xFF4DB6AC) : Colors.grey,
+                      size: 24,
+                    ),
+                    selectedIcon: Icon(
+                      Icons.folder,
+                      color: const Color(0xFF4DB6AC),
+                      size: 24,
+                    ),
+                    label: 'Records',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(
+                      Icons.person_outline,
+                      color: _currentIndex == 3 ? const Color(0xFF4DB6AC) : Colors.grey,
+                      size: 24,
+                    ),
+                    selectedIcon: Icon(
+                      Icons.person,
+                      color: const Color(0xFF4DB6AC),
+                      size: 24,
+                    ),
+                    label: 'Profile',
+                  ),
+                ],
+                onDestinationSelected: (i) => setState(() => _currentIndex = i),
+              ),
+            ),
+          ),
         ),
       ),
     );
