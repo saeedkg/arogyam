@@ -142,7 +142,7 @@ class _CategoryCircle extends StatelessWidget {
         width: 48, // Reduced from 56 to 48
         height: 48, // Reduced from 56 to 48
         decoration: BoxDecoration(
-          color: bgColor,
+          gradient: _getCategoryGradientByIndex(index),
           shape: BoxShape.circle,
         ),
         child: category.svgIcon != null && category.svgIcon!.isNotEmpty
@@ -192,6 +192,52 @@ class _CategoryCircle extends StatelessWidget {
         return const Color(0xFF9C27B0); // Violet variant for third category
       default:
         return const Color(0xFF4DD0E1); // Default to cyan
+    }
+  }
+
+  LinearGradient _getCategoryGradientByIndex(int index) {
+    // Each category gets a gradient based on index
+    switch (index) {
+      case 0:
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF67E8F9), // Lighter cyan
+            Color(0xFF4DD0E1), // Medium cyan
+            Color(0xFF26C6DA), // Deeper cyan
+          ],
+        );
+      case 1:
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFD54F), // Lighter yellow
+            Color(0xFFFFC107), // Medium yellow
+            Color(0xFFFFB300), // Deeper yellow
+          ],
+        );
+      case 2:
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFBA68C8), // Lighter violet
+            Color(0xFF9C27B0), // Medium violet
+            Color(0xFF8E24AA), // Deeper violet
+          ],
+        );
+      default:
+        return const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF67E8F9), // Default to cyan gradient
+            Color(0xFF4DD0E1),
+            Color(0xFF26C6DA),
+          ],
+        );
     }
   }
 }
