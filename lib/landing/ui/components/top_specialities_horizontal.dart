@@ -23,21 +23,16 @@ class TopSpecialitiesHorizontal extends StatelessWidget {
     // Calculate how many items to show (8 items in 2 rows = 4 items per row)
     final itemsToShow = categories.take(8).toList();
     
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // 4 items per row
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 8, // Reduced from 16 to 8
-        childAspectRatio: 0.85, // Adjust ratio for proper spacing
-      ),
-      itemCount: itemsToShow.length,
-      itemBuilder: (context, index) {
-        final category = itemsToShow[index];
-        return _SpecialityCircleItem(category: category);
-      },
+    return Wrap(
+      spacing: 16, // Horizontal spacing between items
+      runSpacing: 16, // Vertical spacing between rows
+      alignment: WrapAlignment.spaceBetween, // Distribute items evenly
+      children: itemsToShow.map((category) {
+        return SizedBox(
+          width: (MediaQuery.of(context).size.width - 40 - 48) / 4, // Calculate width: (screen - padding - spacing) / 4 items
+          child: _SpecialityCircleItem(category: category),
+        );
+      }).toList(),
     );
   }
 }
