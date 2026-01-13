@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import '../../controller/home_controller.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/ui/app_colors.dart';
+import '../../../_shared/utils/date_time_formatter.dart';
 import '../../../care_discovery/ui/care_discovery_screen.dart';
 import '../../../care_discovery/ui/search_screen.dart';
 import '../../../instant_consultation/ui/instant_consult_screen.dart';
+import '../../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../components/banner_carousal.dart';
 import '../components/dasbboard_category.dart';
 import '../components/dashboard_app_bar.dart';
@@ -17,6 +19,7 @@ import '../components/monsoon_care_tips_card.dart';
 import '../components/search_and_categories_row.dart';
 import '../components/top_specialities_horizontal.dart';
 import '../all_categories_screen.dart';
+import '../../entities/dashboard_data.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -153,13 +156,32 @@ class HomePage extends StatelessWidget {
                         // Spacing for overlapping Monsoon card
                        // const SizedBox(height: 50),
 
+                        // Upcoming Appointments Section (if any)
+                        Obx(() {
+                          if (controller.upcomingAppointments.isNotEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 50),
+                                  _SectionHeader(title: 'Upcoming Appointments'),
+                                  const SizedBox(height: 16),
+                                  _UpcomingAppointmentsCard(appointments: controller.upcomingAppointments),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            );
+                          }
+                          return const SizedBox(height: 50);
+                        }),
+
                         // Top Specialities with rounded white background
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 50,),
                               _SectionHeader(
                                 title: 'Medical Specialties',
                                 onSeeAllPressed: () {
@@ -553,4 +575,301 @@ class _QuickActionCard extends StatelessWidget {
 
 
 
+
+
+class _UpcomingAppointmentsCard extends StatelessWidget {
+  final List<UpcomingAppointment> appointments;
+
+  const _UpcomingAppointmentsCard({required this.appointments});
+
+  @override
+  Widget build(BuildContext context) {
+    // Show only the first appointment for minimal height
+    final nextAppointment = appointments.first;
+    final isToday = _isToday(nextAppointment.scheduledAt);
+    final isUrgent = _isUrgent(nextAppointment.scheduledAt);
+    
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            Colors.grey.shade50,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.primaryGreen.withOpacity(0.15),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryGreen.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            // Navigate to appointment details
+            Get.to(() => PendingConsultationScreen(
+              appointmentId: nextAppointment.id.toString(),
+            ));
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                // Doctor avatar - enhanced design
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primaryGreen.withOpacity(0.1),
+                        AppColors.primaryGreen.withOpacity(0.05),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: AppColors.primaryGreen.withOpacity(0.3),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryGreen.withOpacity(0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 23,
+                    backgroundImage: nextAppointment.doctorImage != null
+                        ? NetworkImage(nextAppointment.doctorImage!)
+                        : null,
+                    backgroundColor: Colors.transparent,
+                    child: nextAppointment.doctorImage == null
+                        ? Icon(
+                            Icons.medical_services_rounded,
+                            color: AppColors.primaryGreen,
+                            size: 24,
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                
+                // Appointment details - enhanced layout
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Doctor name with urgency indicator
+                      Row(
+                        children: [
+                          if (isUrgent)
+                            Container(
+                              width: 8,
+                              height: 8,
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.orange.withOpacity(0.4),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          Expanded(
+                            child: Text(
+                              'Dr. ${nextAppointment.doctorName}',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      
+                      // Time and type in enhanced row
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryGreen.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.primaryGreen.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 12,
+                                  color: AppColors.primaryGreen,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _formatAppointmentTime(nextAppointment, isToday),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primaryGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: nextAppointment.type == 'online' 
+                                    ? [Colors.blue.shade50, Colors.blue.shade100]
+                                    : [Colors.green.shade50, Colors.green.shade100],
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: nextAppointment.type == 'online' 
+                                    ? Colors.blue.withOpacity(0.3)
+                                    : Colors.green.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              nextAppointment.type == 'online' 
+                                  ? Icons.videocam_rounded 
+                                  : Icons.local_hospital_rounded,
+                              size: 14,
+                              color: nextAppointment.type == 'online' 
+                                  ? Colors.blue.shade700
+                                  : Colors.green.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Enhanced right side with counter and arrow
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (appointments.length > 1)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.primaryGreen,
+                              AppColors.primaryGreen.withOpacity(0.8),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryGreen.withOpacity(0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          '+${appointments.length - 1}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatAppointmentTime(UpcomingAppointment appointment, bool isToday) {
+    if (isToday) {
+      return 'Today ${DateTimeFormatter.formatTime(appointment.scheduledAt)}';
+    } else {
+      final now = DateTime.now();
+      final tomorrow = now.add(const Duration(days: 1));
+      
+      if (appointment.scheduledAt.year == tomorrow.year &&
+          appointment.scheduledAt.month == tomorrow.month &&
+          appointment.scheduledAt.day == tomorrow.day) {
+        return 'Tom ${DateTimeFormatter.formatTime(appointment.scheduledAt)}';
+      }
+      
+      return DateTimeFormatter.formatDate(appointment.scheduledAt);
+    }
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year && 
+           date.month == now.month && 
+           date.day == now.day;
+  }
+
+  bool _isUrgent(DateTime date) {
+    final now = DateTime.now();
+    final difference = date.difference(now);
+    return difference.inHours <= 2 && difference.inHours >= 0;
+  }
+}
 
