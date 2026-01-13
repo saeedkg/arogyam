@@ -29,112 +29,73 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     return Scaffold(
-      body: Container(
-        // Same gradient background for entire screen
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.teal,
-              AppColors.teal.withOpacity(0.9),
-              AppColors.primaryGreen,
-            ],
-          ),
-        ),
-        child: RefreshIndicator(
-          onRefresh: controller.loadAll,
-          color: Colors.white,
-          backgroundColor: AppColors.primaryGreen,
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              // Fixed header with teal/green gradient (no collapsing)
-              SliverToBoxAdapter(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      child: SafeArea(
-                        bottom: false,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 60), // Increased bottom padding for more green area
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Header with app name and search icon
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Ask It',
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      const Text(
-                                        'Doctor in minutes',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: IconButton(
-                                      onPressed: () {
-                                        // Handle notification action
-                                        // TODO: Navigate to notifications screen
-                                      },
-                                      icon: const Icon(
-                                        Icons.notifications_outlined,
-                                        color: Colors.white,
-                                        size: 22,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          // Show only loading screen when data is loading
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.teal,
+                  AppColors.teal.withOpacity(0.9),
+                  AppColors.primaryGreen,
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // Simple header during loading
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Ask It',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
-                              const SizedBox(height: 20),
-                              
-                              // Search bar and categories in same row
-                              const SearchAndCategoriesRow(),
-                              const SizedBox(height: 20),
-                              
-                              // Quick Actions inside green area
-                              const _OriginalQuickActions(),
-                            ],
+                            ),
+                            const Text(
+                              'Doctor in minutes',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: IconButton(
+                            onPressed: null, // Disabled during loading
+                            icon: const Icon(
+                              Icons.notifications_outlined,
+                              color: Colors.white,
+                              size: 22,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                    // Monsoon Care Tips positioned in between (overlapping edge)
-                    Positioned(
-                      left: 20,
-                      right: 20,
-                      bottom: -40, // Position so half is in green, half will be in white
-                      child: const MonsoonCareTipsCard(),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Main content with white background starting from green area
-              SliverToBoxAdapter(
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return Container(
+                  ),
+                  
+                  // Loading content
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -142,63 +103,163 @@ class HomePage extends StatelessWidget {
                           topRight: Radius.circular(20),
                         ),
                       ),
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height - 200,
+                      child: Center(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 80), // Space for overlapping card
-                            Expanded(
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryGreen.withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primaryGreen.withOpacity(0.2),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.primaryGreen,
-                                          strokeWidth: 3,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    Text(
-                                      'Loading your health dashboard...',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.grey.shade700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Getting your appointments and doctors ready',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey.shade500,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryGreen.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryGreen.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primaryGreen,
+                                  strokeWidth: 3,
                                 ),
                               ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Loading your health dashboard...',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Getting your appointments and doctors ready',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey.shade500,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       ),
-                    );
-                  }
-                  return Container(
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        // Show full dashboard when data is loaded
+        return Container(
+          // Same gradient background for entire screen
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.teal,
+                AppColors.teal.withOpacity(0.9),
+                AppColors.primaryGreen,
+              ],
+            ),
+          ),
+          child: RefreshIndicator(
+            onRefresh: controller.loadAll,
+            color: Colors.white,
+            backgroundColor: AppColors.primaryGreen,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                // Fixed header with teal/green gradient (no collapsing)
+                SliverToBoxAdapter(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        child: SafeArea(
+                          bottom: false,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 60), // Increased bottom padding for more green area
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header with app name and search icon
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Ask It',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'Doctor in minutes',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Spacer(),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          // Handle notification action
+                                          // TODO: Navigate to notifications screen
+                                        },
+                                        icon: const Icon(
+                                          Icons.notifications_outlined,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                
+                                // Search bar and categories in same row
+                                const SearchAndCategoriesRow(),
+                                const SizedBox(height: 20),
+                                
+                                // Quick Actions inside green area
+                                const _OriginalQuickActions(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Monsoon Care Tips positioned in between (overlapping edge)
+                      Positioned(
+                        left: 20,
+                        right: 20,
+                        bottom: -40, // Position so half is in green, half will be in white
+                        child: const MonsoonCareTipsCard(),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Main content with white background starting from green area
+                SliverToBoxAdapter(
+                  child: Container(
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -271,13 +332,13 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 100), // Extra bottom padding for floating widget
                       ],
                     ),
-                  );
-                }),
-              ),
-            ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
       // Floating appointment widget
       // floatingActionButton: Obx(() {
       //   if (controller.upcomingAppointments.isEmpty) {
