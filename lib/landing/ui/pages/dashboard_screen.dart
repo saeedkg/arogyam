@@ -134,11 +134,66 @@ class HomePage extends StatelessWidget {
               SliverToBoxAdapter(
                 child: Obx(() {
                   if (controller.isLoading.value) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height - 200,
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primaryGreen,
+                    return Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height - 200,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 80), // Space for overlapping card
+                            Expanded(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryGreen.withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryGreen.withOpacity(0.2),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.primaryGreen,
+                                          strokeWidth: 3,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Loading your health dashboard...',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Getting your appointments and doctors ready',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
@@ -224,14 +279,14 @@ class HomePage extends StatelessWidget {
         ),
       ),
       // Floating appointment widget
-      floatingActionButton: Obx(() {
-        if (controller.upcomingAppointments.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return FloatingAppointmentWidget(
-          appointments: controller.upcomingAppointments,
-        );
-      }),
+      // floatingActionButton: Obx(() {
+      //   if (controller.upcomingAppointments.isEmpty) {
+      //     return const SizedBox.shrink();
+      //   }
+      //   return FloatingAppointmentWidget(
+      //     appointments: controller.upcomingAppointments,
+      //   );
+      // }),
     );
   }
 }
