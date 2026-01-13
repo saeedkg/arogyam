@@ -82,12 +82,15 @@ class _SpecialityCircleItem extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: bgColor.withOpacity(0.15),
+              color: bgColor, // Filled with solid color instead of transparent
               shape: BoxShape.circle,
-              border: Border.all(
-                color: bgColor.withOpacity(0.3),
-                width: 1.5,
-              ),
+              boxShadow: [
+                BoxShadow(
+                  color: bgColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: category.svgIcon != null && category.svgIcon!.isNotEmpty
                 ? Center(
@@ -96,8 +99,8 @@ class _SpecialityCircleItem extends StatelessWidget {
                       height: 28,
                       child: SvgPicture.string(
                         category.svgIcon!,
-                        colorFilter: ColorFilter.mode(
-                          bgColor,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white, // White icon instead of colored
                           BlendMode.srcIn,
                         ),
                       ),
@@ -105,7 +108,7 @@ class _SpecialityCircleItem extends StatelessWidget {
                   )
                 : Icon(
                     _getCategoryIcon(category.name),
-                    color: bgColor,
+                    color: Colors.white, // White icon instead of colored
                     size: 28,
                   ),
           ),

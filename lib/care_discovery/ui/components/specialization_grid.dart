@@ -98,12 +98,15 @@ class _SpecializationGridState extends State<SpecializationGrid> {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: bgColor.withOpacity(0.15),
+                      color: bgColor, // Filled with solid color instead of transparent
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: bgColor.withOpacity(0.3),
-                        width: 1.5,
-                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: bgColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: s.svgIcon != null && s.svgIcon!.isNotEmpty
                         ? Center(
@@ -112,8 +115,8 @@ class _SpecializationGridState extends State<SpecializationGrid> {
                               height: 28,
                               child: SvgPicture.string(
                                 s.svgIcon!,
-                                colorFilter: ColorFilter.mode(
-                                  bgColor,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white, // White icon instead of colored
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -125,8 +128,8 @@ class _SpecializationGridState extends State<SpecializationGrid> {
                               height: 28,
                               child: SvgPicture.asset(
                                 _getCategoryIconPath(s.name),
-                                colorFilter: ColorFilter.mode(
-                                  bgColor,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white, // White icon instead of colored
                                   BlendMode.srcIn,
                                 ),
                               ),
