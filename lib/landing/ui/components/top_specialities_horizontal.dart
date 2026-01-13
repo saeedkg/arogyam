@@ -46,6 +46,16 @@ class _SpecialityCircleItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final bgColor = _getCategoryColor(category.name);
     
+    // Get screen width for responsive sizing
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Calculate responsive sizes based on screen width
+    final circleSize = screenWidth > 400 ? 64.0 : (screenWidth > 350 ? 58.0 : 52.0);
+    final iconSize = screenWidth > 400 ? 32.0 : (screenWidth > 350 ? 30.0 : 26.0);
+    final fontSize = screenWidth > 400 ? 12.0 : (screenWidth > 350 ? 11.5 : 10.5);
+    final spacing = screenWidth > 400 ? 8.0 : 6.0;
+    final textWidth = screenWidth > 400 ? 80.0 : (screenWidth > 350 ? 75.0 : 65.0);
+    
     return GestureDetector(
       onTap: () {
         // Direct navigation to consultation type selection screen
@@ -74,8 +84,8 @@ class _SpecialityCircleItem extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: circleSize,
+            height: circleSize,
             decoration: BoxDecoration(
               color: bgColor, // Filled with solid color instead of transparent
               shape: BoxShape.circle,
@@ -90,8 +100,8 @@ class _SpecialityCircleItem extends StatelessWidget {
             child: category.svgIcon != null && category.svgIcon!.isNotEmpty
                 ? Center(
                     child: SizedBox(
-                      width: 28,
-                      height: 28,
+                      width: iconSize,
+                      height: iconSize,
                       child: SvgPicture.string(
                         category.svgIcon!,
                         colorFilter: const ColorFilter.mode(
@@ -104,17 +114,17 @@ class _SpecialityCircleItem extends StatelessWidget {
                 : Icon(
                     _getCategoryIcon(category.name),
                     color: Colors.white, // White icon instead of colored
-                    size: 28,
+                    size: iconSize,
                   ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: spacing),
           SizedBox(
-            width: 70,
+            width: textWidth,
             child: Text(
               category.name,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 11,
+              style: TextStyle(
+                fontSize: fontSize,
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
                 height: 1.2,
