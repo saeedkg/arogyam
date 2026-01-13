@@ -631,6 +631,9 @@ class _QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Special styling for instant consult (Doctor in Sec) - our main focus
+    final isMainFocus = type == _QuickActionType.instantConsult;
+    
     return Material(
       borderRadius: BorderRadius.circular(20),
       color: Colors.transparent,
@@ -660,44 +663,93 @@ class _QuickActionCard extends StatelessWidget {
         },
         highlightColor: Colors.white.withOpacity(0.1),
         splashColor: Colors.white.withOpacity(0.2),
-        child: Container(
-          height: 140,
-          decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+        child: Stack(
+          children: [
+            Container(
+              height: 140,
+              decoration: BoxDecoration(
+                gradient: gradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                  // Enhanced shadow for main focus card
+                  if (isMainFocus)
+                    BoxShadow(
+                      color: color.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                      spreadRadius: 2,
+                    ),
+                ],
+                // Enhanced border for main focus
+                border: isMainFocus 
+                    ? Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 2,
+                      )
+                    : null,
               ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
-            crossAxisAlignment: CrossAxisAlignment.center, // Center content horizontally
-            children: [
-              Icon(
-                outlinedIcon, // Use outlined icon
-                color: Colors.white,
-                size: 40, // Increased from 32 to 40
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+                crossAxisAlignment: CrossAxisAlignment.center, // Center content horizontally
+                children: [
+                  Icon(
+                    outlinedIcon, // Use outlined icon
+                    color: Colors.white,
+                    size: isMainFocus ? 44 : 40, // Bigger icon for main focus
+                  ),
+                  const SizedBox(height: 12), // Fixed spacing instead of Spacer
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: isMainFocus ? 15 : 14, // Slightly bigger text for main focus
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    textAlign: TextAlign.center, // Center-align text
+                    overflow: TextOverflow.visible,
+                  ),
+                ],
               ),
-              const SizedBox(height: 12), // Fixed spacing instead of Spacer
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1.2,
+            ),
+            
+            // Badge for main focus card
+            if (isMainFocus)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade500,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Text(
+                    'FAST',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
-                maxLines: 2,
-                textAlign: TextAlign.center, // Center-align text
-                overflow: TextOverflow.visible,
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
