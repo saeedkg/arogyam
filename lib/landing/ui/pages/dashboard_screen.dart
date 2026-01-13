@@ -161,7 +161,7 @@ class HomePage extends StatelessWidget {
                             children: [
                               SizedBox(height: 50,),
                               _SectionHeader(
-                                title: 'Top Specialities',
+                                title: 'Medical Specialties',
                                 onSeeAllPressed: () {
                                   // Navigate to full categories list
                                   Navigator.push(
@@ -184,7 +184,7 @@ class HomePage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                         children: [
-                          _SectionHeader(title: 'Top doctors'),
+                          _SectionHeader(title: 'Featured Doctors'),
                           const SizedBox(height: 16),
                           TopDoctors(doctors: controller.topDoctors),
                         ],
@@ -228,19 +228,27 @@ class _SectionHeader extends StatelessWidget {
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: Colors.black87,
+            letterSpacing: -0.3,
           ),
         ),
         const Spacer(),
-        TextButton(
-          onPressed: onSeeAllPressed ?? () {},
-          child: const Text(
-            'See all',
-            style: TextStyle(
-              color: AppColors.primaryBlue,
-              fontWeight: FontWeight.w600,
+        if (onSeeAllPressed != null)
+          TextButton(
+            onPressed: onSeeAllPressed,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              'See all',
+              style: TextStyle(
+                color: AppColors.primaryGreen,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
