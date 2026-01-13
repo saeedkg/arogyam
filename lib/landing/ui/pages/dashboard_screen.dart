@@ -535,21 +535,22 @@ class _OriginalQuickActions extends StatelessWidget {
       children: [
         Row(
           children: [
+              // Put Instant Consult first (main focus - doctor in seconds)
               Expanded(
                 child: _QuickActionCard(
-                  icon: Icons.calendar_today_rounded,
-                  title: 'Hospital\nAppointment',
-                  color: const Color(0xFF7DD3FC),
+                  icon: Icons.bolt_rounded,
+                  title: 'Doctor in Sec',
+                  color: const Color(0xFFFDB68A),
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF93C5FD), // Lighter blue
-                      Color(0xFF7DD3FC), // Medium blue
-                      Color(0xFF60A5FA), // Deeper blue
+                      Color(0xFFFED7AA), // Lighter orange
+                      Color(0xFFFDB68A), // Medium orange
+                      Color(0xFFFB923C), // Deeper orange
                     ],
                   ),
-                  type: _QuickActionType.hospitalAppointment,
+                  type: _QuickActionType.instantConsult,
                 ),
               ),
               const SizedBox(width: 12),
@@ -573,19 +574,19 @@ class _OriginalQuickActions extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _QuickActionCard(
-                  icon: Icons.bolt_rounded,
-                  title: 'Instant\nConsult',
-                  color: const Color(0xFFFDB68A),
+                  icon: Icons.calendar_today_rounded,
+                  title: 'Hospital\nAppointment',
+                  color: const Color(0xFF7DD3FC),
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFFED7AA), // Lighter orange
-                      Color(0xFFFDB68A), // Medium orange
-                      Color(0xFFFB923C), // Deeper orange
+                      Color(0xFF93C5FD), // Lighter blue
+                      Color(0xFF7DD3FC), // Medium blue
+                      Color(0xFF60A5FA), // Deeper blue
                     ],
                   ),
-                  type: _QuickActionType.instantConsult,
+                  type: _QuickActionType.hospitalAppointment,
                 ),
               ),
             ],
