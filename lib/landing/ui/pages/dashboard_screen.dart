@@ -616,6 +616,18 @@ class _QuickActionCard extends StatelessWidget {
     required this.type,
   });
 
+  // Get outlined version of icons
+  IconData get outlinedIcon {
+    switch (type) {
+      case _QuickActionType.hospitalAppointment:
+        return Icons.calendar_today_outlined;
+      case _QuickActionType.videoConsult:
+        return Icons.videocam_outlined;
+      case _QuickActionType.instantConsult:
+        return Icons.bolt_outlined;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -662,14 +674,15 @@ class _QuickActionCard extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+            crossAxisAlignment: CrossAxisAlignment.center, // Center content horizontally
             children: [
               Icon(
-                icon,
+                outlinedIcon, // Use outlined icon
                 color: Colors.white,
-                size: 32,
+                size: 40, // Increased from 32 to 40
               ),
-              const Spacer(),
+              const SizedBox(height: 12), // Fixed spacing instead of Spacer
               Text(
                 title,
                 style: const TextStyle(
@@ -679,6 +692,7 @@ class _QuickActionCard extends StatelessWidget {
                   height: 1.2,
                 ),
                 maxLines: 2,
+                textAlign: TextAlign.center, // Center-align text
                 overflow: TextOverflow.visible,
               ),
             ],
