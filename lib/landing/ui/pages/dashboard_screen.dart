@@ -25,121 +25,121 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: controller.loadAll,
-        color: Colors.white,
-        backgroundColor: AppColors.primaryGreen,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            // Fixed header with teal/green gradient (no collapsing)
-            SliverToBoxAdapter(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          AppColors.teal,
-                          AppColors.teal.withOpacity(0.9),
-                          AppColors.primaryGreen,
-                        ],
-                      ),
-                    ),
-                    child: SafeArea(
-                      bottom: false,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 50),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header with app name and search icon
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Ask It',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700,
+      body: Container(
+        // Same gradient background for entire screen
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.teal,
+              AppColors.teal.withOpacity(0.9),
+              AppColors.primaryGreen,
+            ],
+          ),
+        ),
+        child: RefreshIndicator(
+          onRefresh: controller.loadAll,
+          color: Colors.white,
+          backgroundColor: AppColors.primaryGreen,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // Fixed header with teal/green gradient (no collapsing)
+              SliverToBoxAdapter(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      child: SafeArea(
+                        bottom: false,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 60), // Increased bottom padding for more green area
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header with app name and search icon
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Ask It',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const Text(
+                                        'Doctor in minutes',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        // Handle notification action
+                                        // TODO: Navigate to notifications screen
+                                      },
+                                      icon: const Icon(
+                                        Icons.notifications_outlined,
                                         color: Colors.white,
+                                        size: 22,
                                       ),
                                     ),
-                                    const Text(
-                                      'Doctor in minutes',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: IconButton(
-                                    onPressed: () {
-                                      // Handle notification action
-                                      // TODO: Navigate to notifications screen
-                                    },
-                                    icon: const Icon(
-                                      Icons.notifications_outlined,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            
-                            // Search bar and categories in same row
-                            const SearchAndCategoriesRow(),
-                            const SizedBox(height: 20),
-                            
-                            // Quick Actions inside green area
-                            const _OriginalQuickActions(),
-                          ],
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              
+                              // Search bar and categories in same row
+                              const SearchAndCategoriesRow(),
+                              const SizedBox(height: 20),
+                              
+                              // Quick Actions inside green area
+                              const _OriginalQuickActions(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  // Monsoon Care Tips positioned in between (overlapping edge)
-                  Positioned(
-                    left: 20,
-                    right: 20,
-                    bottom: -50, // Half overlapping the green area
-                    child: const MonsoonCareTipsCard(),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Main content with white background starting from green area
-            SliverToBoxAdapter(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height - 200,
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primaryGreen,
-                      ),
+                    // Monsoon Care Tips positioned in between (overlapping edge)
+                    Positioned(
+                      left: 20,
+                      right: 20,
+                      bottom: -40, // Position so half is in green, half will be in white
+                      child: const MonsoonCareTipsCard(),
                     ),
-                  );
-                }
-                return Transform.translate(
-                  offset: const Offset(0, -40), // More overlap with green area
-                  child: Container(
+                  ],
+                ),
+              ),
+              
+              // Main content with white background starting from green area
+              SliverToBoxAdapter(
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height - 200,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    );
+                  }
+                  return Container(
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -151,8 +151,8 @@ class HomePage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Spacing for overlapping Monsoon card
-                        const SizedBox(height: 50),
-                        
+                       // const SizedBox(height: 50),
+
                         // Top Specialities with rounded white background
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -178,7 +178,7 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                     const SizedBox(height: 24),
-                    
+
                     // Top doctors
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -193,11 +193,11 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 100), // Extra bottom padding for floating widget
                       ],
                     ),
-                  ),
-                );
-              }),
-            ),
-          ],
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
       // Floating appointment widget
