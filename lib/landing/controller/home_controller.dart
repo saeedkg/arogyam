@@ -104,7 +104,7 @@ class HomeController extends GetxController {
               : 'General Physician',
           imageUrl: d.imageUrl.isNotEmpty 
               ? d.imageUrl 
-              : "https://i.pravatar.cc/150?img=47",
+              : "",
           rating: d.averageRating > 0 ? d.averageRating : 4.8,
         )).toList(),
       );
@@ -139,7 +139,7 @@ class HomeController extends GetxController {
                 : 'General Physician',
             imageUrl: d.imageUrl.isNotEmpty 
                 ? d.imageUrl 
-                : "https://i.pravatar.cc/150?img=47",
+                : "",
             rating: d.averageRating > 0 ? d.averageRating : 4.8,
           )).toList(),
         );

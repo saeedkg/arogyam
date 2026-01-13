@@ -24,7 +24,7 @@ class Doctor {
     return Doctor(
       id: json['id'] ?? 0,
       name: user['name'] ?? '',
-      imageUrl: json['image_url'] ?? user['avatar'] ?? '',
+      imageUrl: json['profile_photo_url'] ?? json['image_url'] ?? user['avatar'] ?? '',
       qualifications: (json['qualifications'] is List)
           ? List<String>.from(json['qualifications'])
           : [],

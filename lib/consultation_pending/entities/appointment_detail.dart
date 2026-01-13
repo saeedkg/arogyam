@@ -95,7 +95,9 @@ class AppointmentDetails {
     final specs = (doctor['specializations'] as List<dynamic>? ?? const []);
     final firstSpec = specs.isNotEmpty ? (specs.first as Map<String, dynamic>?) : null;
     final specialization = (firstSpec != null ? (firstSpec['name'] as String?) : null) ?? 'General';
-    final imageUrl = user?['profile_image'] as String? ?? 'https://i.pravatar.cc/150?img=10';
+    final imageUrl = doctor['profile_photo_url'] as String? ?? 
+                     user?['profile_image'] as String? ?? 
+                     '';
     
     // Extract consultation and join details (at data level)
     final consultation = data['consultation'] as Map<String, dynamic>?;

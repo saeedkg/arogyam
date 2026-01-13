@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../_shared/constants/network_config.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/utils/date_time_formatter.dart';
 import '../../../consultation_pending/ui/pending_consultation_screen.dart';
@@ -113,11 +114,15 @@ class UpcomingAppointmentsCard extends StatelessWidget {
                             ),
                             child: CircleAvatar(
                               radius: 23,
-                              backgroundImage: appointment.doctorImage != null
-                                  ? NetworkImage(appointment.doctorImage!)
+                              backgroundImage: (appointment.doctorImage != null && appointment.doctorImage!.isNotEmpty)
+                                  ? NetworkImage(
+                                      appointment.doctorImage!.startsWith('http')
+                                          ? appointment.doctorImage!
+                                          : '${NetworkConfig.baseUrl_Public}/${appointment.doctorImage!}'
+                                    )
                                   : null,
                               backgroundColor: Colors.transparent,
-                              child: appointment.doctorImage == null
+                              child: (appointment.doctorImage == null || appointment.doctorImage!.isEmpty)
                                   ? Icon(
                                       Icons.medical_services_rounded,
                                       color: AppColors.primaryGreen,

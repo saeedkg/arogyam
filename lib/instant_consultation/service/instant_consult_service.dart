@@ -90,8 +90,10 @@ class InstantConsultService {
     final ratingStr = json['average_rating']?.toString();
     final rating = double.tryParse(ratingStr ?? '0') ?? 0.0;
     
-    // Get profile image from user data
-    final imageUrl = user?['profile_image'] as String? ?? 'https://i.pravatar.cc/150?img=10';
+    // Get profile image from user data - check multiple possible fields
+    final imageUrl = json['profile_photo_url'] as String? ?? 
+                     user?['profile_image'] as String? ?? 
+                     '';
 
     return InstantDoctor(
       id: '${json['id']}',

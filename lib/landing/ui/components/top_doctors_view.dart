@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
+import '../../../_shared/constants/network_config.dart';
 import '../../../_shared/routing/app_navigation.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../entities/doctor.dart';
@@ -39,6 +40,7 @@ class TopDoctors extends StatelessWidget {
             doctors.length > 4 ? 4 : doctors.length, // Show max 4 doctors
             (index) {
               final d = doctors[index];
+              print(d.imageUrl);
               
               return StaggeredGridTile.fit(
                 crossAxisCellCount: 1,
@@ -109,32 +111,55 @@ class TopDoctors extends StatelessWidget {
                                     ],
                                   ),
                                   child: ClipOval(
-                                    child: Image.network(
-                                      d.imageUrl,
-                                      fit: BoxFit.cover,
-                                      width: imageSize,
-                                      height: imageSize,
-                                      errorBuilder: (context, error, stackTrace) => Container(
-                                        width: imageSize,
-                                        height: imageSize,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: [
-                                              AppColors.primaryGreen.withOpacity(0.2),
-                                              AppColors.primaryGreen.withOpacity(0.1),
-                                            ],
+                                    child: d.imageUrl.isNotEmpty
+                                        ? Image.network(
+                                            d.imageUrl.startsWith('http') 
+                                                ? d.imageUrl 
+                                                : '${NetworkConfig.baseUrl_Public}/${d.imageUrl}',
+                                            fit: BoxFit.cover,
+                                            width: imageSize,
+                                            height: imageSize,
+                                            errorBuilder: (context, error, stackTrace) => Container(
+                                              width: imageSize,
+                                              height: imageSize,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                  colors: [
+                                                    AppColors.primaryGreen.withOpacity(0.2),
+                                                    AppColors.primaryGreen.withOpacity(0.1),
+                                                  ],
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                Icons.person_rounded,
+                                                color: AppColors.primaryGreen,
+                                                size: imageSize * 0.45,
+                                              ),
+                                            ),
+                                          )
+                                        : Container(
+                                            width: imageSize,
+                                            height: imageSize,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  AppColors.primaryGreen.withOpacity(0.2),
+                                                  AppColors.primaryGreen.withOpacity(0.1),
+                                                ],
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.person_rounded,
+                                              color: AppColors.primaryGreen,
+                                              size: imageSize * 0.45,
+                                            ),
                                           ),
-                                        ),
-                                        child: Icon(
-                                          Icons.person_rounded,
-                                          color: AppColors.primaryGreen,
-                                          size: imageSize * 0.45, // Responsive icon size
-                                        ),
-                                      ),
-                                    ),
                                   ),
                                 ),
                               ),
