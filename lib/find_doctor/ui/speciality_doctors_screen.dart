@@ -280,6 +280,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
               child: DoctorCard(
                 doctor: d,
                 onDoctorSelected: _onDoctorSelected,
+                appointmentType: _selectedAppointmentFilter,
               ),
             );
           },
@@ -432,46 +433,139 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
 
                 const SizedBox(height: 14),
 
-                // Simplified Appointment Type Filter
-                SizedBox(
-                  height: 42,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.zero,
+                // Professional Toggle Switch for Appointment Type
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
                     children: [
-                      _AppointmentFilterChip(
-                        label: 'Video Consult',
-                        isSelected: _selectedAppointmentFilter == AppointmentFilterType.video,
-                        onTap: () {
-                          if (_selectedAppointmentFilter != AppointmentFilterType.video) {
-                            setState(() {
-                              _selectedAppointmentFilter = AppointmentFilterType.video;
-                            });
-                            // Apply video consultation filter in one operation
-                            c.currentFilter.value = c.currentFilter.value.copyWith(
-                              specialization: widget.category != 'All' ? widget.category : null,
-                              quickFilters: {DoctorQuickFilter.videoConsult},
-                            );
-                            c.fetchInitialDoctors();
-                          }
-                        },
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (_selectedAppointmentFilter != AppointmentFilterType.video) {
+                              setState(() {
+                                _selectedAppointmentFilter = AppointmentFilterType.video;
+                              });
+                              // Apply video consultation filter in one operation
+                              c.currentFilter.value = c.currentFilter.value.copyWith(
+                                specialization: widget.category != 'All' ? widget.category : null,
+                                quickFilters: {DoctorQuickFilter.videoConsult},
+                              );
+                              c.fetchInitialDoctors();
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color: _selectedAppointmentFilter == AppointmentFilterType.video
+                                  ? Colors.white
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: _selectedAppointmentFilter == AppointmentFilterType.video
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : [],
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.videocam_rounded,
+                                    size: 18,
+                                    color: _selectedAppointmentFilter == AppointmentFilterType.video
+                                        ? AppColors.primaryGreen
+                                        : Colors.grey.shade600,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Video',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: _selectedAppointmentFilter == AppointmentFilterType.video
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: _selectedAppointmentFilter == AppointmentFilterType.video
+                                          ? AppColors.primaryGreen
+                                          : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      _AppointmentFilterChip(
-                        label: 'Physical Appointment',
-                        isSelected: _selectedAppointmentFilter == AppointmentFilterType.physical,
-                        onTap: () {
-                          if (_selectedAppointmentFilter != AppointmentFilterType.physical) {
-                            setState(() {
-                              _selectedAppointmentFilter = AppointmentFilterType.physical;
-                            });
-                            // Apply physical appointment filter in one operation
-                            c.currentFilter.value = c.currentFilter.value.copyWith(
-                              specialization: widget.category != 'All' ? widget.category : null,
-                              quickFilters: {DoctorQuickFilter.physicalConsult},
-                            );
-                            c.fetchInitialDoctors();
-                          }
-                        },
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (_selectedAppointmentFilter != AppointmentFilterType.physical) {
+                              setState(() {
+                                _selectedAppointmentFilter = AppointmentFilterType.physical;
+                              });
+                              // Apply physical appointment filter in one operation
+                              c.currentFilter.value = c.currentFilter.value.copyWith(
+                                specialization: widget.category != 'All' ? widget.category : null,
+                                quickFilters: {DoctorQuickFilter.physicalConsult},
+                              );
+                              c.fetchInitialDoctors();
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color: _selectedAppointmentFilter == AppointmentFilterType.physical
+                                  ? Colors.white
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: _selectedAppointmentFilter == AppointmentFilterType.physical
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : [],
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.local_hospital_rounded,
+                                    size: 18,
+                                    color: _selectedAppointmentFilter == AppointmentFilterType.physical
+                                        ? AppColors.primaryGreen
+                                        : Colors.grey.shade600,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Physical',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: _selectedAppointmentFilter == AppointmentFilterType.physical
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: _selectedAppointmentFilter == AppointmentFilterType.physical
+                                          ? AppColors.primaryGreen
+                                          : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
