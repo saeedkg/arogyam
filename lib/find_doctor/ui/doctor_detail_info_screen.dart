@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../_shared/routing/app_navigation.dart';
 import '../entities/doctor_detail.dart';
@@ -8,10 +9,12 @@ import '../../booking/ui/doctor_booking_screen.dart';
 
 class DoctorDetailInfoScreen extends StatelessWidget {
   final String doctorId;
+  final bool isFromPhysicalAppointment;
 
   const DoctorDetailInfoScreen({
     super.key,
     required this.doctorId,
+    this.isFromPhysicalAppointment = false,
   });
 
   @override
@@ -47,18 +50,21 @@ class DoctorDetailInfoScreen extends StatelessWidget {
         if (controller.isLoading.value) {
           return _buildLoadingState();
         } else if (controller.detail.value != null) {
-          return _buildContent(controller.detail.value!);
+          return Stack(
+            children: [
+              _buildContent(controller.detail.value!),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _buildBookingButton(context, controller.detail.value!),
+              ),
+            ],
+          );
         } else {
           return _buildErrorState(controller);
         }
       }),
-      floatingActionButton: Obx(() {
-        if (controller.isLoading.value || controller.detail.value == null) {
-          return const SizedBox.shrink();
-        }
-        return _buildBookingButton(context, controller.detail.value!);
-      }),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -153,7 +159,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
           // const SizedBox(height: 16),
           // _buildConsultationTypesCard(doctorDetail),
 
-          const SizedBox(height: 100), // Space for floating button
+          const SizedBox(height: 160), // Space for floating buttons (increased for two buttons)
         ],
       ),
     );
@@ -657,32 +663,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
           
           // Contact Clinic Button for Offline Consultations
           if (hasOfflineConsultation) ...[
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Implement contact clinic functionality
-                },
-                icon: const Icon(Icons.phone_rounded, size: 20),
-                label: const Text(
-                  'Contact Clinic',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
+
           ],
         ],
       ),
@@ -762,6 +743,21 @@ class DoctorDetailInfoScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      Get.snackbar(
+        'Error',
+        'Could not make phone call',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   Widget _buildCard(String title, IconData icon, Widget content) {
     return Container(
       width: double.infinity,
@@ -815,15 +811,328 @@ class DoctorDetailInfoScreen extends StatelessWidget {
   }
 
   Widget _buildBookingButton(BuildContext context, DoctorDetail doctorDetail) {
-    // Only show booking button if doctor offers instant or online consultations
-    if (!doctorDetail.hasInstantOrOnlineConsultation) {
+    final hasOnlineConsultation = doctorDetail.hasInstantOrOnlineConsultation;
+    final hasOfflineConsultation = doctorDetail.consultationTypes?.any(
+      (type) => type.toLowerCase() == 'offline'
+    ) ?? false;
+
+    // If no consultation types available, don't show buttons
+    if (!hasOnlineConsultation && !hasOfflineConsultation) {
       return const SizedBox.shrink();
     }
 
+    // If both types available, show two buttons with priority based on source
+    if (hasOnlineConsultation && hasOfflineConsultation) {
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 8,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
+        ),
+        child: Column(
+          children: [
+            // First Button - Priority based on isFromPhysicalAppointment
+            if (isFromPhysicalAppointment) ...[
+              // Call Clinic Button (Primary when from physical)
+              Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primaryGreen,
+                      AppColors.primaryGreen.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _makePhoneCall('+911234567890'); // Replace with actual clinic number
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.phone_rounded, color: Colors.white, size: 20),
+                      SizedBox(width: 10),
+                      Text(
+                        'Call Clinic For Book Appointments',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Book Video Consultation Button (Secondary when from physical)
+              Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.primaryBlue,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DoctorBookingScreen(
+                          doctorId: doctorDetail.id.toString(),
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.videocam_rounded, color: AppColors.primaryBlue, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Book Video Consult - ₹${doctorDetail.consultationFee ?? doctorDetail.fee}',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryBlue,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else ...[
+              // Book Video Consultation Button (Primary when from video)
+              Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primaryGreen,
+                      AppColors.primaryGreen.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DoctorBookingScreen(
+                          doctorId: doctorDetail.id.toString(),
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.videocam_rounded, color: Colors.white, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Book Video Consult - ₹${doctorDetail.consultationFee ?? doctorDetail.fee}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Call Clinic Button (Secondary when from video)
+              Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.primaryGreen,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _makePhoneCall('+911234567890'); // Replace with actual clinic number
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.phone_rounded, color: AppColors.primaryGreen, size: 20),
+                      SizedBox(width: 10),
+                      Text(
+                        'Call Clinic',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryGreen,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    // If only online consultation, show Book Consultation button
+    if (hasOnlineConsultation) {
+      return Container(
+        width: double.infinity,
+        height: 56,
+        margin: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
+        ),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primaryGreen,
+              AppColors.primaryGreen.withValues(alpha: 0.8),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryGreen.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DoctorBookingScreen(
+                  doctorId: doctorDetail.id.toString(),
+                ),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Text(
+                'Book Video Consult - ₹${doctorDetail.consultationFee ?? doctorDetail.fee}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // If only offline consultation, show Call Clinic button
     return Container(
       width: double.infinity,
       height: 56,
-      margin: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).padding.bottom + 16,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -844,15 +1153,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
       ),
       child: ElevatedButton(
         onPressed: () {
-          // Direct navigation to booking screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DoctorBookingScreen(
-                doctorId: doctorDetail.id.toString(),
-              ),
-            ),
-          );
+          _makePhoneCall('+911234567890'); // Replace with actual clinic number
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
@@ -861,14 +1162,14 @@ class DoctorDetailInfoScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
+            Icon(Icons.phone_rounded, color: Colors.white, size: 20),
+            SizedBox(width: 10),
             Text(
-              'Book Consultation - ₹${doctorDetail.consultationFee ?? doctorDetail.fee}',
-              style: const TextStyle(
+              'Call Clinic',
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,

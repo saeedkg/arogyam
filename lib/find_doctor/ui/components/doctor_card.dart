@@ -1,21 +1,40 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../entities/doctor_list_item.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../booking/ui/doctor_booking_screen.dart';
 import '../doctor_detail_info_screen.dart';
+import '../speciality_doctors_screen.dart';
 
 class DoctorCard extends StatelessWidget {
   final DoctorListItem doctor;
   final Function(String doctorId, Map<String, dynamic> doctorData)? onDoctorSelected;
+  final AppointmentFilterType? appointmentType;
   
   const DoctorCard({
     required this.doctor, 
     this.onDoctorSelected,
+    this.appointmentType,
     super.key,
   });
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      Get.snackbar(
+        'Error',
+        'Could not make phone call',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +55,11 @@ class DoctorCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () {
           // Container click -> Navigate to DoctorDetailInfoScreen
-          Get.to(() => DoctorDetailInfoScreen(doctorId: doctor.id));
+          // Pass isFromPhysicalAppointment based on current filter
+          Get.to(() => DoctorDetailInfoScreen(
+            doctorId: doctor.id,
+            isFromPhysicalAppointment: appointmentType == AppointmentFilterType.physical,
+          ));
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -304,24 +327,33 @@ class DoctorCard extends StatelessWidget {
                     ),
                   ),
 
-                  // Book Now Button (if instant or online consultation available)
-                  if (doctor.hasInstantOrOnlineConsultation)
+                  // Book Now / Call Clinic Button
+                  if (doctor.hasInstantOrOnlineConsultation || appointmentType == AppointmentFilterType.physical)
                     SizedBox(
                       height: 36,
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: () {
-                          // Button press -> Direct navigation to booking
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DoctorBookingScreen(
-                                doctorId: doctor.id,
+                          // If physical appointment, make phone call
+                          if (appointmentType == AppointmentFilterType.physical) {
+                            // Use a default clinic number or doctor's contact
+                            // You can modify this to use actual clinic phone number from doctor data
+                            _makePhoneCall('+911234567890'); // Replace with actual clinic number
+                          } else {
+                            // Button press -> Direct navigation to booking for video consult
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DoctorBookingScreen(
+                                  doctorId: doctor.id,
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
+                          backgroundColor: appointmentType == AppointmentFilterType.physical 
+                              ? AppColors.primaryGreen 
+                              : AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -329,9 +361,17 @@ class DoctorCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          'Book Consult',
-                          style: TextStyle(
+                        icon: Icon(
+                          appointmentType == AppointmentFilterType.physical 
+                              ? Icons.phone_rounded 
+                              : Icons.calendar_today_rounded,
+                          size: 16,
+                        ),
+                        label: Text(
+                          appointmentType == AppointmentFilterType.physical 
+                              ? 'Call Clinic' 
+                              : 'Book Consult',
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../_shared/ui/app_colors.dart';
@@ -49,46 +50,92 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Set transparent status bar
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
+    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Health Records',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: Colors.black87,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.teal,
+              AppColors.teal.withOpacity(0.9),
+              AppColors.primaryGreen,
+            ],
           ),
         ),
-        centerTitle: true,
-        elevation: 0,
-      //  backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        shadowColor: Colors.black.withValues(alpha: 0.1),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.grey100,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.refresh_rounded,
-                  color: AppColors.grey700,
-                  size: 20,
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom AppBar with gradient
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: const Text(
+                        'Health Records',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.refresh_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          controller.refreshRecords();
+                        },
+                        tooltip: 'Refresh Records',
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: () {
-                controller.refreshRecords();
-              },
-              tooltip: 'Refresh Records',
-            ),
+          
+              // Main content with white background
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                    child: Obx(() => _buildRecordsList()),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-      body: Obx(() => _buildRecordsList()),
       floatingActionButton: Obx(() {
         // Don't show floating button for guest users
         if (_isGuestMode) {
