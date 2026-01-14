@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controller/home_controller.dart';
 import '../../../_shared/ui/app_text.dart';
@@ -27,6 +28,15 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Set transparent status bar
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
+    
     final controller = Get.find<HomeController>();
     return Scaffold(
       body: Obx(() {
@@ -300,7 +310,7 @@ class HomePage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _SectionHeader(
-                                title: 'Medical Specialties',
+                                title: 'Top Specialties',
                                 onSeeAllPressed: () {
                                   // Navigate to full categories list
                                   Navigator.push(
