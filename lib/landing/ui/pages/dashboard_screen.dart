@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../../_shared/consultation/consultation_type.dart';
 import '../../controller/home_controller.dart';
 import '../../../_shared/ui/app_text.dart';
 import '../../../_shared/ui/app_colors.dart';
@@ -655,7 +656,7 @@ class _QuickActionCard extends StatelessWidget {
               // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
               Get.to(() => const CareDiscoveryScreen(
                 entry: 'Video Consultation',
-                // preSelectedAppointmentType: AppointmentType.video,
+                 preSelectedAppointmentType: AppointmentType.video,
               ));
               break;
             case _QuickActionType.instantConsult:
@@ -666,7 +667,7 @@ class _QuickActionCard extends StatelessWidget {
               // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
               Get.to(() => const CareDiscoveryScreen(
                 entry: 'Hospital Appointment',
-                // preSelectedAppointmentType: AppointmentType.clinic,
+                preSelectedAppointmentType: AppointmentType.clinic,
               ));
               break;
           }
