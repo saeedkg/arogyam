@@ -167,15 +167,15 @@ class HomePage extends StatelessWidget {
         
         // Show full dashboard when data is loaded
         return Container(
-          // Same gradient background for entire screen
+          // Gradient background with green variants - darker on right, lighter on left
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
               colors: [
-                AppColors.teal,
-                AppColors.teal.withOpacity(0.9),
-                AppColors.primaryGreen,
+                const Color(0xFF5A9C8E), // Lighter teal-green on left
+                const Color(0xFF4A8B7E), // Medium green
+                const Color(0xFF3A7A6E), // Darker green on right
               ],
             ),
           ),
