@@ -42,36 +42,29 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         if (didPop) return;
         
         if (controller.isConnected.value) {
-          // Minimize the call - this will hide the screen but keep it in the stack
+          // Minimize the call instead of showing end call dialog
           final minimizedCallManager = Get.put(MinimizedCallManager(), permanent: true);
           await minimizedCallManager.minimizeCall(context, controller);
         } else {
           Navigator.of(context).pop();
         }
       },
-      child: Obx(() {
-        // Hide the entire screen when minimized
-        if (controller.isMinimized.value) {
-          return const SizedBox.shrink();
-        }
-        
-        return Scaffold(
-          backgroundColor: Colors.black,
-          body: SafeArea(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return _buildLoadingState();
-              }
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return _buildLoadingState();
+            }
 
-              if (controller.error.value != null) {
-                return _buildErrorState();
-              }
+            if (controller.error.value != null) {
+              return _buildErrorState();
+            }
 
-              return _buildVideoCallUI();
-            }),
-          ),
-        );
-      }),
+            return _buildVideoCallUI();
+          }),
+        ),
+      ),
     );
   }
 

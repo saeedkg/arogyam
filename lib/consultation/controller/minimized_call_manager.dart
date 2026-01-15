@@ -39,7 +39,7 @@ class MinimizedCallManager extends GetxController {
   ) async {
     try {
       // IMPORTANT: Mark controller as minimized FIRST
-      // This will hide the screen via Obx in the build method
+      // This prevents the service from being disposed in onClose()
       controller.isMinimized.value = true;
       
       // Store reference to controller
@@ -78,8 +78,10 @@ class MinimizedCallManager extends GetxController {
         Overlay.of(context).insert(_overlayEntry!);
       }
 
-      // DON'T pop the screen - just hide it by setting isMinimized = true
-      // The screen will render as SizedBox.shrink() but stay in the navigation stack
+      // Pop the video call screen
+      // The controller is marked as minimized, so onClose() won't dispose the service
+      Navigator.of(context).pop();
+      
       print('MinimizedCallManager: Call minimized successfully');
     } catch (e) {
       print('MinimizedCallManager: Error minimizing call - $e');
@@ -101,15 +103,24 @@ class MinimizedCallManager extends GetxController {
       // Remove overlay first
       _removeOverlay();
 
-      // Reset minimized state - this will show the screen again
+      // Reset minimized state
       isCallMinimized.value = false;
       controller.isMinimized.value = false;
 
       // Restore full performance settings
       _restoreFullPerformanceSettings();
 
-      // Stop duration timer (will restart if needed)
+      // Stop duration timer
       _stopDurationTimer();
+
+      // Navigate back to video call screen with existing controller
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => _ExpandedVideoCallScreen(
+            controller: controller,
+          ),
+        ),
+      );
       
       print('MinimizedCallManager: Call expanded successfully');
     } catch (e) {
