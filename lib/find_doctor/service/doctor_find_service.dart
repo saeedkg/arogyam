@@ -79,6 +79,9 @@ class DoctorBookingService {
     final totalConsultations = json['total_consultations'] as int?;
     final isVerified = json['is_verified'] as bool?;
     final consultationFee = json['consultation_fee']?.toString();
+    
+    // Get profile photo URL from API
+    final profilePhotoUrl = json['profile_photo_url'] as String? ?? 'https://i.pravatar.cc/150?img=22';
 
     // Build availability for next 7 days
     final now = DateTime.now();
@@ -89,7 +92,7 @@ class DoctorBookingService {
       name: name,
       specialization: specializationName,
       hospital: '',
-      imageUrl: 'https://i.pravatar.cc/150?img=22',
+      imageUrl: profilePhotoUrl,
       rating: rating,
       reviews: reviews,
       bio: bio,

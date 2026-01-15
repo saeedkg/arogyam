@@ -43,7 +43,7 @@ class DoctorDetailData {
       rating: rating,
       totalRatings: totalRatings,
       isVerified: doctor['is_verified'] as bool? ?? false,
-      imageUrl: 'https://i.pravatar.cc/150?img=22',
+      imageUrl: doctor['profile_photo_url'] as String? ?? 'https://i.pravatar.cc/150?img=22',
     );
   }
 }
