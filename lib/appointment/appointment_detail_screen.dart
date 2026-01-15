@@ -375,13 +375,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: d.prescriptionAvailable ? Colors.green.shade50 : AppColors.warningOrange,
+                  color: d.prescriptionAvailable ? Colors.green.shade50 : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  d.prescriptionAvailable ? Icons.check_circle_rounded : Icons.pending_rounded,
+                  d.prescriptionAvailable ? Icons.check_circle_rounded : Icons.schedule_rounded,
                   size: 20,
-                  color: d.prescriptionAvailable ? Colors.green : AppColors.warningOrange,
+                  color: d.prescriptionAvailable ? Colors.green : Colors.orange.shade700,
                 ),
               ),
               const SizedBox(width: 12),
@@ -390,7 +390,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      d.prescriptionAvailable ? 'Available' : 'Not Available',
+                      d.prescriptionAvailable ? 'Available' : 'Waiting for Prescription',
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -399,8 +399,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     const SizedBox(height: 2),
                     Text(
                       d.prescriptionAvailable
-                          ? 'Prescription has been issued'
-                          : 'Prescription will be available after consultation',
+                          ? 'Your prescription is ready to view'
+                          : 'Your prescription will be available after the doctor completes the consultation',
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 12,
