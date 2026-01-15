@@ -24,6 +24,8 @@ class DoctorDetail {
   final int? totalConsultations;
   final bool? isVerified;
   final String? consultationFee;
+  final String? clinicPhone; // Phone number from clinic or hospital
+  final String? phoneSource; // 'clinic' or 'hospital' - indicates where phone came from
 
   const DoctorDetail({
     required this.id,
@@ -49,6 +51,8 @@ class DoctorDetail {
     this.totalConsultations,
     this.isVerified,
     this.consultationFee,
+    this.clinicPhone,
+    this.phoneSource,
   });
 
   /// Check if doctor has instant or online consultation types available
@@ -56,6 +60,18 @@ class DoctorDetail {
     return consultationTypes?.any(
       (type) => type.toLowerCase() == 'instant' || type.toLowerCase() == 'online'
     ) ?? false;
+  }
+  
+  /// Check if phone number is available
+  bool get hasPhoneNumber {
+    return clinicPhone != null && clinicPhone!.isNotEmpty;
+  }
+  
+  /// Get call button text based on phone source
+  String get callButtonText {
+    if (phoneSource == 'clinic') return 'Call Clinic';
+    if (phoneSource == 'hospital') return 'Call Hospital';
+    return 'Call';
   }
 }
 

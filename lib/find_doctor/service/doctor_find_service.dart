@@ -83,6 +83,32 @@ class DoctorBookingService {
     // Get profile photo URL from API
     final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
 
+    // Extract phone number from clinics or hospitals
+    String? clinicPhone;
+    String? phoneSource;
+    
+    // First try to get phone from clinics
+    if (clinics != null && clinics.isNotEmpty) {
+      final firstClinic = clinics.first;
+      final contact = firstClinic['contact'] as Map<String, dynamic>?;
+      clinicPhone = contact?['phone'] as String?;
+      if (clinicPhone != null && clinicPhone.isNotEmpty) {
+        phoneSource = 'clinic';
+      }
+    }
+    
+    // If no clinic phone, try hospitals
+    if (clinicPhone == null || clinicPhone.isEmpty) {
+      if (hospitals != null && hospitals.isNotEmpty) {
+        final firstHospital = hospitals.first;
+        final contact = firstHospital['contact'] as Map<String, dynamic>?;
+        clinicPhone = contact?['phone'] as String?;
+        if (clinicPhone != null && clinicPhone.isNotEmpty) {
+          phoneSource = 'hospital';
+        }
+      }
+    }
+
     // Build availability for next 7 days
     final now = DateTime.now();
     final days = List<DateTime>.generate(7, (i) => DateTime(now.year, now.month, now.day + i));
@@ -111,6 +137,8 @@ class DoctorBookingService {
       totalConsultations: totalConsultations,
       isVerified: isVerified,
       consultationFee: consultationFee,
+      clinicPhone: clinicPhone,
+      phoneSource: phoneSource,
     );
   }
 }

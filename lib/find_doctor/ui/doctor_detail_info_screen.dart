@@ -836,57 +836,58 @@ class DoctorDetailInfoScreen extends StatelessWidget {
             // First Button - Priority based on isFromPhysicalAppointment
             if (isFromPhysicalAppointment) ...[
               // Call Clinic Button (Primary when from physical)
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primaryGreen,
-                      AppColors.primaryGreen.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryGreen.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+              if (doctorDetail.hasPhoneNumber)
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primaryGreen,
+                        AppColors.primaryGreen.withValues(alpha: 0.8),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _makePhoneCall('+911234567890'); // Replace with actual clinic number
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.phone_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 10),
-                      Text(
-                        'Call Clinic For Book Appointments',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: -0.3,
-                        ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _makePhoneCall(doctorDetail.clinicPhone!);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
+                        const SizedBox(width: 10),
+                        Text(
+                          '${doctorDetail.callButtonText} For Book Appointments',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
+              if (doctorDetail.hasPhoneNumber) const SizedBox(height: 12),
               // Book Video Consultation Button (Secondary when from physical)
               Container(
                 width: double.infinity,
@@ -1003,53 +1004,54 @@ class DoctorDetailInfoScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               // Call Clinic Button (Secondary when from video)
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: AppColors.primaryGreen,
-                    width: 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+              if (doctorDetail.hasPhoneNumber)
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppColors.primaryGreen,
+                      width: 2,
                     ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _makePhoneCall('+911234567890'); // Replace with actual clinic number
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.phone_rounded, color: AppColors.primaryGreen, size: 20),
-                      SizedBox(width: 10),
-                      Text(
-                        'Call Clinic',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryGreen,
-                          letterSpacing: -0.3,
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _makePhoneCall(doctorDetail.clinicPhone!);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.phone_rounded, color: AppColors.primaryGreen, size: 20),
+                        const SizedBox(width: 10),
+                        Text(
+                          doctorDetail.callButtonText,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryGreen,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
             ],
           ],
         ),
@@ -1123,62 +1125,67 @@ class DoctorDetailInfoScreen extends StatelessWidget {
       );
     }
 
-    // If only offline consultation, show Call Clinic button
-    return Container(
-      width: double.infinity,
-      height: 56,
-      margin: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).padding.bottom + 16,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryGreen,
-            AppColors.primaryGreen.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+    // If only offline consultation, show Call Clinic button (only if phone exists)
+    if (doctorDetail.hasPhoneNumber) {
+      return Container(
+        width: double.infinity,
+        height: 56,
+        margin: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
         ),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryGreen.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primaryGreen,
+              AppColors.primaryGreen.withValues(alpha: 0.8),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: () {
-          _makePhoneCall('+911234567890'); // Replace with actual clinic number
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.phone_rounded, color: Colors.white, size: 20),
-            SizedBox(width: 10),
-            Text(
-              'Call Clinic',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: -0.3,
-              ),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryGreen.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-      ),
-    );
+        child: ElevatedButton(
+          onPressed: () {
+            _makePhoneCall(doctorDetail.clinicPhone!);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Text(
+                doctorDetail.callButtonText,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
+    // If no phone number, don't show button
+    return const SizedBox.shrink();
   }
 }
