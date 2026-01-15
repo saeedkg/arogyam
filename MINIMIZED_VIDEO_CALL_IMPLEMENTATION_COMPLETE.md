@@ -148,6 +148,33 @@ All 10 requirements from the spec are implemented:
 2. **App backgrounding** - Currently doesn't handle app lifecycle events (would need platform-specific implementation)
 3. **Phone call interruption** - Not implemented (requires platform-specific phone state detection)
 
+## Controller Cleanup Fix (Second Call Issue)
+
+### Problem
+After ending the first call and immediately starting a second call, the video wouldn't connect. Logs showed `connected: false` but participants existed. The issue was caused by a stale controller remaining in GetX memory.
+
+### Root Cause
+The controller was registered with `permanent: true` to survive navigation when minimized. However, when the call ended, the controller wasn't being deleted from GetX, causing the second call to find and reuse the old controller instead of creating a fresh one.
+
+### Solution Applied
+1. **MinimizedCallManager.endCall()**: Added `Get.delete<RealtimeKitVideoCallController>(force: true)` to force delete controller when ending minimized call
+2. **RealtimeKitVideoCallScreen._showEndCallConfirmation()**: Added same controller deletion when ending call from full-screen view
+3. **RealtimeKitVideoCallScreen.initState()**: Added stale controller detection - if a controller exists but is NOT minimized, delete it and create a new one
+
+### Controller Lifecycle
+- **New Call**: Create controller with `permanent: true`
+- **Minimize**: Set `isMinimized = true`, pop screen (controller stays alive)
+- **Expand**: Reuse existing controller (check `isMinimized` flag)
+- **End Call**: Set `isMinimized = false`, dispose service, force delete controller from GetX
+- **Next Call**: Check for stale controller, delete if found, create fresh controller
+
+### Testing Required
+- ✅ Test ending call from minimized widget
+- ✅ Test ending call from full-screen view
+- ⏳ Test second call after ending first call (controller cleanup)
+- ⏳ Test rapid call start/end cycles
+- ⏳ Test minimize → expand → end call flow
+
 ## Next Steps
 
 1. Test the feature with actual video calls

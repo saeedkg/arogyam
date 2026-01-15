@@ -26,7 +26,26 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     super.initState();
     // Check if controller already exists (from minimized state)
     if (Get.isRegistered<RealtimeKitVideoCallController>()) {
-      controller = Get.find<RealtimeKitVideoCallController>();
+      final existingController = Get.find<RealtimeKitVideoCallController>();
+      
+      // If controller exists but is NOT minimized, it's a stale controller from previous call
+      // Delete it and create a new one
+      if (!existingController.isMinimized.value) {
+        print('RealtimeKitVideoCallScreen: Found stale controller, deleting...');
+        try {
+          Get.delete<RealtimeKitVideoCallController>(force: true);
+        } catch (e) {
+          print('RealtimeKitVideoCallScreen: Error deleting stale controller - $e');
+        }
+        
+        // Create new controller
+        controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
+        controller.initialize(widget.config);
+      } else {
+        // Controller is minimized, reuse it
+        print('RealtimeKitVideoCallScreen: Reusing minimized controller');
+        controller = existingController;
+      }
     } else {
       // Create new controller with permanent flag to prevent auto-disposal
       controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
@@ -535,9 +554,19 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(ctx).pop();
-              controller.endCall();
+              
+              // Unmark as minimized so service can be disposed
+              controller.isMinimized.value = false;
+              await controller.endCall();
+              
+              // Force delete the controller from GetX to prevent stale controller on next call
+              try {
+                Get.delete<RealtimeKitVideoCallController>(force: true);
+              } catch (e) {
+                print('RealtimeKitVideoCallScreen: Error deleting controller - $e');
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,

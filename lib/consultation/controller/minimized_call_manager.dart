@@ -171,7 +171,16 @@ class MinimizedCallManager extends GetxController {
     try {
       // End the video call
       if (_videoCallController != null) {
+        // Unmark as minimized so it can be disposed
+        _videoCallController!.isMinimized.value = false;
         await _videoCallController!.endCall();
+        
+        // Force delete the controller from GetX
+        try {
+          Get.delete<RealtimeKitVideoCallController>(force: true);
+        } catch (e) {
+          print('MinimizedCallManager: Error deleting controller - $e');
+        }
       }
 
       // Clean up
