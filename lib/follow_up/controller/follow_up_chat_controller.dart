@@ -41,11 +41,14 @@ class FollowUpChatController extends GetxController {
       errorMessage.value = '';
       
       final chatData = await _service.getFollowUpChat(appointmentId);
+      
       chat.value = chatData;
       messages.value = chatData.messages;
       
-      // Mark messages as read
-      await _service.markMessagesAsRead(chatData.id);
+      // Mark messages as read only if chat has an ID (exists on server)
+      if (chatData.id > 0) {
+        await _service.markMessagesAsRead(chatData.id);
+      }
       
     } catch (e) {
       errorMessage.value = e.toString();
@@ -64,7 +67,18 @@ class FollowUpChatController extends GetxController {
   /// Send text message
   Future<void> sendTextMessage() async {
     final messageText = messageController.text.trim();
-    if (messageText.isEmpty || chat.value == null) return;
+    if (messageText.isEmpty) return;
+
+    if (chat.value == null) {
+      Get.snackbar(
+        'Info',
+        'Chat session not initialized. Please try again.',
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade800,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
 
     try {
       isSendingMessage.value = true;
@@ -72,14 +86,20 @@ class FollowUpChatController extends GetxController {
       // Clear input immediately for better UX
       messageController.clear();
       
-      // Send message
+      // If chat doesn't exist on server yet (id = 0), the API will create it
+      // The API should handle creating the chat on first message
       final newMessage = await _service.sendTextMessage(
-        chat.value!.id,
+        chat.value!.id > 0 ? chat.value!.id : chat.value!.appointmentId,
         messageText,
       );
       
       // Add to local messages list
       messages.add(newMessage);
+      
+      // If this was the first message, refresh to get the chat ID
+      if (chat.value!.id == 0) {
+        await refreshChat();
+      }
       
     } catch (e) {
       // Restore message text on error

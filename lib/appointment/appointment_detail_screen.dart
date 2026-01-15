@@ -5,6 +5,7 @@ import '../_shared/ui/app_colors.dart';
 import 'entities/booking_detail.dart';
 import 'service/appointment_service.dart';
 import 'ui/prescription_viewer_screen.dart';
+import 'ui/invoice_viewer_screen.dart';
 import '../follow_up/ui/follow_up_chat_screen.dart';
 import '../follow_up/service/follow_up_chat_service.dart';
 import '../follow_up/entities/follow_up_eligibility.dart';
@@ -42,6 +43,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       () => PrescriptionViewerScreen(
         prescriptionUrl: d.prescriptionUrl!,
         prescriptionId: widget.bookingId,
+        doctorName: d.doctorName,
+      ),
+    );
+  }
+
+  void _viewInvoice(BookingDetail d) {
+    Get.to(
+      () => InvoiceViewerScreen(
+        appointmentId: widget.bookingId,
         doctorName: d.doctorName,
       ),
     );
@@ -661,7 +671,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           SizedBox(
             height: 48,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => _viewInvoice(d),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryGreen,
                 side: BorderSide(color: AppColors.primaryGreen, width: 1.5),

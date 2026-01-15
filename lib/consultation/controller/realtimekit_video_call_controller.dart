@@ -11,6 +11,7 @@ class RealtimeKitVideoCallController extends GetxController {
   final isVideoEnabled = true.obs;
   final error = Rxn<String>();
   final connectionState = Rx<app.ConnectionState>(app.ConnectionState.disconnected);
+  final isMinimized = false.obs; // Track if call is minimized
   
   // Doctor information
   late String doctorName;
@@ -149,9 +150,11 @@ class RealtimeKitVideoCallController extends GetxController {
   
   @override
   void onClose() {
-    // Dispose service and cleanup resources
-    if (_service != null) {
-      _service!.dispose();
+    // Only dispose service if call is not minimized
+    if (!isMinimized.value) {
+      if (_service != null) {
+        _service!.dispose();
+      }
     }
     super.onClose();
   }

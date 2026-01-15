@@ -46,6 +46,32 @@ class FollowUpChat {
           : null,
     );
   }
+
+  /// Create an empty chat for when no chat exists yet
+  factory FollowUpChat.empty(int appointmentId) {
+    return FollowUpChat(
+      id: 0,
+      appointmentId: appointmentId,
+      chatType: 'follow_up',
+      isActive: true,
+      expiresAt: DateTime.now().add(const Duration(days: 7)),
+      createdAt: DateTime.now(),
+      appointment: FollowUpAppointment(
+        id: appointmentId,
+        scheduledAt: DateTime.now(),
+        type: 'unknown',
+        status: 'unknown',
+      ),
+      otherParticipant: const ChatParticipant(
+        id: 0,
+        name: 'Doctor',
+        role: 'doctor',
+      ),
+      messages: [], // Empty array
+      unreadCount: 0,
+      latestMessage: null,
+    );
+  }
 }
 
 class FollowUpAppointment {

@@ -46,15 +46,25 @@ class FollowUpChatService {
     }
   }
 
-  /// Get follow-up chat for a specific appointment
+  /// Get or create follow-up chat for a specific appointment
+  /// First tries to get existing chat, if null/empty then creates a new one
   Future<FollowUpChat> getFollowUpChat(String appointmentId) async {
     final url = '${NetworkConfig.baseUrl}/follow-up-chats/appointments/$appointmentId';
     final apiRequest = APIRequest(url);
     
     try {
+      // First, try to GET existing chat
       final apiResponse = await _networkAdapter.get(apiRequest);
       if (apiResponse.data is Map<String, dynamic>) {
-        return FollowUpChat.fromJson(apiResponse.data as Map<String, dynamic>);
+        final responseData = apiResponse.data as Map<String, dynamic>;
+        
+        // Check if data is null or empty (no chat exists yet)
+        if (responseData['data'] == null) {
+          // Chat doesn't exist, create it with POST
+          return await _createFollowUpChat(appointmentId);
+        }
+        
+        return FollowUpChat.fromJson(responseData);
       }
       throw Exception('Invalid response format');
     } on NetworkFailureException {
@@ -70,6 +80,37 @@ class FollowUpChatService {
           throw ServerSentException(message, errorCode);
         }
         throw ServerSentException('Failed to load follow-up chat', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  /// Create a new follow-up chat for an appointment
+  Future<FollowUpChat> _createFollowUpChat(String appointmentId) async {
+    final url = '${NetworkConfig.baseUrl}/follow-up-chats/appointments/$appointmentId';
+    final apiRequest = APIRequest(url);
+    
+    try {
+      // POST to create new chat
+      final apiResponse = await _networkAdapter.post(apiRequest);
+      if (apiResponse.data is Map<String, dynamic>) {
+        return FollowUpChat.fromJson(apiResponse.data);
+      }
+      throw Exception('Invalid response format');
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to create follow-up chat', exception.httpCode);
       } else {
         rethrow;
       }

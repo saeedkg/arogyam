@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:realtimekit_core/realtimekit_core.dart';
 import '../controller/realtimekit_video_call_controller.dart';
+import '../controller/minimized_call_manager.dart';
 import '../entities/video_call_config.dart';
 import '../../_shared/ui/app_colors.dart';
 
@@ -23,8 +24,14 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   @override
   void initState() {
     super.initState();
-    controller = Get.put(RealtimeKitVideoCallController());
-    controller.initialize(widget.config);
+    // Check if controller already exists (from minimized state)
+    if (Get.isRegistered<RealtimeKitVideoCallController>()) {
+      controller = Get.find<RealtimeKitVideoCallController>();
+    } else {
+      // Create new controller with permanent flag to prevent auto-disposal
+      controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
+      controller.initialize(widget.config);
+    }
   }
 
   @override
@@ -35,27 +42,36 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         if (didPop) return;
         
         if (controller.isConnected.value) {
-          _showEndCallConfirmation();
+          // Minimize the call - this will hide the screen but keep it in the stack
+          final minimizedCallManager = Get.put(MinimizedCallManager(), permanent: true);
+          await minimizedCallManager.minimizeCall(context, controller);
         } else {
           Navigator.of(context).pop();
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return _buildLoadingState();
-          }
+      child: Obx(() {
+        // Hide the entire screen when minimized
+        if (controller.isMinimized.value) {
+          return const SizedBox.shrink();
+        }
+        
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return _buildLoadingState();
+              }
 
-          if (controller.error.value != null) {
-            return _buildErrorState();
-          }
+              if (controller.error.value != null) {
+                return _buildErrorState();
+              }
 
-          return _buildVideoCallUI();
-        }),
-        ),
-      ),
+              return _buildVideoCallUI();
+            }),
+          ),
+        );
+      }),
     );
   }
 
