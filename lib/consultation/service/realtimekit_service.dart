@@ -366,6 +366,23 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     }
   }
 
+  /// Switch camera (front/back)
+  Future<void> switchCamera() async {
+    if (_client == null) {
+      throw VideoCallError.runtime('Client not initialized');
+    }
+
+    try {
+      _client!.localUser.switchCamera();
+      print('RealtimeKit: Camera switched');
+    } catch (e) {
+      throw VideoCallError.runtime(
+        'Failed to switch camera',
+        details: e.toString(),
+      );
+    }
+  }
+
   /// Get local user for video rendering
   RtkSelfParticipant? get localUser => _client?.localUser;
 

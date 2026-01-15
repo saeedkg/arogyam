@@ -480,6 +480,23 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
             isActive: controller.isVideoEnabled,
           ),
           
+          // Camera switch button
+          Obx(() {
+            // Only show switch button when video is enabled
+            if (controller.isVideoEnabled.value) {
+              return _buildControlButton(
+                icon: const Icon(
+                  Icons.flip_camera_ios,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                onTap: controller.switchCamera,
+                isActive: true.obs, // Always active when visible
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+          
           // End call button
           _buildEndCallButton(),
         ],

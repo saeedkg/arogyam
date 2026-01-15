@@ -97,6 +97,16 @@ class RealtimeKitVideoCallController extends GetxController {
     }
   }
   
+  /// Switch camera (front/back)
+  Future<void> switchCamera() async {
+    if (_service == null) return;
+    try {
+      await _service!.switchCamera();
+    } catch (e) {
+      handleError('Failed to switch camera: ${e.toString()}');
+    }
+  }
+  
   /// End the call and navigate back
   Future<void> endCall() async {
     if (_service == null) {
