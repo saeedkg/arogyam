@@ -46,6 +46,14 @@ The minimized video call feature has been successfully implemented. Users can no
 1. **lib/consultation/ui/realtimekit_video_call_screen.dart**
    - Updated PopScope to minimize call on back button instead of showing end call dialog
    - Added MinimizedCallManager import
+   - Added stale controller detection in initState
+   - Added controller deletion in _showEndCallConfirmation
+
+2. **lib/landing/ui/pages/dashboard_screen.dart**
+   - Added PopScope to intercept back button press
+   - Added check for active minimized call before allowing app exit
+   - Added dialog to prompt user to end call before exiting
+   - Prevents accidental app exit during active video calls
 
 ## Features Implemented
 
@@ -85,6 +93,7 @@ The minimized video call feature has been successfully implemented. Users can no
 ✅ Check for existing call before starting new one
 ✅ Dialog to end existing call when starting new one
 ✅ Proper cleanup on call end
+✅ Prevent app exit during active call with confirmation dialog
 
 ### Performance
 ✅ Placeholder methods for video quality optimization
@@ -174,6 +183,34 @@ The controller was registered with `permanent: true` to survive navigation when 
 - ⏳ Test second call after ending first call (controller cleanup)
 - ⏳ Test rapid call start/end cycles
 - ⏳ Test minimize → expand → end call flow
+- ⏳ Test app exit prevention during active call
+
+## App Exit Prevention During Active Call
+
+### Feature
+When a user tries to exit the app (by pressing the back button on the dashboard/home screen) while there's an active minimized video call, the app shows a confirmation dialog.
+
+### Implementation
+- **Location**: `lib/landing/ui/pages/dashboard_screen.dart`
+- **Mechanism**: PopScope widget intercepts back button press
+- **Check**: Uses `MinimizedCallManager.canStartNewCall()` to detect active calls
+- **Dialog**: Prompts user with two options:
+  - "Stay in App" - Cancels exit, keeps call active
+  - "End Call & Exit" - Ends the call and exits the app
+
+### User Flow
+1. User has an active minimized video call
+2. User presses back button on dashboard
+3. Dialog appears: "You have an active video call. Please end the call before exiting the app."
+4. User chooses:
+   - Stay in App → Dialog closes, call continues
+   - End Call & Exit → Call ends, app exits
+
+### Benefits
+- Prevents accidental call disconnection
+- Ensures users are aware of active calls
+- Provides explicit choice to end call or stay
+- Improves user experience and call reliability
 
 ## Next Steps
 

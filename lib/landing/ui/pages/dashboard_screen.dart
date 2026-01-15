@@ -23,6 +23,7 @@ import '../components/top_specialities_horizontal.dart';
 import '../all_categories_screen.dart';
 import '../../entities/dashboard_data.dart';
 import '../components/upcoming_appointments_section.dart';
+import '../../../consultation/controller/minimized_call_manager.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -39,7 +40,33 @@ class HomePage extends StatelessWidget {
     );
     
     final controller = Get.find<HomeController>();
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        
+        // Check if there's an active minimized call
+        if (!MinimizedCallManager.canStartNewCall()) {
+          // Show dialog to end call before exiting
+          final shouldEndCall = await _showEndCallBeforeExitDialog(context);
+          if (shouldEndCall == true) {
+            // End the call
+            try {
+              final manager = Get.find<MinimizedCallManager>();
+              await manager.endCall();
+              // Exit the app
+              SystemNavigator.pop();
+            } catch (e) {
+              print('HomePage: Error ending call - $e');
+            }
+          }
+          // If user cancels, do nothing (stay in app)
+        } else {
+          // No active call, exit normally
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
       body: Obx(() {
         if (controller.isLoading.value) {
           // Show only loading screen when data is loading
@@ -359,6 +386,43 @@ class HomePage extends StatelessWidget {
       //     appointments: controller.upcomingAppointments,
       //   );
       // }),
+      ),
+    );
+  }
+
+  /// Show dialog to end call before exiting app
+  Future<bool?> _showEndCallBeforeExitDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Active Call',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          'You have an active video call. Please end the call before exiting the app.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              'Stay in App',
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('End Call & Exit'),
+          ),
+        ],
+      ),
     );
   }
 }
