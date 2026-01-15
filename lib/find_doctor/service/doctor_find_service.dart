@@ -81,7 +81,7 @@ class DoctorBookingService {
     final consultationFee = json['consultation_fee']?.toString();
     
     // Get profile photo URL from API
-    final profilePhotoUrl = json['profile_photo_url'] as String? ?? 'https://i.pravatar.cc/150?img=22';
+    final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
 
     // Build availability for next 7 days
     final now = DateTime.now();

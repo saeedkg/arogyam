@@ -156,13 +156,16 @@ class DoctorsApiService {
     // Map consultation types from API
     final consultationTypesRaw = json['consultation_types'] as List<dynamic>? ?? [];
     final consultationTypes = consultationTypesRaw.map((e) => e.toString()).toList();
+    
+    // Get profile photo URL from API
+    final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
 
     return DoctorListItem(
       id: '${json['id']}',
       name: (user != null ? (user['name'] as String?) : null) ?? 'Doctor',
       specialization: specializationName,
       hospital: 'Calicut',
-      imageUrl: 'https://i.pravatar.cc/150?img=10',
+      imageUrl: profilePhotoUrl,
       rating: rating,
       reviews: reviews,
       consultationFee: fee,

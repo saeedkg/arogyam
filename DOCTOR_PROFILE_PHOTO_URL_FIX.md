@@ -2,11 +2,11 @@
 
 ## Summary
 
-Updated DoctorDetailBottomSheet and DoctorDetailInfoScreen to use the actual `profile_photo_url` from the API instead of hardcoded placeholder images.
+Updated DoctorDetailBottomSheet, DoctorDetailInfoScreen, and doctor listing (SpecialityDoctorsScreen with DoctorCard) to use the actual `profile_photo_url` from the API instead of hardcoded placeholder images.
 
 ## API Field
 
-The API endpoint `https://arogyam.focus-its.com/api/v1/doctors/{id}` returns:
+The API endpoints return:
 ```json
 {
   "data": {
@@ -28,8 +28,10 @@ imageUrl: 'https://i.pravatar.cc/150?img=22',
 
 **After**:
 ```dart
-imageUrl: doctor['profile_photo_url'] as String? ?? 'https://i.pravatar.cc/150?img=22',
+imageUrl: doctor['profile_photo_url'] as String? ?? '',
 ```
+
+**Note**: Empty string fallback allows UI to show its own placeholder icon
 
 ### 2. lib/find_doctor/service/doctor_find_service.dart
 **Changed**: Updated `_mapToDoctorDetail` method to use `profile_photo_url` from API
@@ -42,7 +44,7 @@ imageUrl: 'https://i.pravatar.cc/150?img=22',
 **After**:
 ```dart
 // Get profile photo URL from API
-final profilePhotoUrl = json['profile_photo_url'] as String? ?? 'https://i.pravatar.cc/150?img=22';
+final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
 
 return DoctorDetail(
   ...
@@ -50,6 +52,30 @@ return DoctorDetail(
   ...
 );
 ```
+
+**Note**: Empty string fallback allows UI to show its own placeholder icon
+
+### 3. lib/find_doctor/service/doctors_get_detail_service.dart
+**Changed**: Updated `_mapToListItem` method to use `profile_photo_url` from API for doctor listings
+
+**Before**:
+```dart
+imageUrl: 'https://i.pravatar.cc/150?img=10',
+```
+
+**After**:
+```dart
+// Get profile photo URL from API
+final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
+
+return DoctorListItem(
+  ...
+  imageUrl: profilePhotoUrl,
+  ...
+);
+```
+
+**Note**: Empty string fallback allows UI to show its own placeholder icon
 
 ## Affected Screens
 
@@ -61,30 +87,50 @@ return DoctorDetail(
    - Shows doctor profile photo in full detail screen
    - Now displays actual doctor photo from API
 
+3. **SpecialityDoctorsScreen** (`lib/find_doctor/ui/speciality_doctors_screen.dart`)
+   - Shows doctor list with DoctorCard components
+   - Each card now displays actual doctor photo from API
+
+4. **DoctorCard** (`lib/find_doctor/ui/components/doctor_card.dart`)
+   - Displays doctor profile photo in list items
+   - Now shows actual doctor photos from API
+
 ## Fallback Behavior
 
-Both implementations include a fallback to the placeholder image if:
+All implementations use empty string as fallback if:
 - The API doesn't return `profile_photo_url`
 - The field is null or empty
-- Fallback URL: `https://i.pravatar.cc/150?img=22`
+- Fallback value: `''` (empty string)
+
+This allows the UI components to show their own placeholder icons/images instead of using generic avatar URLs.
+
+**UI Error Handling:**
+Each screen already has `errorBuilder` in `Image.network()` that displays:
+- A container with grey background
+- A person icon placeholder
+- This provides a consistent, professional fallback across all screens
 
 ## Benefits
 
-✅ Displays actual doctor profile photos from the server
+✅ Displays actual doctor profile photos from the server across all screens
 ✅ Maintains fallback for missing images
 ✅ Consistent with API data structure
 ✅ No breaking changes (graceful degradation)
 ✅ No compilation errors
+✅ Works for both detail views and list views
 
 ## Testing
 
 - ✅ No compilation errors
-- ⏳ Test with actual API to verify profile photos display correctly
+- ⏳ Test with actual API to verify profile photos display correctly in all screens
 - ⏳ Test fallback behavior when profile_photo_url is null
 - ⏳ Test error handling when image fails to load
+- ⏳ Test doctor listing in SpecialityDoctorsScreen
+- ⏳ Test DoctorCard component with real photos
 
 ## Notes
 
 - The `profile_photo_url` field is at the doctor level in the API response
-- Both screens use the same `imageUrl` field from their respective entity classes
-- Error handling for failed image loads is already implemented in both screens
+- All screens use the same `imageUrl` field from their respective entity classes
+- Error handling for failed image loads is already implemented in all screens
+- Doctor listing API and detail API both return the same `profile_photo_url` field
