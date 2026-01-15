@@ -93,6 +93,12 @@ class AppNavigation {
   static void toHospitalDetail(String hospitalId) {
     Get.toNamed(AppRoutes.hospitalDetail, arguments: hospitalId);
   }
+
+  // Navigate to Clinic Detail
+  static void toClinicDetail(String clinicId) {
+    Get.toNamed(AppRoutes.clinicDetail, arguments: clinicId);
+  }
+
   // Navigate and clear all previous routes
   static void offAllToLanding() {
     Get.offAllNamed(AppRoutes.landing);

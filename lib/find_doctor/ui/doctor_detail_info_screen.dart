@@ -640,6 +640,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
               name: clinic['name'] ?? 'Unknown Clinic',
               address: clinic['address'],
               isClinic: true,
+              clinicId: clinic['id']?.toString(),
             )),
             if (hasHospitals) const SizedBox(height: 16),
           ],
@@ -675,10 +676,19 @@ class DoctorDetailInfoScreen extends StatelessWidget {
     String? address,
     required bool isClinic,
     String? hospitalId,
+    String? clinicId,
   }) {
+    final canTap = (hospitalId != null && !isClinic) || (clinicId != null && isClinic);
+    
     return InkWell(
-      onTap: hospitalId != null && !isClinic 
-          ? () => AppNavigation.toHospitalDetail(hospitalId)
+      onTap: canTap
+          ? () {
+              if (isClinic && clinicId != null) {
+                AppNavigation.toClinicDetail(clinicId);
+              } else if (!isClinic && hospitalId != null) {
+                AppNavigation.toHospitalDetail(hospitalId);
+              }
+            }
           : null,
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -731,7 +741,7 @@ class DoctorDetailInfoScreen extends StatelessWidget {
                 ],
               ),
             ),
-            if (hospitalId != null && !isClinic)
+            if (canTap)
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
