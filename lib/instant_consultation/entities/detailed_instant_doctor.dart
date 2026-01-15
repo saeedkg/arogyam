@@ -38,12 +38,15 @@ class DetailedInstantDoctor {
     final totalConsultations = json['total_consultations'] is int ? json['total_consultations'] as int : int.tryParse('${json['total_consultations'] ?? 0}') ?? 0;
     final yearsExp = pivot?['years_of_experience'] is int ? pivot!['years_of_experience'] as int : int.tryParse('${pivot?['years_of_experience'] ?? 0}') ?? 0;
     final quals = (json['qualifications'] as List<dynamic>? ?? const []).map((e) => e.toString()).toList();
+    
+    // Get profile photo URL from API
+    final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
 
     return DetailedInstantDoctor(
       id: '${json['id']}',
       name: user?['name'] as String? ?? 'Doctor',
       specialization: specializationName,
-      imageUrl: 'https://i.pravatar.cc/150?img=10',
+      imageUrl: profilePhotoUrl,
       rating: rating,
       totalRatings: totalRatings,
       totalConsultations: totalConsultations,

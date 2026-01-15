@@ -77,6 +77,28 @@ return DoctorListItem(
 
 **Note**: Empty string fallback allows UI to show its own placeholder icon
 
+### 4. lib/instant_consultation/entities/detailed_instant_doctor.dart
+**Changed**: Updated `fromJson` factory method to use `profile_photo_url` from API for instant consultation doctors
+
+**Before**:
+```dart
+imageUrl: 'https://i.pravatar.cc/150?img=10',
+```
+
+**After**:
+```dart
+// Get profile photo URL from API
+final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
+
+return DetailedInstantDoctor(
+  ...
+  imageUrl: profilePhotoUrl,
+  ...
+);
+```
+
+**Note**: Empty string fallback allows UI to show its own placeholder icon
+
 ## Affected Screens
 
 1. **DoctorDetailBottomSheet** (`lib/doctor_detail/ui/doctor_detail_bottom_sheet.dart`)
@@ -94,6 +116,10 @@ return DoctorListItem(
 4. **DoctorCard** (`lib/find_doctor/ui/components/doctor_card.dart`)
    - Displays doctor profile photo in list items
    - Now shows actual doctor photos from API
+
+5. **DoctorsSelectionBottomSheet** (`lib/instant_consultation/ui/doctors_selection_bottom_sheet.dart`)
+   - Shows doctor list for instant consultation
+   - Now displays actual doctor photos from API
 
 ## Fallback Behavior
 
