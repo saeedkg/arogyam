@@ -159,6 +159,34 @@ class DoctorsApiService {
     
     // Get profile photo URL from API
     final profilePhotoUrl = json['profile_photo_url'] as String? ?? '';
+    
+    // Extract phone number from clinics or hospitals
+    String? clinicPhone;
+    String? phoneSource;
+    
+    // First try to get phone from clinics
+    final clinics = json['clinics'] as List<dynamic>? ?? [];
+    if (clinics.isNotEmpty) {
+      final firstClinic = clinics.first as Map<String, dynamic>;
+      final contact = firstClinic['contact'] as Map<String, dynamic>?;
+      clinicPhone = contact?['phone'] as String?;
+      if (clinicPhone != null && clinicPhone.isNotEmpty) {
+        phoneSource = 'clinic';
+      }
+    }
+    
+    // If no clinic phone, try hospitals
+    if (clinicPhone == null || clinicPhone.isEmpty) {
+      final hospitals = json['hospitals'] as List<dynamic>? ?? [];
+      if (hospitals.isNotEmpty) {
+        final firstHospital = hospitals.first as Map<String, dynamic>;
+        final contact = firstHospital['contact'] as Map<String, dynamic>?;
+        clinicPhone = contact?['phone'] as String?;
+        if (clinicPhone != null && clinicPhone.isNotEmpty) {
+          phoneSource = 'hospital';
+        }
+      }
+    }
 
     return DoctorListItem(
       id: '${json['id']}',
@@ -174,6 +202,8 @@ class DoctorsApiService {
       isOnline: isOnline,
       availableToday: availableToday,
       consultationTypes: consultationTypes,
+      clinicPhone: clinicPhone,
+      phoneSource: phoneSource,
     );
   }
 }

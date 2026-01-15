@@ -327,17 +327,18 @@ class DoctorCard extends StatelessWidget {
                     ),
                   ),
 
-                  // Book Now / Call Clinic Button
-                  if (doctor.hasInstantOrOnlineConsultation || appointmentType == AppointmentFilterType.physical)
+                  // Book Now / Call Clinic/Hospital Button
+                  // For video consultations: Show "Book Consult" if doctor has instant/online consultation
+                  // For physical appointments: Show "Call Clinic/Hospital" ONLY if phone number exists
+                  if ((appointmentType != AppointmentFilterType.physical && doctor.hasInstantOrOnlineConsultation) || 
+                      (appointmentType == AppointmentFilterType.physical && doctor.hasPhoneNumber))
                     SizedBox(
                       height: 36,
                       child: ElevatedButton.icon(
                         onPressed: () {
                           // If physical appointment, make phone call
-                          if (appointmentType == AppointmentFilterType.physical) {
-                            // Use a default clinic number or doctor's contact
-                            // You can modify this to use actual clinic phone number from doctor data
-                            _makePhoneCall('+911234567890'); // Replace with actual clinic number
+                          if (appointmentType == AppointmentFilterType.physical && doctor.hasPhoneNumber) {
+                            _makePhoneCall(doctor.clinicPhone!);
                           } else {
                             // Button press -> Direct navigation to booking for video consult
                             Navigator.push(
@@ -369,7 +370,7 @@ class DoctorCard extends StatelessWidget {
                         ),
                         label: Text(
                           appointmentType == AppointmentFilterType.physical 
-                              ? 'Call Clinic' 
+                              ? doctor.callButtonText 
                               : 'Book Consult',
                           style: const TextStyle(
                             fontSize: 13,
