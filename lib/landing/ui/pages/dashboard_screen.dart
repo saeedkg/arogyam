@@ -18,7 +18,7 @@ import '../components/dashboard_serach_view.dart';
 import '../components/top_doctors_view.dart';
 import '../components/upcoming_appointments_card.dart';
 import '../components/monsoon_care_tips_card.dart';
-import '../components/search_and_categories_row.dart';
+import '../components/animated_search_bar.dart';
 import '../components/top_specialities_horizontal.dart';
 import '../all_categories_screen.dart';
 import '../../entities/dashboard_data.dart';
@@ -273,8 +273,8 @@ class HomePage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20),
                                 
-                                // Search bar and categories in same row
-                                const SearchAndCategoriesRow(),
+                                // Full-width animated search bar
+                                const AnimatedSearchBar(),
                                 const SizedBox(height: 20),
                                 
                                 // Quick Actions inside green area
