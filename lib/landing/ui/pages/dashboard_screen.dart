@@ -11,10 +11,7 @@ import '../../../care_discovery/ui/search_screen.dart';
 import '../../../instant_consultation/ui/instant_consult_screen.dart';
 import '../../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../components/banner_carousal.dart';
-import '../components/dasbboard_category.dart';
 import '../components/dashboard_app_bar.dart';
-import '../components/dashboard_quick_action_view.dart' show QuickActions;
-import '../components/dashboard_serach_view.dart';
 import '../components/top_doctors_view.dart';
 import '../components/upcoming_appointments_card.dart';
 import '../components/monsoon_care_tips_card.dart';
@@ -22,7 +19,6 @@ import '../components/animated_search_bar.dart';
 import '../components/top_specialities_horizontal.dart';
 import '../all_categories_screen.dart';
 import '../../entities/dashboard_data.dart';
-import '../components/upcoming_appointments_section.dart';
 import '../../../consultation/controller/minimized_call_manager.dart';
 
 class HomePage extends StatelessWidget {
@@ -650,7 +646,7 @@ class _OriginalQuickActions extends StatelessWidget {
               Expanded(
                 child: _QuickActionCard(
                   icon: Icons.calendar_today_rounded,
-                  title: 'Hospital\nAppointment',
+                  title: 'Physical\nAppointment',
                   color: const Color(0xFF7DD3FC),
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
