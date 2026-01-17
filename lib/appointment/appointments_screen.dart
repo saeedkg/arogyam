@@ -118,37 +118,45 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Custom AppBar with gradient
+              // Custom AppBar with gradient and patient card
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                child: Row(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: const Text(
-                        'Appointments',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 20,
-                          color: Colors.white,
+                    // Top row with title and refresh button
+                    Row(
+                      children: [
+                        Expanded(
+                          child: const Text(
+                            'Appointments',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.refresh_rounded,
-                          size: 20,
-                          color: Colors.white,
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.refresh_rounded,
+                              size: 20,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => c.refreshAppointments(),
+                            tooltip: 'Refresh',
+                          ),
                         ),
-                        onPressed: () => c.refreshAppointments(),
-                        tooltip: 'Refresh',
-                      ),
+                      ],
                     ),
+                    const SizedBox(height: 16),
+                    // Patient card integrated in header
+                    if (!_isGuestMode) _buildHeaderPatientCard(),
                   ],
                 ),
               ),
@@ -293,7 +301,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
-            _buildPatientCard(),
             SizedBox(height: MediaQuery.of(context).size.height * 0.1),
             const AppointmentEmptyStateCard(),
           ],
@@ -312,20 +319,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
-        itemCount: c.appointments.length + 2, // +2 for patient card and loading indicator
+        itemCount: c.appointments.length + 1, // +1 for loading indicator
         itemBuilder: (context, index) {
-          // Patient card at top
-          if (index == 0) {
-            return Column(
-              children: [
-                _buildPatientCard(),
-                const SizedBox(height: 16),
-              ],
-            );
-          }
-
           // Loading indicator at bottom
-          if (index == c.appointments.length + 1) {
+          if (index == c.appointments.length) {
             if (c.isLoading.value && !c.api.didReachListEnd) {
               return const Padding(
                 padding: EdgeInsets.all(16.0),
@@ -341,7 +338,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           }
 
           // Appointment cards
-          final appointment = c.appointments[index - 1];
+          final appointment = c.appointments[index];
           return AppointmentCard(
             id: appointment.id.toString(),
             imageUrl: appointment.doctorImage,
@@ -378,6 +375,112 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildHeaderPatientCard() {
+    return Obx(() {
+      final p = currentPatientController.current.value;
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () async {
+            final selectedPatientId = await AppNavigation.toFamilyMembers();
+            if (selectedPatientId != null) {
+              await currentPatientController.refreshFromPrefs();
+              final newPatientId = currentPatientController.current.value?.id;
+              if (newPatientId != null) {
+                c.setPatientId(newPatientId);
+              }
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                // Compact avatar
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+                  ),
+                  child: ClipOval(
+                    child: Image.network(
+                      'https://i.pravatar.cc/150?img=65',
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: AppColors.grey50,
+                        child: Icon(
+                          Icons.person_rounded,
+                          color: AppColors.teal,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        p?.name ?? 'Patient',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${p?.dateOfBirth ?? ''} • ID: ${p?.id ?? ''}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Dropdown arrow
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildPatientCard() {
