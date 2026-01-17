@@ -51,6 +51,10 @@ class AppointmentCard extends StatelessWidget {
         return AppColors.warningOrange;
       case AppointmentStatus.cancelled:
         return AppColors.errorRed;
+      case AppointmentStatus.expired:
+        return AppColors.grey600;
+      case AppointmentStatus.inProgress:
+        return AppColors.successGreen;
       default:
         return AppColors.grey500;
     }
@@ -423,8 +427,12 @@ class AppointmentCard extends StatelessWidget {
       case AppointmentStatus.confirmed:
       case AppointmentStatus.pending:
         return AppColors.primaryBlue;
+      case AppointmentStatus.inProgress:
+        return AppColors.successGreen;
       case AppointmentStatus.completed:
         return AppColors.primaryGreen;
+      case AppointmentStatus.expired:
+        return AppColors.grey600;
       default:
         return AppColors.grey600;
     }
@@ -438,8 +446,12 @@ class AppointmentCard extends StatelessWidget {
         return 'Join';
       case AppointmentStatus.pending:
         return 'View';
+      case AppointmentStatus.inProgress:
+        return 'Rejoin';
       case AppointmentStatus.completed:
         return 'Details';
+      case AppointmentStatus.expired:
+        return 'Expired';
       default:
         return 'View';
     }

@@ -3,6 +3,8 @@ enum AppointmentStatus {
   confirmed,
   completed,
   cancelled,
+  expired,
+  inProgress,
   unknown;
 
   static AppointmentStatus fromString(String status) {
@@ -16,6 +18,12 @@ enum AppointmentStatus {
       case 'cancelled':
       case 'canceled':
         return AppointmentStatus.cancelled;
+      case 'expired':
+        return AppointmentStatus.expired;
+      case 'in_progress':
+      case 'inprogress':
+      case 'in-progress':
+        return AppointmentStatus.inProgress;
       default:
         return AppointmentStatus.unknown;
     }
@@ -31,6 +39,10 @@ enum AppointmentStatus {
         return 'Completed';
       case AppointmentStatus.cancelled:
         return 'Cancelled';
+      case AppointmentStatus.expired:
+        return 'Expired';
+      case AppointmentStatus.inProgress:
+        return 'In Progress';
       case AppointmentStatus.unknown:
         return 'Unknown';
     }

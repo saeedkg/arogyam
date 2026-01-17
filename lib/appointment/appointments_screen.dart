@@ -360,10 +360,15 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             doctorQualifications: appointment.doctorQualifications,
             canJoinNow: appointment.canJoinNow,
             onView: () {
-              // If status is confirmed and type is instant, go to pending consultation screen
+              // Handle different appointment statuses
               if (appointment.status == AppointmentStatus.confirmed ||
-                  appointment.status == AppointmentStatus.pending) {
+                  appointment.status == AppointmentStatus.pending ||
+                  appointment.status == AppointmentStatus.inProgress) {
+                // Go to pending consultation screen for active appointments
                 Get.to(() => PendingConsultationScreen(appointmentId: appointment.id.toString()));
+              } else if (appointment.status == AppointmentStatus.expired) {
+                // Show expired message or go to detail screen
+                AppNavigation.toAppointmentDetail(appointment.id.toString());
               } else {
                 // Otherwise, go to appointment detail screen
                 AppNavigation.toAppointmentDetail(appointment.id.toString());
