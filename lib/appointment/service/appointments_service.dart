@@ -21,6 +21,7 @@ class AppointmentsService {
   Future<List<Appointment>> fetchAppointments({
     bool reset = false,
     String? patientId,
+    String? status,
   }) async {
     if (reset) {
       _pageNumber = 1;
@@ -36,6 +37,7 @@ class AppointmentsService {
       page: _pageNumber,
       perPage: _perPage,
       patientId: activePatientId,
+      status: status,
     );
     
     final apiRequest = APIRequest(url);

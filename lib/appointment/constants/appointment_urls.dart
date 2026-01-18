@@ -6,6 +6,7 @@ class AppointmentsUrls {
     int page = 1,
     int perPage = 10,
     String? patientId,
+    String? status,
   }) {
     String url = '${NetworkConfig.baseUrl}/patient/appointments?page=$page&per_page=$perPage';
     
@@ -13,6 +14,11 @@ class AppointmentsUrls {
     final intId = int.tryParse(patientId ?? '');
     if (intId != null) {
       url += '&family_member_id=$intId';
+    }
+
+    // Add status filter if provided
+    if (status != null && status.isNotEmpty) {
+      url += '&status=$status';
     }
 
     // if (patientId != null && patientId.isNotEmpty) {

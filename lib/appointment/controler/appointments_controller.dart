@@ -2,8 +2,10 @@ import 'package:get/get.dart';
 import '../../network/exceptions/network_failure_exception.dart';
 import '../../network/exceptions/server_sent_exception.dart';
 import '../entities/appointment.dart';
+import '../entities/appointment_status.dart';
 import '../service/appointments_service.dart';
 
+enum AppointmentFilter { all, upcoming, past }
 
 class AppointmentsController extends GetxController {
   final AppointmentsService api;
@@ -14,6 +16,7 @@ class AppointmentsController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxList<Appointment> appointments = <Appointment>[].obs;
   final RxString errorMessage = ''.obs;
+  final Rx<AppointmentFilter> selectedFilter = AppointmentFilter.all.obs;
 
   final RxBool isDetailLoading = false.obs;
 
@@ -35,6 +38,24 @@ class AppointmentsController extends GetxController {
   /// Get current patient ID
   String? get currentPatientId => _currentPatientId;
 
+  /// Set filter and reload appointments from API
+  void setFilter(AppointmentFilter filter) {
+    selectedFilter.value = filter;
+    fetchInitialAppointments();
+  }
+
+  /// Get API status parameter based on filter
+  String? _getStatusParameter() {
+    switch (selectedFilter.value) {
+      case AppointmentFilter.all:
+        return null; // No status filter for "all"
+      case AppointmentFilter.upcoming:
+        return 'upcoming'; // API should return upcoming appointments
+      case AppointmentFilter.past:
+        return 'completed'; // API should return completed appointments
+    }
+  }
+
   /// Fetch initial appointments (first page)
   Future<void> fetchInitialAppointments() async {
     _setLoading(true);
@@ -45,6 +66,7 @@ class AppointmentsController extends GetxController {
       final result = await api.fetchAppointments(
         reset: true,
         patientId: _currentPatientId,
+        status: _getStatusParameter(),
       );
       
       appointments.assignAll(result);
@@ -67,6 +89,7 @@ class AppointmentsController extends GetxController {
     try {
       final result = await api.fetchAppointments(
         patientId: _currentPatientId,
+        status: _getStatusParameter(),
       );
       
       appointments.addAll(result);

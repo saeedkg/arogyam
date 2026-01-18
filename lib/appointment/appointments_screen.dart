@@ -155,8 +155,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // Patient card integrated in header
-                    if (!_isGuestMode) _buildHeaderPatientCard(),
+                    // Patient card and filter tabs in same row
+                    if (!_isGuestMode) _buildPatientCardWithFilters(),
                   ],
                 ),
               ),
@@ -377,6 +377,265 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     );
   }
 
+  Widget _buildPatientCardWithFilters() {
+    return Obx(() {
+      final p = currentPatientController.current.value;
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        child: Row(
+          children: [
+            // Patient card - slightly more space, transparent background
+            Expanded(
+              flex: 5,
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  onTap: () async {
+                    final selectedPatientId = await AppNavigation.toFamilyMembers();
+                    if (selectedPatientId != null) {
+                      await currentPatientController.refreshFromPrefs();
+                      final newPatientId = currentPatientController.current.value?.id;
+                      if (newPatientId != null) {
+                        c.setPatientId(newPatientId);
+                      }
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      // Transparent background with gradient border effect
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.1),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      children: [
+                        // Compact avatar with white background
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.8),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Image.network(
+                              'https://i.pravatar.cc/150?img=65',
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: AppColors.primaryGreen.withOpacity(0.1),
+                                child: Icon(
+                                  Icons.person_rounded,
+                                  color: AppColors.primaryGreen,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                p?.name ?? 'Select Patient',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  letterSpacing: -0.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 1),
+                              if (p?.dateOfBirth != null || p?.id != null)
+                                Text(
+                                  '${p?.dateOfBirth ?? ''} ${(p?.dateOfBirth != null && p?.id != null) ? '•' : ''} ${p?.id != null ? 'ID: ${p!.id}' : ''}',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white.withOpacity(0.8),
+                                    letterSpacing: 0.1,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        // Compact switch indicator
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Colors.white,
+                            size: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Filter tabs - balanced space and reduced height
+            Expanded(
+              flex: 7,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.2),
+                      Colors.white.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(3),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildCompactFilterTab(
+                        'All',
+                        AppointmentFilter.all,
+                        Icons.list_rounded,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildCompactFilterTab(
+                        'Active',
+                        AppointmentFilter.upcoming,
+                        Icons.schedule_rounded,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildCompactFilterTab(
+                        'Past',
+                        AppointmentFilter.past,
+                        Icons.history_rounded,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildCompactFilterTab(String title, AppointmentFilter filter, IconData icon) {
+    final isSelected = c.selectedFilter.value == filter;
+    
+    return GestureDetector(
+      onTap: () => c.setFilter(filter),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected 
+                  ? AppColors.primaryGreen 
+                  : Colors.white.withOpacity(0.9),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: isSelected 
+                    ? AppColors.primaryGreen 
+                    : Colors.white.withOpacity(0.95),
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeaderPatientCard() {
     return Obx(() {
       final p = currentPatientController.current.value;
@@ -481,6 +740,93 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         ),
       );
     });
+  }
+
+  Widget _buildFilterTabs() {
+    return Obx(() {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildFilterTab(
+                'All',
+                AppointmentFilter.all,
+                Icons.list_rounded,
+              ),
+            ),
+            Expanded(
+              child: _buildFilterTab(
+                'Upcoming',
+                AppointmentFilter.upcoming,
+                Icons.schedule_rounded,
+              ),
+            ),
+            Expanded(
+              child: _buildFilterTab(
+                'Past',
+                AppointmentFilter.past,
+                Icons.history_rounded,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildFilterTab(String title, AppointmentFilter filter, IconData icon) {
+    final isSelected = c.selectedFilter.value == filter;
+    
+    return GestureDetector(
+      onTap: () => c.setFilter(filter),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected 
+                  ? AppColors.primaryGreen 
+                  : Colors.white.withOpacity(0.8),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected 
+                    ? AppColors.primaryGreen 
+                    : Colors.white.withOpacity(0.9),
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPatientCard() {
