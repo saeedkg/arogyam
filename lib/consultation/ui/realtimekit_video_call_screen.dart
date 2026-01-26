@@ -387,6 +387,34 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
       ),
       child: Row(
         children: [
+          // Back button
+          GestureDetector(
+            onTap: () async {
+              if (controller.isConnected.value) {
+                // Minimize the call
+                final minimizedCallManager = Get.put(MinimizedCallManager(), permanent: true);
+                await minimizedCallManager.minimizeCall(context, controller);
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
