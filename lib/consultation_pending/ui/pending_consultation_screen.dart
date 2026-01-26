@@ -55,8 +55,8 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
       return;
     }
 
-    final permissionsGranted = await PermissionHandler.requestPermissionsWithDialog(context);
-    if (!permissionsGranted || !mounted) return;
+    // final permissionsGranted = await PermissionHandler.requestPermissionsWithDialog(context);
+    // if (!permissionsGranted || !mounted) return;
 
     if (!mounted) return;
     final shouldJoin = await showDialog<bool>(
