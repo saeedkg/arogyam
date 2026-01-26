@@ -6,59 +6,59 @@ This plan outlines the step-by-step migration from CocoaPods-only to hybrid mode
 
 ## Tasks
 
-- [-] 1. Pre-migration validation and backup
+- [x] 1. Pre-migration validation and backup
   - Verify Flutter SDK version is 3.24.0 or higher
   - Document current CocoaPods dependencies in Podfile.lock
   - Create backup of ios/ directory
   - Verify project builds successfully with current CocoaPods setup
   - _Requirements: 1.1, 1.2_
 
-- [ ] 2. Enable Swift Package Manager
-  - [ ] 2.1 Enable SPM globally via Flutter CLI
+- [x] 2. Enable Swift Package Manager
+  - [x] 2.1 Enable SPM globally via Flutter CLI
     - Run `flutter config --enable-swift-package-manager`
     - Verify global configuration in ~/.flutter_settings
     - _Requirements: 2.1_
   
-  - [ ] 2.2 Enable SPM in project configuration
+  - [x] 2.2 Enable SPM in project configuration
     - Update pubspec.yaml with `enable-swift-package-manager: true` under flutter section
     - Verify both global and project configurations are set
     - _Requirements: 2.2, 2.4_
 
-- [ ] 3. Clean existing dependency artifacts
+- [x] 3. Clean existing dependency artifacts
   - Remove ios/Pods directory
   - Remove ios/Podfile.lock
   - Remove ios/.symlinks directory
   - Run `flutter clean` to remove build artifacts
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 4. Add SPM-only dependency
+- [x] 4. Add SPM-only dependency
   - Add `realtimekit_core: ^0.1.3` to pubspec.yaml dependencies
   - Run `flutter pub get` to resolve dependencies
   - Verify dependency is resolved (check pubspec.lock)
   - _Requirements: 5.1_
 
-- [ ] 5. Trigger automatic plugin migration
+- [x] 5. Trigger automatic plugin migration
   - Run `flutter run` to trigger SPM migration analysis
   - Monitor console output for migration messages
   - Verify FlutterGeneratedPluginSwiftPackage is created in ios/Flutter/ephemeral/Packages/
   - Verify "Run Prepare Flutter Framework Script" pre-action is added to Xcode scheme
   - _Requirements: 3.1, 3.4, 3.5_
 
-- [ ] 6. Verify plugin migration results
+- [x] 6. Verify plugin migration results
   - Open ios/Runner.xcodeproj in Xcode
   - Check Package Dependencies section for FlutterGeneratedPluginSwiftPackage
   - Verify SPM-compatible plugins are listed in Package.swift
   - Verify razorpay_flutter and file_picker dependencies remain in Podfile
   - _Requirements: 3.2, 3.3, 4.1, 4.4, 4.5_
 
-- [ ] 7. Configure Podfile for hybrid mode
+- [x] 7. Configure Podfile for hybrid mode
   - Update Podfile platform to `platform :ios, '15.0'`
   - Add post_install hook to set IPHONEOS_DEPLOYMENT_TARGET to '15.0'
   - Verify Podfile uses `flutter_install_all_ios_pods` (automatically excludes SPM plugins)
   - Run `pod install` to regenerate CocoaPods dependencies
   - _Requirements: 6.2, 7.1, 7.2, 8.5_
 
-- [ ] 8. Verify deployment target consistency
+- [x] 8. Verify deployment target consistency
   - Check project.pbxproj for IPHONEOS_DEPLOYMENT_TARGET = 15.0
   - Check Podfile for platform :ios, '15.0'
   - Check FlutterGeneratedPluginSwiftPackage/Package.swift for .iOS("15.0")
@@ -76,7 +76,7 @@ This plan outlines the step-by-step migration from CocoaPods-only to hybrid mode
   - Check Run scheme for "Run Prepare Flutter Framework Script" pre-action
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 10. Build and validate
+- [-] 10. Build and validate
   - Run `flutter build ios --debug` from command line
   - Verify build succeeds without errors
   - Open project in Xcode and build from IDE
