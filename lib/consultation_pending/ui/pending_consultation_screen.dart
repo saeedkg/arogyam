@@ -99,7 +99,7 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
         doctorImageUrl: cons.doctorImageUrl,
       );
       
-     // Get.to(() => RealtimeKitVideoCallScreen(config: config));
+      Get.to(() => RealtimeKitVideoCallScreen(config: config));
     }
   }
 

@@ -76,7 +76,7 @@ This plan outlines the step-by-step migration from CocoaPods-only to hybrid mode
   - Check Run scheme for "Run Prepare Flutter Framework Script" pre-action
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [-] 10. Build and validate
+- [x] 10. Build and validate
   - Run `flutter build ios --debug` from command line
   - Verify build succeeds without errors
   - Open project in Xcode and build from IDE

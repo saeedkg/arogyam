@@ -127,12 +127,12 @@ class AppRoutes {
         return ClinicDetailScreen(clinicId: clinicId);
       },
     ),
-    // GetPage(
-    //   name: videoCall,
-    //   page: () {
-    //     final config = Get.arguments as VideoCallConfig;
-    //     return RealtimeKitVideoCallScreen(config: config);
-    //   },
-    // ),
+    GetPage(
+      name: videoCall,
+      page: () {
+        final config = Get.arguments as VideoCallConfig;
+        return RealtimeKitVideoCallScreen(config: config);
+      },
+    ),
   ];
 }
