@@ -42,25 +42,25 @@ class HomePage extends StatelessWidget {
         if (didPop) return;
         
         // Check if there's an active minimized call
-        if (!MinimizedCallManager.canStartNewCall()) {
-          // Show dialog to end call before exiting
-          final shouldEndCall = await _showEndCallBeforeExitDialog(context);
-          if (shouldEndCall == true) {
-            // End the call
-            try {
-              final manager = Get.find<MinimizedCallManager>();
-              await manager.endCall();
-              // Exit the app
-              SystemNavigator.pop();
-            } catch (e) {
-              print('HomePage: Error ending call - $e');
-            }
-          }
-          // If user cancels, do nothing (stay in app)
-        } else {
-          // No active call, exit normally
-          SystemNavigator.pop();
-        }
+        // if (!MinimizedCallManager.canStartNewCall()) {
+        //   // Show dialog to end call before exiting
+        //   final shouldEndCall = await _showEndCallBeforeExitDialog(context);
+        //   if (shouldEndCall == true) {
+        //     // End the call
+        //     try {
+        //       final manager = Get.find<MinimizedCallManager>();
+        //       await manager.endCall();
+        //       // Exit the app
+        //       SystemNavigator.pop();
+        //     } catch (e) {
+        //       print('HomePage: Error ending call - $e');
+        //     }
+        //   }
+        //   // If user cancels, do nothing (stay in app)
+        // } else {
+        //   // No active call, exit normally
+        //   SystemNavigator.pop();
+        // }
       },
       child: Scaffold(
       body: Obx(() {

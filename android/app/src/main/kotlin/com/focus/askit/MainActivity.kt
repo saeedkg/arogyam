@@ -1,4 +1,4 @@
-package com.focus.arogyam
+package com.focus.askit
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Arogyam</string>
+	<string>AskIt</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>arogyam</string>
+	<string>askit</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -50,5 +50,14 @@
 	<string>This app needs access to camera for video consultations with doctors.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to microphone for audio consultations with doctors.</string>
+	<!-- Permission for photo library access -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to your photo library to upload medical documents and images for consultations with doctors.</string>
+	<!-- Permission for file access -->
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>This app needs access to documents to upload medical files and prescriptions for consultations.</string>
+	<!-- Permission for location (if needed by connectivity_plus) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app may use location to find nearby healthcare providers and improve service quality.</string>
 </dict>
 </plist>
