@@ -132,9 +132,12 @@ class InstantConsultService {
     }
   }
 
-  Future<PaymentOrder> createPaymentOrder() async {
+  Future<PaymentOrder> createPaymentOrder({String? familyMemberId}) async {
     final url = InstantConsultUrls.getCreateOrderUrl();
     final apiRequest = APIRequest(url);
+    apiRequest.addParameters({
+      if (familyMemberId != null && familyMemberId.toLowerCase() != 'self') 'family_member_id': familyMemberId,
+    });
     try {
       final apiResponse = await _networkAdapter.post(apiRequest);
       if (apiResponse.data is Map<String, dynamic>) {

@@ -5,6 +5,7 @@ import '../entities/pricing.dart';
 import '../entities/payment_order.dart';
 import '../entities/complete_payment_response.dart';
 import '../service/instant_consult_service.dart';
+import '../../_shared/patient/current_patient_controller.dart';
 
 class InstantConsultController extends GetxController {
   final InstantConsultService api;
@@ -67,8 +68,13 @@ class InstantConsultController extends GetxController {
     appointmentId.value = null;
     
     try {
-      // Step 1: Create payment order
-      final paymentOrder = await api.createPaymentOrder();
+      // Get the current patient controller to get selected family member
+      final currentPatientController = Get.find<CurrentPatientController>();
+      final selectedPatient = currentPatientController.current.value;
+      final familyMemberId = selectedPatient?.id;
+      
+      // Step 1: Create payment order with family member ID
+      final paymentOrder = await api.createPaymentOrder(familyMemberId: familyMemberId);
       
       // Step 2: Open Razorpay checkout
       var options = {

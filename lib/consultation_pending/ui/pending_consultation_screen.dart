@@ -349,6 +349,14 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      if (cons.participantName != null && cons.participantName!.isNotEmpty) ...[
+                        _buildDetailRow(
+                          icon: Icons.person_rounded,
+                          label: 'Patient',
+                          value: cons.participantName!,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       _buildDetailRow(
                         icon: Icons.calendar_today_rounded,
                         label: 'Date',
