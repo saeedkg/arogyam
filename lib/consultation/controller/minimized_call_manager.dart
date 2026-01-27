@@ -687,46 +687,77 @@ class _ExpandedVideoCallScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.7),
-            Colors.transparent,
-          ],
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.doctorName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  controller.specialization,
-                  style: TextStyle(
-                    color: Colors.grey.shade300,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+    return Obx(() {
+      // Force rebuild to ensure back button is always visible
+      final _ = controller.isConnected.value;
+      
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withValues(alpha: 0.7),
+              Colors.transparent,
+            ],
           ),
-          Obx(() {
-            if (controller.isConnected.value) {
-              return Container(
+        ),
+        child: Row(
+          children: [
+            // Back button
+            GestureDetector(
+              onTap: () async {
+                if (controller.isConnected.value) {
+                  // Minimize the call
+                  final minimizedCallManager = Get.find<MinimizedCallManager>();
+                  await minimizedCallManager.minimizeCall(Get.context!, controller);
+                } else {
+                  Navigator.of(Get.context!).pop();
+                }
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    controller.doctorName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    controller.specialization,
+                    style: TextStyle(
+                      color: Colors.grey.shade300,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (controller.isConnected.value)
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.successGreen,
@@ -746,13 +777,11 @@ class _ExpandedVideoCallScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              );
-            }
-            return Container();
-          }),
-        ],
-      ),
-    );
+              ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildControlBar(BuildContext context) {
