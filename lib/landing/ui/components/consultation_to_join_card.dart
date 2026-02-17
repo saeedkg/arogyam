@@ -93,7 +93,7 @@ class ConsultationToJoinCard extends StatelessWidget {
                                 ? NetworkImage(
                                     consultation.doctorImage!.startsWith('http')
                                         ? consultation.doctorImage!
-                                        : '${NetworkConfig.baseUrl_Public}/${consultation.doctorImage!}'
+                                        : '${NetworkConfig.baseUrl_Public+"/storage"}/${consultation.doctorImage!}'
                                   )
                                 : null,
                             backgroundColor: Colors.transparent,

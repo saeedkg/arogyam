@@ -115,7 +115,7 @@ class TopDoctors extends StatelessWidget {
                                         ? Image.network(
                                             d.imageUrl.startsWith('http') 
                                                 ? d.imageUrl 
-                                                : '${NetworkConfig.baseUrl_Public}/${d.imageUrl}',
+                                                : '${NetworkConfig.baseUrl}/${d.imageUrl}',
                                             fit: BoxFit.cover,
                                             width: imageSize,
                                             height: imageSize,

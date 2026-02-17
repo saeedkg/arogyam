@@ -118,7 +118,7 @@ class UpcomingAppointmentsCard extends StatelessWidget {
                                   ? NetworkImage(
                                       appointment.doctorImage!.startsWith('http')
                                           ? appointment.doctorImage!
-                                          : '${NetworkConfig.baseUrl_Public}/${appointment.doctorImage!}'
+                                          : '${NetworkConfig.baseUrl_Public+"/storage"}/${appointment.doctorImage!}'
                                     )
                                   : null,
                               backgroundColor: Colors.transparent,
