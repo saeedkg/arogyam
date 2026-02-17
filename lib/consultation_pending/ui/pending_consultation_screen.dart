@@ -4,11 +4,10 @@ import 'dart:async';
 import '../../_shared/utils/date_time_formatter.dart';
 import '../../consultation/ui/realtimekit_video_call_screen.dart';
 import '../../consultation/entities/video_call_config.dart';
-import '../../consultation/utils/permission_handler.dart';
 import '../../_shared/ui/app_colors.dart';
+import '../../follow_up/ui/follow_up_chat_screen.dart';
 import '../controller/pending_consultation_controller.dart';
 import '../entities/appointment_detail.dart';
-import 'components/upload_document_dialog.dart';
 import 'components/consultation_health_records_section.dart';
 import 'components/consultation_document_upload_section.dart';
 
@@ -103,6 +102,13 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
     }
   }
 
+  void _openChat() {
+    if (c.consultation.value == null) return;
+    
+    // Navigate to follow-up chat screen with appointment ID
+    Get.to(() => FollowUpChatScreen(appointmentId: widget.appointmentId));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,9 +119,9 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 2.0,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: AppColors.grey900,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
           onPressed: Get.back,
@@ -413,6 +419,42 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
                   Text(
                     cons.canJoin ? 'Join Consultation' : 'Waiting for consultation to start...',
                     style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Chat with Doctor Button
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              onPressed: _openChat,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryGreen,
+                side: const BorderSide(
+                  color: AppColors.primaryGreen,
+                  width: 2,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                backgroundColor: Colors.transparent,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Chat with Doctor',
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),

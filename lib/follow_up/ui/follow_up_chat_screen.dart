@@ -587,9 +587,10 @@ class _FollowUpChatScreenState extends State<FollowUpChatScreen> {
                 itemCount: controller.messages.length,
                 itemBuilder: (context, index) {
                   final message = controller.messages[index];
+                  final otherParticipantId = controller.chat.value?.otherParticipant.id ?? 0;
                   return ChatMessageBubble(
                     message: message,
-                    isFromCurrentUser: message.isFromPatient,
+                    isFromCurrentUser: message.isFromCurrentUser(otherParticipantId),
                   );
                 },
               ),

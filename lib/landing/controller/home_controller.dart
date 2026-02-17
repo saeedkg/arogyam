@@ -33,6 +33,7 @@ class HomeController extends GetxController {
   final RxList<BannerItem> banners = <BannerItem>[].obs;
   final RxList<Doctor> topDoctors = <Doctor>[].obs;
   final RxList<UpcomingAppointment> upcomingAppointments = <UpcomingAppointment>[].obs;
+  final RxList<ConsultationToJoin> consultationsToJoin = <ConsultationToJoin>[].obs;
   final Rxn<DashboardData> dashboardData = Rxn<DashboardData>();
   final RxBool isLoading = false.obs;
   final RxInt bannerIndex = 0.obs;
@@ -73,10 +74,12 @@ class HomeController extends GetxController {
       if (!isGuestMode) {
         dashboardData.value = results[resultIndex] as DashboardData;
         upcomingAppointments.assignAll(dashboardData.value!.upcomingAppointments);
+        consultationsToJoin.assignAll(dashboardData.value!.consultationsToJoin);
         resultIndex++;
       } else {
         // Clear appointments for guest users
         upcomingAppointments.clear();
+        consultationsToJoin.clear();
       }
       
       // Map specializations to categories

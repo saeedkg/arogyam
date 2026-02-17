@@ -165,4 +165,18 @@ class ChatMessage {
   bool get isSystemMessage => senderType == 'system';
   bool get isImageMessage => messageType == 'image';
   bool get isTextMessage => messageType == 'text';
+  
+  /// Check if message is from the current user (not from other participant)
+  /// Messages from other participant should be on left, current user on right
+  bool isFromCurrentUser(int otherParticipantId) {
+    // System messages are neither
+    if (isSystemMessage) return false;
+    
+    // If sender_id is null, treat as system message
+    if (senderId == null) return false;
+    
+    // If sender_id matches other participant, it's from them (left side)
+    // Otherwise it's from current user (right side)
+    return senderId != otherParticipantId;
+  }
 }

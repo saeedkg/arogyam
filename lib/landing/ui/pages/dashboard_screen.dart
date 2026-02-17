@@ -14,6 +14,7 @@ import '../components/banner_carousal.dart';
 import '../components/dashboard_app_bar.dart';
 import '../components/top_doctors_view.dart';
 import '../components/upcoming_appointments_card.dart';
+import '../components/consultation_to_join_card.dart';
 import '../components/monsoon_care_tips_card.dart';
 import '../components/animated_search_bar.dart';
 import '../components/top_specialities_horizontal.dart';
@@ -309,22 +310,36 @@ class HomePage extends StatelessWidget {
 
                         // Upcoming Appointments Section (if any)
                         Obx(() {
-                          if (controller.upcomingAppointments.isNotEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 60),
-                                  _SectionHeader(title: 'Upcoming Appointments'),
-                                  const SizedBox(height: 16),
-                                  UpcomingAppointmentsCard(appointments: controller.upcomingAppointments),
-                                  const SizedBox(height: 16),
-                                ],
-                              ),
-                            );
+                          final hasConsultationsToJoin = controller.consultationsToJoin.isNotEmpty;
+                          final hasUpcomingAppointments = controller.upcomingAppointments.isNotEmpty;
+                          
+                          if (!hasConsultationsToJoin && !hasUpcomingAppointments) {
+                            return const SizedBox(height: 50);
                           }
-                          return const SizedBox(height: 50);
+                          
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 60),
+                                _SectionHeader(title: 'Upcoming Appointments'),
+                                const SizedBox(height: 16),
+                                
+                                // Consultations to join (ready to join now)
+                                if (hasConsultationsToJoin)
+                                  ...controller.consultationsToJoin.map((consultation) =>
+                                    ConsultationToJoinCard(consultation: consultation)
+                                  ),
+                                
+                                // Regular upcoming appointments
+                                if (hasUpcomingAppointments)
+                                  UpcomingAppointmentsCard(appointments: controller.upcomingAppointments),
+                                
+                                const SizedBox(height: 16),
+                              ],
+                            ),
+                          );
                         }),
 
                         // Top Specialities with rounded white background
