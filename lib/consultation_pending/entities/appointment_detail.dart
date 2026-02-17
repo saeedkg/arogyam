@@ -21,6 +21,9 @@ class AppointmentDetails {
   final int? queuePosition;
   final String? specializationId;
   final DateTime? requestedAt;
+  
+  // Follow-up chat
+  final int unreadChatCount;
 
   AppointmentDetails({
     required this.id,
@@ -41,6 +44,7 @@ class AppointmentDetails {
     this.queuePosition,
     this.specializationId,
     this.requestedAt,
+    this.unreadChatCount = 0,
   });
 
   factory AppointmentDetails.fromJson(Map<String, dynamic> json) {
@@ -107,6 +111,10 @@ class AppointmentDetails {
     final dataLevelJoinDetails = data['user_join_details'] as Map<String, dynamic>?;
     final joinDetails = consultationJoinDetails ?? dataLevelJoinDetails;
     
+    // Extract follow-up chat unread count
+    final followUpChat = consultation?['follow_up_chat'] as Map<String, dynamic>?;
+    final unreadChatCount = followUpChat?['unread_count'] as int? ?? 2;
+    
     return AppointmentDetails(
       id: appointmentId,
       doctorName: user?['name'] as String? ?? 'Doctor',
@@ -126,6 +134,7 @@ class AppointmentDetails {
       queuePosition: null,
       specializationId: null,
       requestedAt: null,
+      unreadChatCount: unreadChatCount,
     );
   }
   

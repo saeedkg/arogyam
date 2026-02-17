@@ -126,6 +126,56 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
           icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
           onPressed: Get.back,
         ),
+        actions: [
+          // Chat icon with unread badge
+          Obx(() {
+            final cons = c.consultation.value;
+            if (cons == null || !cons.hasDoctor) return const SizedBox.shrink();
+            
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+                    onPressed: _openChat,
+                    tooltip: 'Chat with Doctor',
+                  ),
+                  if (cons.unreadChatCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          cons.unreadChatCount > 99 ? '99+' : '${cons.unreadChatCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }),
+        ],
       ),
       body: SafeArea(
         child: Obx(() {
