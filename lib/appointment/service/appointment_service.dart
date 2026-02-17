@@ -51,6 +51,11 @@ class AppointmentService {
     final duration = doctor['consultation_duration'] as int? ?? 30;
     final endTime = scheduledAt.add(Duration(minutes: duration));
 
+    // ✅ Map profile photo
+    final profilePhoto =
+        doctor['profile_photo_url'] as String? ??
+            '';
+
     // Parse payment information
     final totalAmount = double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0.0;
     final paymentMode = data['payment_mode'] as String? ?? 'online';
@@ -60,7 +65,7 @@ class AppointmentService {
       doctorName: user['name'] as String? ?? 'Doctor',
       specialization: specialization,
       hospital: '',
-      imageUrl: 'https://i.pravatar.cc/150?img=10',
+      imageUrl: profilePhoto,
       startTime: scheduledAt,
       endTime: endTime,
       status: data['status'] as String? ?? 'pending',
