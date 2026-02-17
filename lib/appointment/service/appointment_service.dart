@@ -59,6 +59,10 @@ class AppointmentService {
     // Parse payment information
     final totalAmount = double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0.0;
     final paymentMode = data['payment_mode'] as String? ?? 'online';
+    
+    // Extract follow-up chat unread count
+    final followUpChat = data['follow_up_chat'] as Map<String, dynamic>?;
+    final unreadChatCount = followUpChat?['unread_count'] as int? ?? 0;
 
     return BookingDetail(
       id: '${data['id']}',
@@ -74,6 +78,7 @@ class AppointmentService {
       amountPaid: totalAmount,
       paymentType: paymentMode,
       isFollowUpEligible: data['is_follow_up_eligible'] as bool? ?? false,
+      unreadChatCount: unreadChatCount,
     );
   }
 }

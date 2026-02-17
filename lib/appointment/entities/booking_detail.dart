@@ -18,6 +18,7 @@ class BookingDetail {
 
   // follow-up
   final bool isFollowUpEligible;
+  final int unreadChatCount;
 
   const BookingDetail({
     required this.id,
@@ -33,6 +34,7 @@ class BookingDetail {
     required this.amountPaid,
     required this.paymentType,
     required this.isFollowUpEligible,
+    this.unreadChatCount = 0,
   });
 }
 

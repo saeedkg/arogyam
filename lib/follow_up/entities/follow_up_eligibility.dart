@@ -54,12 +54,14 @@ class ExistingChat {
   final bool isActive;
   final DateTime expiresAt;
   final DateTime createdAt;
+  final int unreadCount;
 
   const ExistingChat({
     required this.id,
     required this.isActive,
     required this.expiresAt,
     required this.createdAt,
+    this.unreadCount = 0,
   });
 
   factory ExistingChat.fromJson(Map<String, dynamic> json) {
@@ -68,6 +70,7 @@ class ExistingChat {
       isActive: json['is_active'] as bool? ?? false,
       expiresAt: DateTime.parse(json['expires_at'] as String? ?? DateTime.now().toIso8601String()),
       createdAt: DateTime.parse(json['created_at'] as String? ?? DateTime.now().toIso8601String()),
+      unreadCount: json['unread_count'] as int? ?? 0,
     );
   }
 
