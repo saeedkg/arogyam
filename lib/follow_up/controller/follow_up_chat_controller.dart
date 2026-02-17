@@ -96,10 +96,8 @@ class FollowUpChatController extends GetxController {
       // Add to local messages list
       messages.add(newMessage);
       
-      // If this was the first message, refresh to get the chat ID
-      if (chat.value!.id == 0) {
-        await refreshChat();
-      }
+      // Refresh chat to get latest messages from server
+      await refreshChat();
       
     } catch (e) {
       // Restore message text on error
@@ -179,6 +177,9 @@ class FollowUpChatController extends GetxController {
 
       // Add to local messages list
       messages.add(newMessage);
+      
+      // Refresh chat to get latest messages from server
+      await refreshChat();
 
     } catch (e) {
       Get.snackbar(
