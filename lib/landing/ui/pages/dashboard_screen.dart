@@ -22,8 +22,26 @@ import '../all_categories_screen.dart';
 import '../../entities/dashboard_data.dart';
 import '../../../consultation/controller/minimized_call_manager.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh only dashboard data (appointments) when page is revisited
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = Get.find<HomeController>();
+      // Only refresh if data was already loaded (not first time)
+      if (!controller.isLoading.value && controller.categories.isNotEmpty) {
+        controller.refreshDashboardData();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
