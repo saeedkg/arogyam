@@ -17,11 +17,11 @@ class UpcomingAppointmentsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100, // Increased height from 90 to 100
+      height: 80, // Reduced height to match ConsultationToJoinCard
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero, // Start from the beginning
-        itemCount: appointments.length, // No "View All" button
+        padding: EdgeInsets.zero,
+        itemCount: appointments.length,
         itemBuilder: (context, index) {
           final appointment = appointments[index];
           final isToday = _isToday(appointment.scheduledAt);
@@ -30,43 +30,33 @@ class UpcomingAppointmentsCard extends StatelessWidget {
           // Determine width based on number of appointments
           double itemWidth;
           if (appointments.length == 1) {
-            itemWidth = MediaQuery.of(context).size.width - 40; // Full width for single item
+            itemWidth = MediaQuery.of(context).size.width - 40;
           } else {
-            itemWidth = MediaQuery.of(context).size.width - 80; // Partial width to show next item
+            itemWidth = MediaQuery.of(context).size.width - 80;
           }
           
           return Container(
             width: itemWidth,
             margin: EdgeInsets.only(
-              left: index == 0 ? 0 : 8, // No left margin for first item
-              right: appointments.length == 1 ? 0 : 0, // No right margin
-              top: 4, // Reduced from 8 to 4
-              bottom: 4, // Reduced from 8 to 4
+              left: index == 0 ? 0 : 8,
+              right: 0,
             ),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  Colors.grey.shade50,
-                ],
-              ),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.primaryGreen.withOpacity(0.15),
+                color: isUrgent 
+                    ? Colors.orange.withValues(alpha: 0.3)
+                    : AppColors.primaryGreen.withValues(alpha: 0.2),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryGreen.withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 3),
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 1),
+                  color: isUrgent
+                      ? Colors.orange.withValues(alpha: 0.1)
+                      : AppColors.primaryGreen.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -76,94 +66,70 @@ class UpcomingAppointmentsCard extends StatelessWidget {
                 onTap: onTap != null ? () => onTap!(appointment) : null,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
-                  padding: const EdgeInsets.all(12), // Reduced from 16 to 12
+                  padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      // Doctor avatar with video icon positioned below
+                      // Doctor avatar with type badge
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
                           Container(
-                            width: 50,
-                            height: 50,
+                            width: 48,
+                            height: 48,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppColors.primaryGreen.withOpacity(0.1),
-                                  AppColors.primaryGreen.withOpacity(0.05),
-                                ],
-                              ),
                               border: Border.all(
-                                color: AppColors.primaryGreen.withOpacity(0.3),
+                                color: AppColors.primaryGreen.withValues(alpha: 0.3),
                                 width: 2,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primaryGreen.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
                             ),
                             child: CircleAvatar(
-                              radius: 23,
+                              radius: 22,
                               backgroundImage: (appointment.doctorImage != null && appointment.doctorImage!.isNotEmpty)
                                   ? NetworkImage(
                                       appointment.doctorImage!.startsWith('http')
                                           ? appointment.doctorImage!
-                                          : '${NetworkConfig.baseUrl_Public+"/storage"}/${appointment.doctorImage!}'
+                                          : '${NetworkConfig.baseUrl_Public}/storage/${appointment.doctorImage!}'
                                     )
                                   : null,
-                              backgroundColor: Colors.transparent,
+                              backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.1),
                               child: (appointment.doctorImage == null || appointment.doctorImage!.isEmpty)
                                   ? Icon(
                                       Icons.medical_services_rounded,
                                       color: AppColors.primaryGreen,
-                                      size: 24,
+                                      size: 20,
                                     )
                                   : null,
                             ),
                           ),
-                          // Video/Clinic icon positioned at bottom right of profile
+                          // Type badge
                           Positioned(
                             bottom: -2,
                             right: -2,
                             child: Container(
-                              padding: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: appointment.type == 'online' 
-                                      ? [Colors.blue.shade400, Colors.blue.shade600]
-                                      : [Colors.green.shade400, Colors.green.shade600],
-                                ),
+                                color: appointment.type == 'online' 
+                                    ? Colors.blue.shade500
+                                    : Colors.green.shade500,
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: Colors.white,
                                   width: 2,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
                               ),
                               child: Icon(
                                 appointment.type == 'online' 
                                     ? Icons.videocam_rounded 
                                     : Icons.local_hospital_rounded,
-                                size: 12,
+                                size: 10,
                                 color: Colors.white,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       
                       // Appointment details
                       Expanded(
@@ -171,94 +137,59 @@ class UpcomingAppointmentsCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Doctor name with urgency indicator
+                            // Doctor name
+                            Text(
+                              'Dr. ${appointment.doctorName}',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            
+                            // Time with urgency indicator
                             Row(
                               children: [
                                 if (isUrgent)
                                   Container(
-                                    width: 8,
-                                    height: 8,
-                                    margin: const EdgeInsets.only(right: 8),
-                                    decoration: BoxDecoration(
+                                    width: 6,
+                                    height: 6,
+                                    margin: const EdgeInsets.only(right: 6),
+                                    decoration: const BoxDecoration(
                                       color: Colors.orange,
                                       shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.orange.withOpacity(0.4),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 1),
-                                        ),
-                                      ],
                                     ),
                                   ),
-                                Expanded(
-                                  child: Text(
-                                    'Dr. ${appointment.doctorName}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black87,
-                                      letterSpacing: -0.2,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                Icon(
+                                  Icons.schedule_rounded,
+                                  size: 13,
+                                  color: isUrgent ? Colors.orange : Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _formatShortAppointmentTime(appointment, isToday),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: isUrgent ? Colors.orange : Colors.grey.shade600,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
-                            
-                            // Time only (shortened)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryGreen.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: AppColors.primaryGreen.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.access_time_rounded,
-                                    size: 12,
-                                    color: AppColors.primaryGreen,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    _formatShortAppointmentTime(appointment, isToday),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.primaryGreen,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 8),
                       
-                      // Arrow
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 14,
-                          color: Colors.grey.shade600,
-                        ),
+                      // Arrow indicator
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: Colors.grey.shade400,
                       ),
                     ],
                   ),
