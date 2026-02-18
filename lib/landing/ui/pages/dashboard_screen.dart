@@ -725,25 +725,38 @@ class _QuickActionCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () {
+        onTap: () async {
+          final controller = Get.find<HomeController>();
           switch (type) {
             case _QuickActionType.videoConsult:
               // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
-              Get.to(() => const CareDiscoveryScreen(
+              final result = await Get.to(() => const CareDiscoveryScreen(
                 entry: 'Video Consultation',
                  preSelectedAppointmentType: AppointmentType.video,
               ));
+              // Refresh if appointment was booked
+              if (result == true) {
+                controller.refreshDashboardData();
+              }
               break;
             case _QuickActionType.instantConsult:
               // Direct navigation to instant consultation
-              Get.to(() => const InstantConsultScreen());
+              final result = await Get.to(() => const InstantConsultScreen());
+              // Refresh if appointment was booked
+             // if (result == true) {
+                controller.refreshDashboardData();
+              //}
               break;
             case _QuickActionType.hospitalAppointment:
               // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
-              Get.to(() => const CareDiscoveryScreen(
+              final result = await Get.to(() => const CareDiscoveryScreen(
                 entry: 'Hospital Appointment',
                 preSelectedAppointmentType: AppointmentType.clinic,
               ));
+              // Refresh if appointment was booked
+              if (result == true) {
+                controller.refreshDashboardData();
+              }
               break;
           }
         },

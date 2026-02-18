@@ -73,10 +73,14 @@ class UpcomingAppointmentsCard extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () {
-                  Get.to(() => PendingConsultationScreen(
+                onTap: () async {
+                  final result = await Get.to(() => PendingConsultationScreen(
                     appointmentId: appointment.id.toString(),
                   ));
+                  // If result is true, pop with true to trigger refresh
+                  if (result == true) {
+                    Get.back(result: true);
+                  }
                 },
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(

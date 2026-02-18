@@ -153,5 +153,28 @@ class HomeController extends GetxController {
       isLoading.value = false;
     }
   }
-}
 
+  /// Refresh only dashboard data (appointments, consultations to join, unread counts)
+  Future<void> refreshDashboardData() async {
+    try {
+      // Check if user is in guest mode
+      final authTokenProvider = AuthTokenProvider();
+      final token = await authTokenProvider.getToken();
+      final isGuestMode = token == null;
+      
+      // Only call dashboard API if user is authenticated
+      if (!isGuestMode) {
+        final data = await dashboardService.fetchDashboardData();
+        dashboardData.value = data;
+        upcomingAppointments.assignAll(data.upcomingAppointments);
+        consultationsToJoin.assignAll(data.consultationsToJoin);
+      } else {
+        // Clear appointments for guest users
+        upcomingAppointments.clear();
+        consultationsToJoin.clear();
+      }
+    } catch (e) {
+      print('Error refreshing dashboard data: $e');
+    }
+  }
+}

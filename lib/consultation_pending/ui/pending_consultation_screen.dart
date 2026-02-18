@@ -124,7 +124,7 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
         foregroundColor: AppColors.grey900,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
-          onPressed: Get.back,
+          onPressed: () => Get.back(result: true), // Return true to indicate refresh needed
         ),
       ),
       body: SafeArea(
