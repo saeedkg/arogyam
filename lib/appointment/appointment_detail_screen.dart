@@ -71,71 +71,134 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
-          onPressed: Get.back,
-        ),
-        title: const Text(
-          'Appointment Details',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 17,
-            color: Colors.black87,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        actions: [
-          IconButton(
-            onPressed: _refreshAppointmentDetails,
-            icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Refresh',
-          ),
-        ],
-      ),
-      body: FutureBuilder<BookingDetail>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingState();
-          }
-
-          if (snapshot.hasError || !snapshot.hasData) {
-            return _buildErrorState();
-          }
-
-          final d = snapshot.data!;
-          return RefreshIndicator(
-            onRefresh: _refreshAppointmentDetails,
-            color: AppColors.primaryGreen,
-            backgroundColor: Colors.white,
-            strokeWidth: 3.0,
-            displacement: 40.0,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Combined Appointment & Prescription Card
-                  _buildAppointmentPrescriptionCard(d),
-                  const SizedBox(height: 20),
-
-                  // Payment Summary Card
-                  _buildPaymentCard(d),
-                  const SizedBox(height: 24),
-
-                  // Action Buttons
-                  _buildActionButtons(),
-                ],
+    return FutureBuilder<BookingDetail>(
+      future: _future,
+      builder: (context, bookingSnapshot) {
+        return Scaffold(
+          backgroundColor: Colors.grey.shade50,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
+              onPressed: Get.back,
+            ),
+            title: const Text(
+              'Appointment Details',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 17,
+                color: Colors.black87,
               ),
             ),
-          );
-        },
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 0.5,
+            actions: [
+              // Chat icon with badge
+              FutureBuilder<FollowUpEligibility?>(
+                future: _eligibilityFuture,
+                builder: (context, eligibilitySnapshot) {
+                  if (eligibilitySnapshot.hasData &&
+                      eligibilitySnapshot.data != null &&
+                      eligibilitySnapshot.data!.isEligible &&
+                      !eligibilitySnapshot.data!.isExpired &&
+                      bookingSnapshot.hasData) {
+                    final unreadCount = bookingSnapshot.data!.unreadChatCount;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Get.to(() => FollowUpChatScreen(
+                              appointmentId: widget.bookingId,
+                            ));
+                          },
+                          icon: const Icon(Icons.chat_bubble_outline_rounded,),
+                          tooltip: 'Follow-up Chat',
+                        ),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.errorRed,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1.5,
+                                ),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  unreadCount > 9 ? '9+' : '$unreadCount',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              IconButton(
+                onPressed: _refreshAppointmentDetails,
+                icon: const Icon(Icons.refresh_rounded),
+                tooltip: 'Refresh',
+              ),
+            ],
+          ),
+          body: _buildBody(bookingSnapshot),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(AsyncSnapshot<BookingDetail> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return _buildLoadingState();
+    }
+
+    if (snapshot.hasError || !snapshot.hasData) {
+      return _buildErrorState();
+    }
+
+    final d = snapshot.data!;
+    return RefreshIndicator(
+      onRefresh: _refreshAppointmentDetails,
+      color: AppColors.primaryGreen,
+      backgroundColor: Colors.white,
+      strokeWidth: 3.0,
+      displacement: 40.0,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Combined Appointment & Prescription Card
+            _buildAppointmentPrescriptionCard(d),
+            const SizedBox(height: 20),
+
+            // Payment Summary Card
+            _buildPaymentCard(d),
+            const SizedBox(height: 24),
+
+            // Action Buttons
+            _buildActionButtons(),
+          ],
+        ),
       ),
     );
   }
