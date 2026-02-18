@@ -126,6 +126,57 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
           icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
           onPressed: () => Get.back(result: true), // Return true to indicate refresh needed
         ),
+        actions: [
+          // Chat icon with badge
+          Obx(() {
+            final cons = c.consultation.value;
+            if (cons != null && !cons.isWaitingForDoctor) {
+              final unreadCount = cons.unreadChatCount;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    onPressed: _openChat,
+                    icon: const Icon(Icons.chat_bubble_outline_rounded),
+                    tooltip: 'Chat with Doctor',
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.errorRed,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Center(
+                          child: Text(
+                            unreadCount > 9 ? '9+' : '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
       ),
       body: SafeArea(
         child: Obx(() {
@@ -428,95 +479,7 @@ class _PendingConsultationScreenState extends State<PendingConsultationScreen> {
             ),
           ),
           
-          const SizedBox(height: 16),
-          
-          // Chat with Doctor Button
-          SizedBox(
-            width: double.infinity,
-            height: 60,
-            child: Stack(
-              children: [
-                OutlinedButton(
-                  onPressed: _openChat,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryGreen,
-                    side: const BorderSide(
-                      color: AppColors.primaryGreen,
-                      width: 2,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.03),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.chat_bubble_rounded,
-                        size: 24,
-                        color: AppColors.primaryGreen,
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Chat with Doctor',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Unread badge on button
-                if (cons.unreadChatCount > 0)
-                  Positioned(
-                    right: 16,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 3,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF6B35).withValues(alpha: 0.5),
-                              blurRadius: 10,
-                              spreadRadius: 1,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        constraints: const BoxConstraints(
-                          minHeight: 28,
-                        ),
-                        child: Text(
-                          cons.unreadChatCount > 99 ? '99+' : '${cons.unreadChatCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            height: 1,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          
-         // const SizedBox(height: 10),
-         // const SizedBox(height: 12),
+          const SizedBox(height: 24),
 
           // Health Records Section
           Obx(() => ConsultationHealthRecordsSection(
