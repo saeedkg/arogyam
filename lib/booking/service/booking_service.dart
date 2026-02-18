@@ -128,4 +128,28 @@ class BookingService {
       }
     }
   }
+
+  Future<void> cancelPendingPayment(String appointmentId) async {
+    final apiRequest = APIRequest(BookingUrls.cancelPendingPaymentUrl());
+    apiRequest.addParameter('appointment_id', appointmentId);
+    try {
+      await _networkAdapter.post(apiRequest);
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to cancel pending payment', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
 }

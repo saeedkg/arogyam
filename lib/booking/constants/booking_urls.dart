@@ -16,4 +16,8 @@ class BookingUrls {
   static String videoConsultationCompleteUrl() {
     return '${NetworkConfig.baseUrl}/patient/video-consultation/complete';
   }
+
+  static String cancelPendingPaymentUrl() {
+    return '${NetworkConfig.baseUrl}/patient/booking/cancel-pending-payment';
+  }
 }

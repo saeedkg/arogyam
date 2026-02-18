@@ -7,6 +7,7 @@ class VideoConsultationPaymentOrder {
   final String currency;
   final String razorpayKey;
   final VideoConsultationPricing pricing;
+  final String? appointmentId; // Pending appointment ID for cancellation
 
   VideoConsultationPaymentOrder({
     required this.orderId,
@@ -15,6 +16,7 @@ class VideoConsultationPaymentOrder {
     required this.currency,
     required this.razorpayKey,
     required this.pricing,
+    this.appointmentId,
   });
 
   factory VideoConsultationPaymentOrder.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class VideoConsultationPaymentOrder {
       currency: data['currency'] as String,
       razorpayKey: data['razorpay_key'] as String,
       pricing: VideoConsultationPricing.fromJson(data['pricing'] as Map<String, dynamic>),
+      appointmentId: data['appointment_id']?.toString(),
     );
   }
 }

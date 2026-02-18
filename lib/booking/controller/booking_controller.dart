@@ -24,7 +24,8 @@ class BookingController extends GetxController {
   
   final RxBool isPricingLoading = false.obs;
   final Rxn<VideoConsultationPricing> pricing = Rxn<VideoConsultationPricing>();
-  final RxnString appointmentId = RxnString();
+  final RxnString appointmentId = RxnString(); // Final appointment ID after successful payment
+  final RxnString pendingAppointmentId = RxnString(); // Temporary appointment ID for cancellation
 
   @override
   void onInit() {
@@ -83,6 +84,7 @@ class BookingController extends GetxController {
     isBooking.value = true;
     bookingError.value = null;
     appointmentId.value = null;
+    pendingAppointmentId.value = null;
     
     // Store context for later use in payment completion
     _currentDoctorId = doctorId;
@@ -107,6 +109,10 @@ class BookingController extends GetxController {
       if (paymentOrder.orderId.isEmpty || paymentOrder.razorpayKey.isEmpty) {
         throw Exception('Invalid payment order received');
       }
+      
+      // Store pending appointment ID for cancellation if payment fails
+      pendingAppointmentId.value = paymentOrder.appointmentId;
+      print('Stored pending appointment ID: ${pendingAppointmentId.value}');
       
       // Step 2: Open Razorpay checkout
       var options = {
@@ -168,6 +174,7 @@ class BookingController extends GetxController {
         throw Exception('Failed to create appointment');
       }
       
+      // Update appointment ID - this will trigger navigation in the UI
       appointmentId.value = result.appointmentId;
     } catch (e) {
       bookingError.value = 'Payment completion failed: ${e.toString()}';
@@ -177,9 +184,24 @@ class BookingController extends GetxController {
     }
   }
 
-  void _handlePaymentError(PaymentFailureResponse response) {
+  void _handlePaymentError(PaymentFailureResponse response) async {
+    print("Payment failure detected");
+    print('Pending appointment ID: ${pendingAppointmentId.value}');
     final errorMessage = response.message ?? 'Payment failed';
     bookingError.value = 'Payment failed: $errorMessage';
+    
+    // Cancel pending payment if appointment was created
+    if (pendingAppointmentId.value != null && pendingAppointmentId.value!.isNotEmpty) {
+      try {
+        await service.cancelPendingPayment(pendingAppointmentId.value!);
+        print('Pending payment cancelled for appointment: ${pendingAppointmentId.value}');
+        // Clear pending appointment ID after cancellation
+        pendingAppointmentId.value = null;
+      } catch (e) {
+        print('Error cancelling pending payment: $e');
+      }
+    }
+    
     isBooking.value = false;
     print('Payment error: ${response.code} - $errorMessage');
   }
