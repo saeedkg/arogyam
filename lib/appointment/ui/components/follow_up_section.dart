@@ -176,52 +176,97 @@ class FollowUpSection extends StatelessWidget {
                 ),
                 // Unread messages indicator below button
                 if (bookingDetail.unreadChatCount > 0) ...[
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFFFF6B35).withValues(alpha: 0.3),
-                            width: 1,
+                  const SizedBox(height: 14),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                          const Color(0xFFFF6B35).withValues(alpha: 0.06),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: const Color(0xFFFF6B35).withValues(alpha: 0.25),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF6B35).withValues(alpha: 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFFF6B35),
+                                Color(0xFFFF8C5A),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF6B35).withValues(alpha: 0.4),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${bookingDetail.unreadChatCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                height: 1,
+                              ),
+                            ),
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFF6B35),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                '${bookingDetail.unreadChatCount}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  height: 1,
-                                ),
-                              ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            bookingDetail.unreadChatCount == 1 
+                                ? '1 new message'
+                                : ' ${bookingDetail.unreadChatCount} new messages',
+                            style: const TextStyle(
+                              color: Color(0xFFD84315),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              bookingDetail.unreadChatCount == 1 ? 'new message' : 'new messages',
-                              style: const TextStyle(
-                                color: Color(0xFFFF6B35),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.mark_chat_unread_rounded,
+                            size: 14,
+                            color: Color(0xFFFF6B35),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],
