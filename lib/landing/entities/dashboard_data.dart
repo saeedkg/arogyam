@@ -5,6 +5,7 @@ class DashboardData {
   final List<RecentConsultation> recentConsultations;
   final List<UpcomingAppointment> upcomingAppointments;
   final int familyMembersCount;
+  final List<FollowUpChatSummary> followUpChats;
 
   DashboardData({
     required this.appointmentCounts,
@@ -13,6 +14,7 @@ class DashboardData {
     required this.recentConsultations,
     required this.upcomingAppointments,
     required this.familyMembersCount,
+    required this.followUpChats,
   });
 
   factory DashboardData.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,9 @@ class DashboardData {
           .map((e) => UpcomingAppointment.fromJson(e as Map<String, dynamic>))
           .toList(),
       familyMembersCount: data['family_members_count'] as int,
+      followUpChats: (data['follow_up_chats'] as List<dynamic>?)
+          ?.map((e) => FollowUpChatSummary.fromJson(e as Map<String, dynamic>))
+          .toList() ?? [],
     );
   }
 }
@@ -162,3 +167,36 @@ class UpcomingAppointment {
     );
   }
 }
+
+class FollowUpChatSummary {
+  final int id;
+  final int appointmentId;
+  final String doctorName;
+  final String? doctorImage;
+  final String latestMessage;
+  final int unreadCount;
+  final DateTime latestMessageAt;
+
+  FollowUpChatSummary({
+    required this.id,
+    required this.appointmentId,
+    required this.doctorName,
+    this.doctorImage,
+    required this.latestMessage,
+    required this.unreadCount,
+    required this.latestMessageAt,
+  });
+
+  factory FollowUpChatSummary.fromJson(Map<String, dynamic> json) {
+    return FollowUpChatSummary(
+      id: json['id'] as int,
+      appointmentId: json['appointment_id'] as int,
+      doctorName: json['doctor_name'] as String? ?? '',
+      doctorImage: json['doctor_image'] as String?,
+      latestMessage: json['latest_message'] as String? ?? '',
+      unreadCount: json['unread_count'] as int? ?? 0,
+      latestMessageAt: DateTime.parse(json['latest_message_at'] as String? ?? DateTime.now().toIso8601String()),
+    );
+  }
+}
+

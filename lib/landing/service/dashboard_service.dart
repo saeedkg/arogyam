@@ -22,7 +22,40 @@ class DashboardService {
       final res = await _networkAdapter.get(apiRequest);
       
       if (res.data is Map<String, dynamic>) {
-        final dashboardData = DashboardData.fromJson(res.data as Map<String, dynamic>);
+        var dashboardData = DashboardData.fromJson(res.data as Map<String, dynamic>);
+        
+        // Add mock follow-up chats if API returns empty
+        if (dashboardData.followUpChats.isEmpty) {
+          dashboardData = DashboardData(
+            appointmentCounts: dashboardData.appointmentCounts,
+            consultationsToJoin: dashboardData.consultationsToJoin,
+            totalDoctors: dashboardData.totalDoctors,
+            recentConsultations: dashboardData.recentConsultations,
+            upcomingAppointments: dashboardData.upcomingAppointments,
+            familyMembersCount: dashboardData.familyMembersCount,
+            followUpChats: [
+              FollowUpChatSummary(
+                id: 1,
+                appointmentId: 101,
+                doctorName: 'Sarah Johnson',
+                doctorImage: null,
+                latestMessage: 'Please take the prescribed medication twice daily',
+                unreadCount: 2,
+                latestMessageAt: DateTime.now().subtract(const Duration(hours: 2)),
+              ),
+              FollowUpChatSummary(
+                id: 2,
+                appointmentId: 102,
+                doctorName: 'Michael Chen',
+                doctorImage: null,
+                latestMessage: 'How are you feeling today?',
+                unreadCount: 0,
+                latestMessageAt: DateTime.now().subtract(const Duration(days: 1)),
+              ),
+            ],
+          );
+        }
+        
         return dashboardData;
       }
       

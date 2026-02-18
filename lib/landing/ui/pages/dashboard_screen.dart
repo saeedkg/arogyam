@@ -15,6 +15,7 @@ import '../components/dashboard_app_bar.dart';
 import '../components/top_doctors_view.dart';
 import '../components/upcoming_appointments_card.dart';
 import '../components/consultation_to_join_card.dart';
+import '../components/follow_up_chats_button.dart';
 import '../components/monsoon_care_tips_card.dart';
 import '../components/animated_search_bar.dart';
 import '../components/top_specialities_horizontal.dart';
@@ -330,8 +331,9 @@ class _HomePageState extends State<HomePage> {
                         Obx(() {
                           final hasConsultationsToJoin = controller.consultationsToJoin.isNotEmpty;
                           final hasUpcomingAppointments = controller.upcomingAppointments.isNotEmpty;
+                          final hasFollowUpChats = controller.followUpChats.isNotEmpty;
                           
-                          if (!hasConsultationsToJoin && !hasUpcomingAppointments) {
+                          if (!hasConsultationsToJoin && !hasUpcomingAppointments && !hasFollowUpChats) {
                             return const SizedBox(height: 50);
                           }
                           
@@ -374,6 +376,15 @@ class _HomePageState extends State<HomePage> {
                                     },
                                   ),
                                 
+                                // Follow-up chats button (below appointments)
+                                if (hasFollowUpChats)
+                                  const SizedBox(height: 12),
+
+                                FollowUpChatsButton(
+                                    chats: controller.followUpChats,
+                                    onRefresh: () => controller.refreshDashboardData(),
+                                  ),
+
                                 const SizedBox(height: 16),
                               ],
                             ),

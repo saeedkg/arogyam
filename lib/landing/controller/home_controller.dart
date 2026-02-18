@@ -34,6 +34,7 @@ class HomeController extends GetxController {
   final RxList<Doctor> topDoctors = <Doctor>[].obs;
   final RxList<UpcomingAppointment> upcomingAppointments = <UpcomingAppointment>[].obs;
   final RxList<ConsultationToJoin> consultationsToJoin = <ConsultationToJoin>[].obs;
+  final RxList<FollowUpChatSummary> followUpChats = <FollowUpChatSummary>[].obs;
   final Rxn<DashboardData> dashboardData = Rxn<DashboardData>();
   final RxBool isLoading = false.obs;
   final RxInt bannerIndex = 0.obs;
@@ -75,11 +76,13 @@ class HomeController extends GetxController {
         dashboardData.value = results[resultIndex] as DashboardData;
         upcomingAppointments.assignAll(dashboardData.value!.upcomingAppointments);
         consultationsToJoin.assignAll(dashboardData.value!.consultationsToJoin);
+        followUpChats.assignAll(dashboardData.value!.followUpChats);
         resultIndex++;
       } else {
         // Clear appointments for guest users
         upcomingAppointments.clear();
         consultationsToJoin.clear();
+        followUpChats.clear();
       }
       
       // Map specializations to categories
@@ -168,10 +171,12 @@ class HomeController extends GetxController {
         dashboardData.value = data;
         upcomingAppointments.assignAll(data.upcomingAppointments);
         consultationsToJoin.assignAll(data.consultationsToJoin);
+        followUpChats.assignAll(data.followUpChats);
       } else {
         // Clear appointments for guest users
         upcomingAppointments.clear();
         consultationsToJoin.clear();
+        followUpChats.clear();
       }
     } catch (e) {
       print('Error refreshing dashboard data: $e');
