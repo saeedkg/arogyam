@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../../_shared/constants/network_config.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/utils/date_time_formatter.dart';
-import '../../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../../entities/dashboard_data.dart';
 
 class ConsultationToJoinCard extends StatelessWidget {
   final ConsultationToJoin consultation;
+  final VoidCallback? onTap;
 
   const ConsultationToJoinCard({
     super.key,
     required this.consultation,
+    this.onTap,
   });
 
   @override
@@ -43,15 +43,7 @@ class ConsultationToJoinCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () async {
-            final result = await Get.to(() => PendingConsultationScreen(
-              appointmentId: consultation.id.toString(),
-            ));
-            // If result is true, pop with true to trigger refresh
-            if (result == true) {
-              Get.back(result: true);
-            }
-          },
+          onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),

@@ -329,12 +329,32 @@ class HomePage extends StatelessWidget {
                                 // Consultations to join (ready to join now)
                                 if (hasConsultationsToJoin)
                                   ...controller.consultationsToJoin.map((consultation) =>
-                                    ConsultationToJoinCard(consultation: consultation)
+                                    ConsultationToJoinCard(
+                                      consultation: consultation,
+                                      onTap: () async {
+                                        final result = await Get.to(() => PendingConsultationScreen(
+                                          appointmentId: consultation.id.toString(),
+                                        ));
+                                        if (result == true) {
+                                          controller.refreshDashboardData();
+                                        }
+                                      },
+                                    )
                                   ),
                                 
                                 // Regular upcoming appointments
                                 if (hasUpcomingAppointments)
-                                  UpcomingAppointmentsCard(appointments: controller.upcomingAppointments),
+                                  UpcomingAppointmentsCard(
+                                    appointments: controller.upcomingAppointments,
+                                    onTap: (appointment) async {
+                                      final result = await Get.to(() => PendingConsultationScreen(
+                                        appointmentId: appointment.id.toString(),
+                                      ));
+                                      if (result == true) {
+                                        controller.refreshDashboardData();
+                                      }
+                                    },
+                                  ),
                                 
                                 const SizedBox(height: 16),
                               ],

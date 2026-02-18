@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../../_shared/constants/network_config.dart';
 import '../../../_shared/ui/app_colors.dart';
 import '../../../_shared/utils/date_time_formatter.dart';
-import '../../../consultation_pending/ui/pending_consultation_screen.dart';
 import '../../entities/dashboard_data.dart';
 
 class UpcomingAppointmentsCard extends StatelessWidget {
   final List<UpcomingAppointment> appointments;
+  final Function(UpcomingAppointment)? onTap;
 
   const UpcomingAppointmentsCard({
     super.key,
     required this.appointments,
+    this.onTap,
   });
 
   @override
@@ -73,15 +73,7 @@ class UpcomingAppointmentsCard extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () async {
-                  final result = await Get.to(() => PendingConsultationScreen(
-                    appointmentId: appointment.id.toString(),
-                  ));
-                  // If result is true, pop with true to trigger refresh
-                  if (result == true) {
-                    Get.back(result: true);
-                  }
-                },
+                onTap: onTap != null ? () => onTap!(appointment) : null,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
                   padding: const EdgeInsets.all(12), // Reduced from 16 to 12
