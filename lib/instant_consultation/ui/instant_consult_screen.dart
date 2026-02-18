@@ -27,6 +27,10 @@ class InstantConsultScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
+          onPressed: () => Get.back(), // Return true to indicate refresh needed
+        ),
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: GetBuilder<InstantConsultController>(
