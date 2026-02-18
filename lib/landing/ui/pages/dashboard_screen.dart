@@ -18,6 +18,7 @@ import '../components/top_doctors_view.dart';
 import '../components/upcoming_appointments_card.dart';
 import '../components/consultation_to_join_card.dart';
 import '../components/follow_up_chats_button.dart';
+import '../components/follow_up_chats_modal.dart';
 import '../components/monsoon_care_tips_card.dart';
 import '../components/animated_search_bar.dart';
 import '../components/top_specialities_horizontal.dart';
@@ -440,42 +441,28 @@ class _HomePageState extends State<HomePage> {
         return FloatingActionButton.extended(
           onPressed: () => _showFollowUpChatsModal(context, controller),
           backgroundColor: AppColors.primaryBlue,
-          elevation: 6,
-          icon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(
-                Icons.chat_bubble_rounded,
-                color: Colors.white,
-                size: 22,
-              ),
-              if (totalUnread > 0)
-                Positioned(
-                  top: -4,
-                  right: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 18,
-                      minHeight: 18,
-                    ),
-                    child: Text(
-                      totalUnread > 9 ? '9+' : totalUnread.toString(),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
+          elevation: 8,
+          icon: totalUnread > 0
+              ? Badge(
+                  label: Text(
+                    totalUnread > 9 ? '9+' : totalUnread.toString(),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
+                  backgroundColor: Colors.red,
+                  child: const Icon(
+                    Icons.chat_bubble_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                )
+              : const Icon(
+                  Icons.chat_bubble_rounded,
+                  color: Colors.white,
+                  size: 22,
                 ),
-            ],
-          ),
           label: const Text(
             'Messages',
             style: TextStyle(
