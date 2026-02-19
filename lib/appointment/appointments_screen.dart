@@ -558,13 +558,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   children: [
                     Expanded(
                       child: _buildCompactFilterTab(
-                        'All',
-                        AppointmentFilter.all,
-                        Icons.list_rounded,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildCompactFilterTab(
                         'Active',
                         AppointmentFilter.upcoming,
                         Icons.schedule_rounded,
@@ -575,6 +568,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                         'Past',
                         AppointmentFilter.past,
                         Icons.history_rounded,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildCompactFilterTab(
+                        'All',
+                        AppointmentFilter.all,
+                        Icons.list_rounded,
                       ),
                     ),
                   ],
@@ -755,14 +755,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           children: [
             Expanded(
               child: _buildFilterTab(
-                'All',
-                AppointmentFilter.all,
-                Icons.list_rounded,
-              ),
-            ),
-            Expanded(
-              child: _buildFilterTab(
-                'Upcoming',
+                'Active',
                 AppointmentFilter.upcoming,
                 Icons.schedule_rounded,
               ),
@@ -772,6 +765,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 'Past',
                 AppointmentFilter.past,
                 Icons.history_rounded,
+              ),
+            ),
+            Expanded(
+              child: _buildFilterTab(
+                'All',
+                AppointmentFilter.all,
+                Icons.list_rounded,
               ),
             ),
           ],
