@@ -8,6 +8,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
+    <!-- Note: SMS auto-fill uses SMS Retriever API on Android 8.0+ which doesn't require 
+         explicit SMS permissions. For older Android versions, you may need to add:
+         <uses-permission android:name="android.permission.RECEIVE_SMS" />
+         <uses-permission android:name="android.permission.READ_SMS" />
+         
+         App Signature: The SMS message should include the app signature hash for enhanced 
+         security. Get the signature by running the app and checking debug logs. -->
+    
     <application
         android:label="arogyam"
         android:name="${applicationName}"

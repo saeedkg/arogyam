@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sms_autofill/sms_autofill.dart';
+import 'dart:io';
 import '../user_management/service/new_user_adder.dart';
 import '../service/auth_service.dart';
 import '../service/logout_service.dart';
@@ -33,7 +35,18 @@ class AuthProvider extends ChangeNotifier {
     _expiresIn = null;
     notifyListeners();
     try {
-      final expires = await _authService.getOtp(phoneNumber);
+      // Get app signature for Android SMS auto-read
+      String? appSignature;
+      if (Platform.isAndroid) {
+        try {
+          appSignature = await SmsAutoFill().getAppSignature;
+          debugPrint('Sending app signature to backend: $appSignature');
+        } catch (e) {
+          debugPrint('Failed to get app signature: $e');
+        }
+      }
+      
+      final expires = await _authService.getOtp(phoneNumber, appSignature: appSignature);
       _expiresIn = expires;
     } catch (e) {
       if (e is ServerSentException) {

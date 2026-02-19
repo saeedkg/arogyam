@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import 'dart:io';
+import 'package:sms_autofill/sms_autofill.dart';
 import '../_shared/ui/app_colors.dart';
 import '../landing/ui/landing_screen.dart';
 import 'register_screen.dart';
@@ -15,7 +17,7 @@ class EnterOtpScreen extends StatefulWidget {
   State<EnterOtpScreen> createState() => _EnterOtpScreenState();
 }
 
-class _EnterOtpScreenState extends State<EnterOtpScreen> {
+class _EnterOtpScreenState extends State<EnterOtpScreen> with CodeAutoFill {
   static const int otpLength = 6;
   final List<FocusNode> _focusNodes = List.generate(otpLength, (_) => FocusNode());
   final List<FocusNode> _keyboardFocusNodes = List.generate(otpLength, (_) => FocusNode());
@@ -33,6 +35,95 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeSmsListener();
+  }
+
+  /// Initialize SMS listener for automatic OTP detection (Android only)
+  Future<void> _initializeSmsListener() async {
+    try {
+      // Only initialize on Android platform
+      if (Platform.isAndroid) {
+        // Start listening for OTP code from SMS
+        listenForCode();
+        
+        // Get app signature for debugging (useful for SMS format verification)
+        final signature = await SmsAutoFill().getAppSignature;
+        debugPrint('App Signature for SMS: $signature');
+      } else {
+        debugPrint('SMS auto-fill not available on this platform. Using manual entry.');
+      }
+    } catch (e) {
+      // Fail gracefully - user can still enter OTP manually
+      debugPrint('SMS Auto-fill initialization failed: $e');
+    }
+  }
+
+  /// Called automatically when OTP code is detected from SMS
+  @override
+  void codeUpdated() {
+    try {
+      // Validate that code exists and has exactly 6 digits
+      if (code != null && code!.length == 6 && RegExp(r'^\d{6}$').hasMatch(code!)) {
+        debugPrint('OTP detected from SMS: $code');
+        _autoFillOtp(code!);
+      } else {
+        debugPrint('Invalid OTP format detected, ignoring: $code');
+      }
+    } catch (e) {
+      // Fail silently - user can still enter OTP manually
+      debugPrint('Auto-fill failed: $e');
+    }
+  }
+
+  /// Auto-fill OTP fields with detected code
+  void _autoFillOtp(String otp) {
+    if (otp.length != 6) return;
+    
+    // Check if user has already started typing - don't override user input
+    final hasUserInput = _controllers.any((c) => c.text.isNotEmpty);
+    if (hasUserInput) {
+      debugPrint('User has already started typing, skipping auto-fill');
+      return;
+    }
+    
+    // Fill each digit into the corresponding controller
+    for (int i = 0; i < 6; i++) {
+      _controllers[i].text = otp[i];
+    }
+    
+    // Trigger validation to check if OTP is valid
+    _validateOtp();
+    
+    // Dismiss keyboard after auto-fill
+    _closeKeyboard();
+    
+    // Show subtle feedback to user
+    _showAutoFillFeedback();
+    
+    // Update UI
+    setState(() {});
+  }
+
+  /// Show subtle feedback when OTP is auto-filled
+  void _showAutoFillFeedback() {
+    if (!mounted) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+            SizedBox(width: 8),
+            Text('OTP auto-filled from SMS'),
+          ],
+        ),
+        backgroundColor: AppColors.primaryGreen,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
   }
 
   @override
@@ -68,6 +159,9 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
 
   @override
   void dispose() {
+    // Stop listening for SMS codes
+    cancel();
+    
     for (final node in _focusNodes) {
       node.dispose();
     }
@@ -403,6 +497,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             maxLength: 1,
+                            maxLengthEnforcement: MaxLengthEnforcement.none,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -413,7 +509,24 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.zero,
                             ),
-                            onChanged: (value) => _onChanged(value, i),
+                            onChanged: (value) {
+                              // Handle keyboard suggestion - when full OTP is pasted at once
+                              if (value.length > 1) {
+                                final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+                                final len = digits.length;
+                                if (len >= otpLength) {
+                                  // Fill all fields with the suggested OTP
+                                  for (int j = 0; j < otpLength; j++) {
+                                    _controllers[j].text = digits[j];
+                                  }
+                                  _validateOtp();
+                                  setState(() {});
+                                  FocusScope.of(context).unfocus();
+                                  return;
+                                }
+                              }
+                              _onChanged(value, i);
+                            },
                             onSubmitted: (value) => _closeKeyboard(),
                             textInputAction: i == otpLength - 1 ? TextInputAction.done : TextInputAction.next,
                           ),

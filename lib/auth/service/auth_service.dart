@@ -24,12 +24,13 @@ class AuthService {
      :
         _networkAdapter = AROGYAMAPI();
 
-  Future<int> getOtp(String phoneNumber) async {
+  Future<int> getOtp(String phoneNumber, {String? appSignature}) async {
 
      var url = AuthUrls.getOtPUrl();
      var apiRequest = APIRequest(url);
      apiRequest.addParameters({
        'phone': phoneNumber,
+       if (appSignature != null) 'app_signature': appSignature,
      });
 
      try {
