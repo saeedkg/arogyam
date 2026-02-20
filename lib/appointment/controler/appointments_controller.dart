@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import '../../network/exceptions/network_failure_exception.dart';
 import '../../network/exceptions/server_sent_exception.dart';
 import '../entities/appointment.dart';
-import '../entities/appointment_status.dart';
 import '../service/appointments_service.dart';
 
 enum AppointmentFilter { all, upcoming, past }
@@ -16,7 +15,7 @@ class AppointmentsController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxList<Appointment> appointments = <Appointment>[].obs;
   final RxString errorMessage = ''.obs;
-  final Rx<AppointmentFilter> selectedFilter = AppointmentFilter.all.obs;
+  final Rx<AppointmentFilter> selectedFilter = AppointmentFilter.upcoming.obs;
 
   final RxBool isDetailLoading = false.obs;
 
@@ -25,8 +24,8 @@ class AppointmentsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Don't fetch appointments automatically - let the screen control this
-    // fetchInitialAppointments();
+    // Start with Active (upcoming) filter by default
+    selectedFilter.value = AppointmentFilter.upcoming;
   }
 
   /// Set patient ID and reload appointments
