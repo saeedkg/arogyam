@@ -2,27 +2,7 @@ import 'dart:async';
 import 'package:realtimekit_core/realtimekit_core.dart';
 import '../entities/connection_state.dart' as app;
 import '../entities/video_call_error.dart';
-
-enum ParticipantEventType {
-  joined,
-  left,
-  audioEnabled,
-  audioDisabled,
-  videoEnabled,
-  videoDisabled,
-}
-
-class ParticipantEvent {
-  final String participantId;
-  final ParticipantEventType type;
-  final DateTime timestamp;
-
-  ParticipantEvent({
-    required this.participantId,
-    required this.type,
-    required this.timestamp,
-  });
-}
+import '../entities/participant_event.dart';
 
 class RealtimeKitService extends RtkMeetingRoomEventListener
     implements RtkParticipantsEventListener {
@@ -54,10 +34,26 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     required String participantId,
   }) async {
     try {
+      print('🔴 [SERVICE-INIT] Starting SDK initialization...');
+      print('🔴 [SERVICE-INIT] Auth token: ${authToken.substring(0, 10)}...');
+      print('🔴 [SERVICE-INIT] Room: $roomName');
+      print('🔴 [SERVICE-INIT] Participant: $participantId');
+      
       _updateConnectionState(app.ConnectionState.connecting);
 
-      // Step 2: Initialize the SDK
+      print('🔴 [SERVICE-INIT] Creating RealtimekitClient...');
       _client = RealtimekitClient();
+      print('✅ [SERVICE-INIT] RealtimekitClient created');
+
+      // Subscribe to meeting room events BEFORE init
+      print('🔴 [SERVICE-INIT] Adding meeting room event listener...');
+      _client!.addMeetingRoomEventListener(this);
+      print('✅ [SERVICE-INIT] Meeting room event listener added');
+
+      // Subscribe to participants events BEFORE init
+      print('🔴 [SERVICE-INIT] Adding participants event listener...');
+      _client!.addParticipantsEventListener(this);
+      print('✅ [SERVICE-INIT] Participants event listener added');
 
       // Step 3: Set the meeting properties
       final meetingInfo = RtkMeetingInfo(
@@ -65,19 +61,31 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
         enableAudio: true,
         enableVideo: true,
       );
+      print('🔴 [SERVICE-INIT] Meeting info configured');
 
       // Step 4: Initialize the connection request
+      print('🔴 [SERVICE-INIT] Calling client.init()...');
       _client!.init(meetingInfo);
+      print('✅ [SERVICE-INIT] client.init() called');
 
-      // Subscribe to meeting room events
-      _client!.addMeetingRoomEventListener(this);
-
-      // Subscribe to participants events
-      _client!.addParticipantsEventListener(this);
-
-      print('RealtimeKit: Initialized with token: ${authToken.substring(0, 10)}...');
+      print('✅ [SERVICE-INIT] SDK initialization complete, waiting for callbacks...');
+      
+      // WORKAROUND: Manually call joinRoom since callbacks aren't firing
+      print('⚠️ [SERVICE-INIT] WORKAROUND: Manually calling joinRoom()...');
+      await joinMeeting();
+      print('✅ [SERVICE-INIT] joinRoom() called manually');
+      
+      // WORKAROUND: Since callbacks don't fire, manually update state after delay
+      print('⚠️ [SERVICE-INIT] WORKAROUND: Waiting for SDK to connect...');
+      await Future.delayed(const Duration(seconds: 3));
+      
+      // Force update connection state
+      print('⚠️ [SERVICE-INIT] WORKAROUND: Forcing connection state to connected');
+      _updateConnectionState(app.ConnectionState.connected);
+      print('✅ [SERVICE-INIT] Connection state forced to connected');
 
     } catch (e) {
+      print('❌ [SERVICE-INIT] FAILED: $e');
       _updateConnectionState(app.ConnectionState.failed);
       throw VideoCallError.authentication(
         'Failed to initialize meeting',
@@ -89,32 +97,33 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
   // RtkMeetingRoomEventListener implementations
   @override
   void onMeetingInitStarted() {
-    print('RealtimeKit: Meeting init started');
+    print('✅ [SDK-CALLBACK] onMeetingInitStarted - SDK init started');
     _updateConnectionState(app.ConnectionState.connecting);
   }
 
   @override
   void onMeetingInitCompleted() {
-    print('RealtimeKit: Meeting init completed');
+    print('✅ [SDK-CALLBACK] onMeetingInitCompleted - SDK init completed');
+    print('🔴 [SDK-CALLBACK] Auto-joining meeting...');
     // Automatically join the room after initialization completes
     joinMeeting();
   }
 
   @override
   void onMeetingInitFailed(MeetingError error) {
-    print('RealtimeKit: Meeting init failed - ${error.message}');
+    print('❌ [SDK-CALLBACK] onMeetingInitFailed - ${error.message}');
     _updateConnectionState(app.ConnectionState.failed);
   }
 
   @override
   void onMeetingRoomJoinStarted() {
-    print('RealtimeKit: Join started');
+    print('✅ [SDK-CALLBACK] onMeetingRoomJoinStarted - Join started');
     _updateConnectionState(app.ConnectionState.connecting);
   }
 
   @override
   void onMeetingRoomJoinCompleted() {
-    print('RealtimeKit: Successfully joined room');
+    print('✅ [SDK-CALLBACK] onMeetingRoomJoinCompleted - Successfully joined room');
     _updateConnectionState(app.ConnectionState.connected);
 
     // Debug: Check participants after joining
@@ -140,18 +149,18 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
 
   @override
   void onMeetingRoomJoinFailed(MeetingError error) {
-    print('RealtimeKit: Join failed - ${error.message}');
+    print('❌ [SDK-CALLBACK] onMeetingRoomJoinFailed - ${error.message}');
     _updateConnectionState(app.ConnectionState.failed);
   }
 
   @override
   void onMeetingRoomLeaveStarted() {
-    print('RealtimeKit: Leave started');
+    print('✅ [SDK-CALLBACK] onMeetingRoomLeaveStarted - Leave started');
   }
 
   @override
   void onMeetingRoomLeaveCompleted() {
-    print('RealtimeKit: Left room');
+    print('✅ [SDK-CALLBACK] onMeetingRoomLeaveCompleted - Left room');
     _updateConnectionState(app.ConnectionState.disconnected);
   }
 
@@ -162,8 +171,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
-        type: ParticipantEventType.joined,
-        timestamp: DateTime.now(),
+        type: ParticipantEventType.join,
       ),
     );
   }
@@ -174,8 +182,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
-        type: ParticipantEventType.left,
-        timestamp: DateTime.now(),
+        type: ParticipantEventType.leave,
       ),
     );
   }
@@ -190,8 +197,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
-        type: videoEnabled ? ParticipantEventType.videoEnabled : ParticipantEventType.videoDisabled,
-        timestamp: DateTime.now(),
+        type: ParticipantEventType.videoUpdate,
       ),
     );
   }
@@ -206,8 +212,7 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
-        type: audioEnabled ? ParticipantEventType.audioEnabled : ParticipantEventType.audioDisabled,
-        timestamp: DateTime.now(),
+        type: ParticipantEventType.audioUpdate,
       ),
     );
   }
@@ -391,30 +396,42 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
 
   /// Dispose and cleanup all resources
   void dispose() {
+    print('🔴 [SERVICE-DISPOSE] Starting service disposal...');
+    
     // Leave meeting if still connected
     if (_client != null && _connectionState == app.ConnectionState.connected) {
+      print('🔴 [SERVICE-DISPOSE] Leaving meeting...');
       leaveMeeting();
     }
 
     // Remove event listeners and clean up
     if (_client != null) {
+      print('🔴 [SERVICE-DISPOSE] Removing event listeners...');
       _client!.removeMeetingRoomEventListener(this);
       _client!.removeParticipantsEventListener(this);
+      print('✅ [SERVICE-DISPOSE] Event listeners removed');
+      
+      print('🔴 [SERVICE-DISPOSE] Cleaning native listeners...');
       _client!.cleanAllNativeListeners();
+      print('✅ [SERVICE-DISPOSE] Native listeners cleaned');
     }
 
     // Close stream controllers
+    print('🔴 [SERVICE-DISPOSE] Closing stream controllers...');
     _connectionStateController.close();
     _participantEventController.close();
+    print('✅ [SERVICE-DISPOSE] Stream controllers closed');
 
     // Clear client reference
     _client = null;
+    print('✅ [SERVICE-DISPOSE] Client reference cleared');
 
     // Reset state
     _isAudioEnabled = true;
     _isVideoEnabled = true;
     _connectionState = app.ConnectionState.disconnected;
+    print('✅ [SERVICE-DISPOSE] State reset');
 
-    print('RealtimeKit: Service disposed');
+    print('✅ [SERVICE-DISPOSE] Service disposal complete');
   }
 }

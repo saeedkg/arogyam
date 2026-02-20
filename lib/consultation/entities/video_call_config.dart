@@ -5,6 +5,7 @@ class VideoCallConfig {
   final String doctorName;
   final String specialization;
   final String doctorImageUrl;
+  final String? consultationId;
 
   VideoCallConfig({
     required this.authToken,
@@ -13,6 +14,7 @@ class VideoCallConfig {
     required this.doctorName,
     required this.specialization,
     required this.doctorImageUrl,
+    this.consultationId,
   });
 
   /// Validate that all required fields are present and non-empty

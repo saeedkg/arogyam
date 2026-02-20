@@ -22,6 +22,7 @@ class RealtimeKitVideoCallController extends GetxController {
   late String authToken;
   late String roomName;
   late String participantId;
+  String? consultationId;
 
   // Service instance
   RealtimeKitService? _service;
@@ -34,14 +35,18 @@ class RealtimeKitVideoCallController extends GetxController {
   /// Initialize with video call config
   Future<void> initialize(VideoCallConfig config) async {
     try {
+      print('🔴 [CONTROLLER-INIT] Starting controller initialization...');
       isLoading.value = true;
       error.value = null;
 
       // Validate config
+      print('🔴 [CONTROLLER-INIT] Validating config...');
       final validationError = config.getValidationError();
       if (validationError != null) {
+        print('❌ [CONTROLLER-INIT] Config validation failed: $validationError');
         throw Exception(validationError);
       }
+      print('✅ [CONTROLLER-INIT] Config validated');
 
       // Store config data
       authToken = config.authToken;
@@ -50,26 +55,36 @@ class RealtimeKitVideoCallController extends GetxController {
       doctorName = config.doctorName;
       specialization = config.specialization;
       doctorImageUrl = config.doctorImageUrl;
+      consultationId = config.consultationId;
+      print('✅ [CONTROLLER-INIT] Config data stored');
 
       // Initialize service
+      print('🔴 [CONTROLLER-INIT] Creating new RealtimeKitService...');
       _service = RealtimeKitService();
+      print('✅ [CONTROLLER-INIT] Service created');
 
       // Set up connection state listener
+      print('🔴 [CONTROLLER-INIT] Setting up connection state listener...');
       _setupConnectionStateListener();
+      print('✅ [CONTROLLER-INIT] Listener setup complete');
 
       // Initialize meeting (join will be called automatically in onMeetingInitCompleted callback)
+      print('🔴 [CONTROLLER-INIT] Calling service.initializeMeeting()...');
       await _service!.initializeMeeting(
         authToken: authToken,
         roomName: roomName,
         participantId: participantId,
       );
+      print('✅ [CONTROLLER-INIT] Service initialization called, waiting for SDK callbacks...');
 
       // Don't call joinMeeting here - it will be called in the onMeetingInitCompleted callback
       // The loading state will be updated when we receive onMeetingRoomJoinCompleted
 
       isLoading.value = false;
+      print('✅ [CONTROLLER-INIT] Controller initialization complete');
 
     } catch (e) {
+      print('❌ [CONTROLLER-INIT] FAILED: $e');
       isLoading.value = false;
       handleError('Failed to join consultation: ${e.toString()}');
     }
@@ -160,12 +175,23 @@ class RealtimeKitVideoCallController extends GetxController {
 
   @override
   void onClose() {
+    print('🔴 [CONTROLLER-CLOSE] onClose() called');
+    print('🔴 [CONTROLLER-CLOSE] isMinimized: ${isMinimized.value}');
+    
     // Only dispose service if call is not minimized
     if (!isMinimized.value) {
       if (_service != null) {
+        print('🔴 [CONTROLLER-CLOSE] Disposing service...');
         _service!.dispose();
+        print('✅ [CONTROLLER-CLOSE] Service disposed');
+      } else {
+        print('⚠️ [CONTROLLER-CLOSE] Service is null, nothing to dispose');
       }
+    } else {
+      print('⚠️ [CONTROLLER-CLOSE] Call is minimized, skipping disposal');
     }
+    
+    print('✅ [CONTROLLER-CLOSE] onClose() complete');
     super.onClose();
   }
 }

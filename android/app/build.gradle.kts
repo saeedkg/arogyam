@@ -34,7 +34,20 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Disable minification in debug mode
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
         release {
+            // Explicitly disable minification to prevent SDK callback issues
+            // If you need to enable it later, ensure ProGuard rules are properly configured
+            isMinifyEnabled = false
+            isShrinkResources = false
+            
+            // If you enable minification, uncomment the line below:
+            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")

@@ -24,33 +24,83 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   @override
   void initState() {
     super.initState();
+    print('🔴 [SCREEN-INIT] ========================================');
+    print('🔴 [SCREEN-INIT] RealtimeKitVideoCallScreen initState()');
+    print('🔴 [SCREEN-INIT] ========================================');
+    
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
     // Check if controller already exists (from minimized state)
+    print('🔴 [SCREEN-INIT] Checking if controller is registered...');
     if (Get.isRegistered<RealtimeKitVideoCallController>()) {
+      print('⚠️ [SCREEN-INIT] Controller IS registered');
       final existingController = Get.find<RealtimeKitVideoCallController>();
+      print('🔴 [SCREEN-INIT] Found existing controller, isMinimized: ${existingController.isMinimized.value}');
 
       // If controller exists but is NOT minimized, it's a stale controller from previous call
       // Delete it and create a new one
       if (!existingController.isMinimized.value) {
-        print('RealtimeKitVideoCallScreen: Found stale controller, deleting...');
+        print('⚠️ [SCREEN-INIT] Found STALE controller (not minimized), cleaning up...');
+        
+        // CRITICAL FIX: Dispose service FIRST before deleting controller
+        if (existingController.service != null) {
+          print('🔴 [SCREEN-INIT] Disposing old service...');
+          existingController.service!.dispose();
+          print('✅ [SCREEN-INIT] Old service disposed');
+        }
+        
+        // Wait for disposal to complete
+        print('🔴 [SCREEN-INIT] Waiting 500ms for cleanup to complete...');
+        await Future.delayed(const Duration(milliseconds: 500));
+        print('✅ [SCREEN-INIT] Wait complete');
+        
+        // Delete controller
+        print('🔴 [SCREEN-INIT] Deleting stale controller...');
         try {
-          Get.delete<RealtimeKitVideoCallController>(force: true);
+          final deleted = Get.delete<RealtimeKitVideoCallController>(force: true);
+          print('✅ [SCREEN-INIT] Controller deleted: $deleted');
+          
+          // Verify deletion
+          final stillRegistered = Get.isRegistered<RealtimeKitVideoCallController>();
+          print('🔴 [SCREEN-INIT] Still registered after deletion: $stillRegistered');
+          
+          if (stillRegistered) {
+            print('⚠️ [SCREEN-INIT] WARNING: Controller still registered after force delete!');
+          }
         } catch (e) {
-          print('RealtimeKitVideoCallScreen: Error deleting stale controller - $e');
+          print('❌ [SCREEN-INIT] Error deleting stale controller: $e');
         }
 
         // Create new controller
+        print('🔴 [SCREEN-INIT] Creating NEW controller...');
         controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
-        controller.initialize(widget.config);
+        print('✅ [SCREEN-INIT] New controller created');
+        
+        print('🔴 [SCREEN-INIT] Initializing new controller...');
+        await controller.initialize(widget.config);
+        print('✅ [SCREEN-INIT] Controller initialized');
       } else {
         // Controller is minimized, reuse it
-        print('RealtimeKitVideoCallScreen: Reusing minimized controller');
+        print('✅ [SCREEN-INIT] Reusing MINIMIZED controller');
         controller = existingController;
       }
     } else {
+      print('✅ [SCREEN-INIT] No existing controller found');
       // Create new controller with permanent flag to prevent auto-disposal
+      print('🔴 [SCREEN-INIT] Creating NEW controller...');
       controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
-      controller.initialize(widget.config);
+      print('✅ [SCREEN-INIT] New controller created');
+      
+      print('🔴 [SCREEN-INIT] Initializing controller...');
+      await controller.initialize(widget.config);
+      print('✅ [SCREEN-INIT] Controller initialized');
     }
+    
+    print('✅ [SCREEN-INIT] ========================================');
+    print('✅ [SCREEN-INIT] Screen initialization complete');
+    print('✅ [SCREEN-INIT] ========================================');
   }
 
   @override
@@ -581,6 +631,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   }
 
   void _showEndCallConfirmation() {
+    print('🔴 [SCREEN-END] End call button pressed');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -592,7 +643,10 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         content: const Text('Are you sure you want to end the consultation?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              print('🔴 [SCREEN-END] User cancelled end call');
+              Navigator.of(ctx).pop();
+            },
             child: Text(
               'Cancel',
               style: TextStyle(color: Colors.grey.shade700),
@@ -600,18 +654,38 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
           ),
           ElevatedButton(
             onPressed: () async {
+              print('🔴 [SCREEN-END] User confirmed end call');
               Navigator.of(ctx).pop();
 
+              print('🔴 [SCREEN-END] ========================================');
+              print('🔴 [SCREEN-END] Starting end call cleanup');
+              print('🔴 [SCREEN-END] ========================================');
+              
               // Unmark as minimized so service can be disposed
+              print('🔴 [SCREEN-END] Setting isMinimized to false...');
               controller.isMinimized.value = false;
+              print('✅ [SCREEN-END] isMinimized set to false');
+              
+              print('🔴 [SCREEN-END] Calling controller.endCall()...');
               await controller.endCall();
+              print('✅ [SCREEN-END] controller.endCall() complete');
 
               // Force delete the controller from GetX to prevent stale controller on next call
+              print('🔴 [SCREEN-END] Force deleting controller...');
               try {
-                Get.delete<RealtimeKitVideoCallController>(force: true);
+                final deleted = Get.delete<RealtimeKitVideoCallController>(force: true);
+                print('✅ [SCREEN-END] Controller deleted: $deleted');
+                
+                // Verify deletion
+                final stillRegistered = Get.isRegistered<RealtimeKitVideoCallController>();
+                print('🔴 [SCREEN-END] Still registered after deletion: $stillRegistered');
               } catch (e) {
-                print('RealtimeKitVideoCallScreen: Error deleting controller - $e');
+                print('❌ [SCREEN-END] Error deleting controller: $e');
               }
+              
+              print('✅ [SCREEN-END] ========================================');
+              print('✅ [SCREEN-END] End call cleanup complete');
+              print('✅ [SCREEN-END] ========================================');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
