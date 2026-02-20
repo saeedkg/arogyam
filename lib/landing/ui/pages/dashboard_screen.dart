@@ -336,7 +336,7 @@ class _HomePageState extends State<HomePage> {
                           final hasUpcomingAppointments = controller.upcomingAppointments.isNotEmpty;
                           final hasFollowUpChats = controller.followUpChats.isNotEmpty;
                           
-                          if (!hasConsultationsToJoin && !hasUpcomingAppointments && !hasFollowUpChats) {
+                          if (!hasConsultationsToJoin && !hasUpcomingAppointments) {
                             return const SizedBox(height: 50);
                           }
                           
