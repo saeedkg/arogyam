@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAnqKROPXe6oQltHakCmES_oC4R-iOljKc',
+    appId: '1:271423755393:android:71edfecb13869a82c4e980',
+    messagingSenderId: '271423755393',
+    projectId: 'igoal-8e595',
+    storageBucket: 'igoal-8e595.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
-    iosBundleId: 'YOUR_IOS_BUNDLE_ID',
+    apiKey: 'AIzaSyBBIlAGBS_tewSQBGZLj_PryE9VF1L3Pp0',
+    appId: '1:271423755393:ios:07dfb28db534ef2ac4e980',
+    messagingSenderId: '271423755393',
+    projectId: 'igoal-8e595',
+    storageBucket: 'igoal-8e595.firebasestorage.app',
+    iosBundleId: 'com.focus.askit',
   );
 }

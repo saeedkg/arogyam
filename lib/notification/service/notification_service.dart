@@ -56,7 +56,6 @@ class NotificationService {
   /// Show foreground notification
   static Future<void> showForegroundNotification(RemoteMessage message) async {
     RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
 
     if (notification != null) {
       await _localNotifications.show(
@@ -94,7 +93,7 @@ class NotificationService {
     
     if (response.payload != null) {
       try {
-        final data = jsonDecode(response.payload!);
+        jsonDecode(response.payload!);
         // Handle navigation based on data
         // This will be implemented in notification_router.dart
       } catch (e) {

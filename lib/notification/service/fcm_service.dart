@@ -1,6 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
 
 /// Top-level function for background message handler
 @pragma('vm:entry-point')

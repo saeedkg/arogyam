@@ -15,6 +15,7 @@ import '../../consultation/ui/realtimekit_video_call_screen.dart';
 import '../../consultation/entities/video_call_config.dart';
 import '../../hospital/ui/hospital_detail_screen.dart';
 import '../../clinic/ui/clinic_detail_screen.dart';
+import '../../notification/ui/notification_history_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -35,6 +36,7 @@ class AppRoutes {
   static const String doctorDetailScreen = '/doctor_detail_screen';
   static const String hospitalDetail = '/hospital_detail';
   static const String clinicDetail = '/clinic_detail';
+  static const String notificationHistory = '/notification_history';
 
 
   static const String videoCall = '/video_call';
@@ -126,6 +128,10 @@ class AppRoutes {
         final clinicId = Get.arguments as String? ?? 'c1';
         return ClinicDetailScreen(clinicId: clinicId);
       },
+    ),
+    GetPage(
+      name: notificationHistory,
+      page: () => const NotificationHistoryScreen(),
     ),
     GetPage(
       name: videoCall,
