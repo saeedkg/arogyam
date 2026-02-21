@@ -10,6 +10,7 @@ import 'onboarding/onboarding_screen.dart';
 import '_shared/routing/routing.dart';
 import '_shared/ui/app_colors.dart';
 import 'auth/request_otp_screen.dart';
+import 'landing/controller/home_controller.dart';
 import 'notification/service/fcm_service.dart';
 import 'notification/service/notification_service.dart';
 import 'notification/service/device_service.dart';
@@ -37,6 +38,17 @@ Future<void> main() async {
   FCMService.setupForegroundMessageHandler((message) {
     // Show foreground notification
     NotificationService.showForegroundNotification(message);
+    
+    // Refresh dashboard if HomeController is registered
+    try {
+      if (Get.isRegistered<HomeController>()) {
+        final homeController = Get.find<HomeController>();
+        homeController.refreshDashboardData();
+        print('✅ Dashboard refreshed after notification');
+      }
+    } catch (e) {
+      print('⚠️ Could not refresh dashboard: $e');
+    }
   });
   
   FCMService.setupBackgroundMessageHandler();
