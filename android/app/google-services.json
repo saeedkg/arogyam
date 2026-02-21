@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "271423755393",
+    "project_id": "igoal-8e595",
+    "storage_bucket": "igoal-8e595.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271423755393:android:e0ac8e37019af0dec4e980",
+        "android_client_info": {
+          "package_name": "com.atmepay.focus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnqKROPXe6oQltHakCmES_oC4R-iOljKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271423755393:android:71edfecb13869a82c4e980",
+        "android_client_info": {
+          "package_name": "com.focus.askit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnqKROPXe6oQltHakCmES_oC4R-iOljKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271423755393:android:fe7d761a9834fb56c4e980",
+        "android_client_info": {
+          "package_name": "com.igoalshoppy.focus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnqKROPXe6oQltHakCmES_oC4R-iOljKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
