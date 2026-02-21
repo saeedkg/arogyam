@@ -369,23 +369,23 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
     final isUnread = notification.status != 'clicked';
     
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isUnread 
-              ? AppColors.primaryGreen.withValues(alpha: 0.3)
-              : AppColors.grey200,
-          width: isUnread ? 2 : 1,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        border: isUnread 
+            ? Border.all(
+                color: AppColors.primaryGreen.withValues(alpha: 0.2),
+                width: 1.5,
+              )
+            : null,
         boxShadow: [
           BoxShadow(
             color: isUnread
-                ? AppColors.primaryGreen.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+                ? AppColors.primaryGreen.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -393,17 +393,18 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _handleNotificationTap(notification),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildNotificationIcon(notification.notificationType, isUnread),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         children: [
@@ -411,63 +412,75 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
                             child: Text(
                               notification.title,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
                                 color: AppColors.grey900,
+                                letterSpacing: -0.2,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 8),
                           if (isUnread)
                             Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
                                 color: AppColors.primaryGreen,
                                 shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primaryGreen.withValues(alpha: 0.3),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         notification.body,
                         style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.grey700,
-                          height: 1.4,
+                          fontSize: 13,
+                          color: AppColors.grey600,
+                          height: 1.3,
+                          letterSpacing: -0.1,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Icon(
-                            Icons.access_time_rounded,
-                            size: 14,
+                            Icons.schedule_rounded,
+                            size: 13,
                             color: AppColors.grey500,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             _formatTime(notification.sentAt),
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: AppColors.grey500,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           _buildStatusChip(notification.status),
+                          const Spacer(),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: AppColors.grey400,
+                            size: 14,
+                          ),
                         ],
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.grey400,
-                  size: 20,
                 ),
               ],
             ),
@@ -485,7 +498,7 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
     switch (type) {
       case 'appointment_reminder':
       case 'appointment_confirmed':
-        icon = Icons.calendar_today_rounded;
+        icon = Icons.event_rounded;
         color = AppColors.primaryBlue;
         bgColor = AppColors.pendingBlue;
         break;
@@ -500,7 +513,7 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
         bgColor = AppColors.cancelledOrange;
         break;
       case 'consultation_started':
-        icon = Icons.video_call_rounded;
+        icon = Icons.videocam_rounded;
         color = AppColors.infoBlue;
         bgColor = const Color(0xFFEDE7F6);
         break;
@@ -516,15 +529,15 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
     }
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: isUnread
-            ? Border.all(color: color.withValues(alpha: 0.3), width: 2)
+            ? Border.all(color: color.withValues(alpha: 0.2), width: 1.5)
             : null,
       ),
-      child: Icon(icon, color: color, size: 24),
+      child: Icon(icon, color: color, size: 20),
     );
   }
 
@@ -556,26 +569,27 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withValues(alpha: 0.2),
-          width: 1,
+          color: color.withValues(alpha: 0.15),
+          width: 0.5,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
+          Icon(icon, size: 10, color: color),
+          const SizedBox(width: 3),
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               color: color,
               fontWeight: FontWeight.w600,
+              letterSpacing: -0.1,
             ),
           ),
         ],
@@ -583,7 +597,11 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
     );
   }
 
-  String _formatTime(DateTime dateTime) {
+  String _formatTime(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'Pending';
+    }
+    
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 

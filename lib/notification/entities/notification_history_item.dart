@@ -4,7 +4,7 @@ class NotificationHistoryItem {
   final String title;
   final String body;
   final String status;
-  final DateTime sentAt;
+  final DateTime? sentAt;
   final DateTime? deliveredAt;
   final DateTime? clickedAt;
   final Map<String, dynamic>? data;
@@ -16,7 +16,7 @@ class NotificationHistoryItem {
     required this.title,
     required this.body,
     required this.status,
-    required this.sentAt,
+    this.sentAt,
     this.deliveredAt,
     this.clickedAt,
     this.data,
@@ -30,7 +30,9 @@ class NotificationHistoryItem {
       title: json['title'] as String,
       body: json['body'] as String,
       status: json['status'] as String,
-      sentAt: DateTime.parse(json['sent_at'] as String),
+      sentAt: json['sent_at'] != null
+          ? DateTime.parse(json['sent_at'] as String)
+          : null,
       deliveredAt: json['delivered_at'] != null
           ? DateTime.parse(json['delivered_at'] as String)
           : null,
@@ -51,7 +53,7 @@ class NotificationHistoryItem {
       'title': title,
       'body': body,
       'status': status,
-      'sent_at': sentAt.toIso8601String(),
+      'sent_at': sentAt?.toIso8601String(),
       'delivered_at': deliveredAt?.toIso8601String(),
       'clicked_at': clickedAt?.toIso8601String(),
       'data': data,
