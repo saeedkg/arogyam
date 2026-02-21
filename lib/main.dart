@@ -15,6 +15,7 @@ import 'notification/service/notification_service.dart';
 import 'notification/service/device_service.dart';
 import 'notification/utils/notification_router.dart';
 import 'notification/repository/notification_repository.dart';
+import 'notification/controller/notification_controller.dart';
 import 'notification/entities/requests/device_registration_request.dart';
 import 'network/services/arogyam_api.dart';
 
@@ -64,10 +65,30 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final hasOnboarded = prefs.getBool('onboarding_complete') ?? false;
   
+  // Initialize NotificationController if user is logged in
+  _initializeNotificationController(prefs);
+  
   // Re-register device if user is logged in
   _reRegisterDeviceIfLoggedIn(prefs);
   
   runApp(ArogyamApp(showOnboarding: !hasOnboarded));
+}
+
+/// Initialize NotificationController for logged-in users
+void _initializeNotificationController(SharedPreferences prefs) {
+  final authToken = prefs.getString('auth_token');
+  
+  if (authToken != null) {
+    // User is logged in, initialize NotificationController
+    final userRole = prefs.getString('user_role') ?? 'patient';
+    final api = AROGYAMAPI();
+    final repository = NotificationRepository(api, userRole);
+    
+    // Use Get.put to initialize the controller
+    Get.put(NotificationController(repository), permanent: true);
+    
+    print('✅ NotificationController initialized');
+  }
 }
 
 /// Re-register device on app launch to update last_used_at

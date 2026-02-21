@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:arogyam/notification/ui/notification_history_screen.dart';
+import 'package:arogyam/notification/controller/notification_controller.dart';
 import '../../../_shared/consultation/consultation_type.dart';
 import '../../../_shared/constants/network_config.dart';
 import '../../controller/home_controller.dart';
@@ -271,23 +273,7 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     const Spacer(),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () {
-                                          // Handle notification action
-                                          // TODO: Navigate to notifications screen
-                                        },
-                                        icon: const Icon(
-                                          Icons.notifications_outlined,
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                      ),
-                                    ),
+                                    _NotificationIconButton(),
                                   ],
                                 ),
                                 const SizedBox(height: 20),
@@ -696,6 +682,108 @@ class _HeroSection extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Separate widget for notification icon to avoid GetX scope issues
+class _NotificationIconButton extends StatelessWidget {
+  const _NotificationIconButton();
+
+  @override
+  Widget build(BuildContext context) {
+    // Try to get controller, if not available show icon without badge
+    try {
+      if (!Get.isRegistered<NotificationController>()) {
+        return _buildIconWithoutBadge();
+      }
+
+      // Use Obx with manual controller retrieval
+      final controller = Get.find<NotificationController>();
+      
+      return Obx(() {
+        final unreadCount = controller.notificationHistory
+            .where((n) => n.status != 'clicked')
+            .length;
+
+        return _buildIconWithBadge(unreadCount);
+      });
+    } catch (e) {
+      // If any error occurs, show icon without badge
+      return _buildIconWithoutBadge();
+    }
+  }
+
+  Widget _buildIconWithoutBadge() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: IconButton(
+        onPressed: () {
+          Get.to(() => const NotificationHistoryScreen());
+        },
+        icon: const Icon(
+          Icons.notifications_outlined,
+          color: Colors.white,
+          size: 22,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconWithBadge(int unreadCount) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IconButton(
+            onPressed: () {
+              Get.to(() => const NotificationHistoryScreen());
+            },
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+        ),
+        if (unreadCount > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white,
+                  width: 2,
+                ),
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 18,
+                minHeight: 18,
+              ),
+              child: Center(
+                child: Text(
+                  unreadCount > 9 ? '9+' : unreadCount.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

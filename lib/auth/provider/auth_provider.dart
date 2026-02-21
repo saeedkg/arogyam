@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'dart:io';
+import 'package:get/get.dart';
 import '../user_management/service/new_user_adder.dart';
 import '../service/auth_service.dart';
 import '../service/logout_service.dart';
@@ -10,6 +11,7 @@ import '../../notification/service/device_service.dart';
 import '../../notification/service/fcm_service.dart';
 import '../../notification/service/notification_service.dart';
 import '../../notification/repository/notification_repository.dart';
+import '../../notification/controller/notification_controller.dart';
 import '../../notification/entities/requests/device_registration_request.dart';
 import '../../notification/utils/retry_policy.dart';
 import '../../network/services/arogyam_api.dart';
@@ -84,6 +86,8 @@ class AuthProvider extends ChangeNotifier {
       print(verifyOtpResponse?.userExists);
       if (verifyOtpResponse?.user != null && verifyOtpResponse?.userExists == true) {
         await _newUserAdder.addUser(_verifyOtpResponse!.user!);
+        // Initialize NotificationController
+        _initializeNotificationController();
         // Register device for push notifications (non-blocking)
         _registerDeviceInBackground();
         // Clear all auth state after successful login
@@ -125,6 +129,8 @@ class AuthProvider extends ChangeNotifier {
       _verifyOtpResponse = response;
       if (verifyOtpResponse?.user != null && verifyOtpResponse?.success == true) {
         await _newUserAdder.addUser(_verifyOtpResponse!.user!);
+        // Initialize NotificationController
+        _initializeNotificationController();
         // Register device for push notifications (non-blocking)
         _registerDeviceInBackground();
         // Clear all auth state after successful registration
@@ -190,6 +196,12 @@ class AuthProvider extends ChangeNotifier {
       await DeviceService.clearRegistrationStatus();
       await NotificationService.clearHistory();
       
+      // Delete NotificationController
+      if (Get.isRegistered<NotificationController>()) {
+        Get.delete<NotificationController>();
+        print('✅ NotificationController deleted on logout');
+      }
+      
       // Clear all local user data regardless of API response
       // This ensures user data is cleared even if API call fails
       await LogoutService().clearAllUserData();
@@ -203,6 +215,12 @@ class AuthProvider extends ChangeNotifier {
       await FCMService.deleteToken();
       await DeviceService.clearRegistrationStatus();
       await NotificationService.clearHistory();
+      
+      // Delete NotificationController
+      if (Get.isRegistered<NotificationController>()) {
+        Get.delete<NotificationController>();
+      }
+      
       await LogoutService().clearAllUserData();
       resetAuthState();
       
@@ -306,5 +324,30 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
+  /// Initialize NotificationController after successful login
+  void _initializeNotificationController() async {
+    try {
+      // Get user role from stored user data
+      final prefs = await SharedPreferences.getInstance();
+      final userRole = prefs.getString('user_role') ?? 'patient';
+      
+      // Check if controller is already registered
+      if (Get.isRegistered<NotificationController>()) {
+        // Delete existing controller
+        Get.delete<NotificationController>();
+      }
+      
+      // Create new repository and controller
+      final api = AROGYAMAPI();
+      final repository = NotificationRepository(api, userRole);
+      
+      // Register controller with GetX
+      Get.put(NotificationController(repository), permanent: true);
+      
+      print('✅ NotificationController initialized after login');
+    } catch (e) {
+      print('❌ Error initializing NotificationController: $e');
+    }
+  }
 
 } 
