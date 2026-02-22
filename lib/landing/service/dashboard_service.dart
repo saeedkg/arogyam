@@ -65,6 +65,19 @@ class DashboardService {
       throw NetworkFailureException();
     } on APIException catch (exception) {
       if (exception is HTTPException) {
+        // Check for TOKEN_INVALID with action: login
+        if (exception.responseData != null && exception.responseData is Map<String, dynamic>) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final errorCode = responseMap['error_code'];
+          final action = responseMap['action'];
+          
+          // If token is invalid and action is login, throw special exception
+          if (errorCode == 'TOKEN_INVALID' && action == 'login') {
+            throw TokenInvalidException(responseMap['message'] ?? 'Your session has expired. Please login again.');
+          }
+        }
+        
+        // Handle other HTTP exceptions
         if (exception.responseData != null &&
             exception.responseData is Map<String, dynamic> &&
             (exception.responseData as Map<String, dynamic>)["message"] != null) {

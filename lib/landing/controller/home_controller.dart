@@ -1,10 +1,18 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import '../../appointment/entities/appointment.dart';
 import '../../auth/user_management/service/auth_token_provider.dart';
+import '../../auth/service/logout_service.dart';
+import '../../_shared/routing/app_navigation.dart';
 import '../../common_services/entities/doctor.dart' as common_doctor;
 import '../../common_services/entities/specialization.dart';
 import '../../common_services/services/doctor_service.dart';
 import '../../common_services/services/specialization_service.dart';
+import '../../network/exceptions/token_invalid_exception.dart';
+import '../../notification/service/fcm_service.dart';
+import '../../notification/service/device_service.dart';
+import '../../notification/service/notification_service.dart';
+import '../../notification/controller/notification_controller.dart';
 import '../entities/banner_item.dart';
 import '../entities/category_item.dart';
 import '../entities/doctor.dart';
@@ -115,6 +123,13 @@ class HomeController extends GetxController {
         )).toList(),
       );
     } catch (e) {
+      // Handle TOKEN_INVALID exception
+      if (e is TokenInvalidException) {
+        isLoading.value = false; // Stop loading before showing dialog
+        await _handleTokenInvalid(e.userReadableMessage);
+        return; // Exit after handling token invalid
+      }
+      
       print('Error loading dashboard data: $e');
       // Continue loading other data even if dashboard fails
       try {
@@ -179,7 +194,106 @@ class HomeController extends GetxController {
         followUpChats.clear();
       }
     } catch (e) {
+      // Handle TOKEN_INVALID exception
+      if (e is TokenInvalidException) {
+        await _handleTokenInvalid(e.userReadableMessage);
+        return;
+      }
+      
       print('Error refreshing dashboard data: $e');
+    }
+  }
+
+  /// Handle TOKEN_INVALID exception - show alert and force logout
+  Future<void> _handleTokenInvalid(String message) async {
+    // Show alert dialog
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Session Expired',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              // Return true to indicate user wants to logout
+              Get.back(result: true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Login Again'),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+    
+    // If user clicked the button, show loading and perform logout
+    if (result == true) {
+      // Show loading dialog
+      Get.dialog(
+        PopScope(
+          canPop: false,
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Logging out...',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+      
+      // Perform logout cleanup
+      try {
+        print('🔄 Starting forced logout cleanup...');
+        
+        // Clear FCM token
+        await FCMService.deleteToken();
+        
+        // Clear notification data
+        await DeviceService.clearRegistrationStatus();
+        await NotificationService.clearHistory();
+        
+        // Delete NotificationController
+        if (Get.isRegistered<NotificationController>()) {
+          Get.delete<NotificationController>();
+          print('✅ NotificationController deleted on forced logout');
+        }
+        
+        // Clear all local user data
+        await LogoutService().clearAllUserData();
+        
+        print('✅ Forced logout completed successfully');
+      } catch (e) {
+        print('⚠️ Error during forced logout cleanup: $e');
+        // Continue to navigation even if cleanup fails
+      }
+      
+      // Close loading dialog
+      Get.back();
+      
+      // Navigate to login screen
+      print('🚀 Navigating to login screen...');
+      AppNavigation.offAllToRequestOtpScreen();
     }
   }
 }

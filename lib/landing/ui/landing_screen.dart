@@ -29,7 +29,21 @@ class _LandingPageState extends State<LandingPage> {
   @override
   void initState() {
     super.initState();
+    // Delete existing controller if it exists (e.g., after logout)
+    if (Get.isRegistered<HomeController>()) {
+      Get.delete<HomeController>();
+    }
+    // Create fresh controller
     Get.put(HomeController());
+  }
+
+  @override
+  void dispose() {
+    // Clean up controller when landing page is disposed
+    if (Get.isRegistered<HomeController>()) {
+      Get.delete<HomeController>();
+    }
+    super.dispose();
   }
 
   Future<bool> _onWillPop() async {
