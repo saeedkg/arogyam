@@ -126,16 +126,63 @@ class AROGYAMAPI implements NetworkAdapter {
   }
 
   bool _shouldRefreshTokenOnException(APIException apiException) {
+    print("🔍 _shouldRefreshTokenOnException called");
+    
     if (apiException is HTTPException) {
+      print("📡 HTTPException detected - HTTP Code: ${apiException.httpCode}");
+      
       try {
-        // var responseData = json.decode(apiException.responseData);
-        // var responseMap = responseData as Map<String, dynamic>;
-        // var errorCode = responseMap['code'];
-        if (apiException.httpCode == 401) return true;
+        // Token expiration will always come with HTTP 401
+        // If not 401, no need to check response body
+        if (apiException.httpCode != 401) {
+          print("❌ HTTP Code is not 401, skipping token refresh");
+          return false;
+        }
+        
+        print("✅ HTTP Code is 401, checking response body...");
+        
+        // Check for TOKEN_EXPIRED error_code with refresh action in response data
+        var responseData = apiException.responseData;
+        print("📦 Response Data Type: ${responseData.runtimeType}");
+        print("📦 Response Data: $responseData");
+        
+        // If responseData is a string, try to parse it as JSON
+        if (responseData is String) {
+          try {
+            responseData = json.decode(responseData);
+            print("✅ Parsed response data as JSON: $responseData");
+          } catch (e) {
+            print("⚠️ Failed to parse response data as JSON: $e");
+            // If parsing fails, keep original data
+          }
+        }
+        
+        // Only refresh token if API explicitly says so with error_code and action
+        if (responseData is Map<String, dynamic>) {
+          var errorCode = responseData['error_code'];
+          var action = responseData['action'];
+          
+          print("🔑 error_code: $errorCode");
+          print("🎬 action: $action");
+          
+          if (errorCode == 'TOKEN_EXPIRED' && action == 'refresh') {
+            print("🔄 Token refresh required! Returning true");
+            return true;
+          } else {
+            print("❌ error_code or action doesn't match. No token refresh.");
+          }
+        } else {
+          print("⚠️ Response data is not a Map");
+        }
       } catch (e) {
+        print("⚠️ Exception in _shouldRefreshTokenOnException: $e");
         //ignore exception as the response data is optional
       }
+    } else {
+      print("❌ Not an HTTPException");
     }
+    
+    print("❌ Returning false - no token refresh");
     return false;
   }
   
