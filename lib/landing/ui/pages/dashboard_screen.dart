@@ -59,13 +59,13 @@ class _HomePageState extends State<HomePage> {
         statusBarBrightness: Brightness.dark,
       ),
     );
-    
+
     final controller = Get.find<HomeController>();
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        
+
         // Check if there's an active minimized call
         // if (!MinimizedCallManager.canStartNewCall()) {
         //   // Show dialog to end call before exiting
@@ -88,73 +88,232 @@ class _HomePageState extends State<HomePage> {
         // }
       },
       child: Scaffold(
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          // Show only loading screen when data is loading
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            // Show only loading screen when data is loading
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.teal,
+                    AppColors.teal.withOpacity(0.9),
+                    AppColors.primaryGreen,
+                  ],
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Simple header during loading
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Ask It',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const Text(
+                                'Doctor in minutes',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              onPressed: null, // Disabled during loading
+                              icon: const Icon(
+                                Icons.notifications_outlined,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Loading content
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryGreen.withOpacity(
+                                    0.1,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryGreen.withOpacity(
+                                      0.2,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primaryGreen,
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Loading your health dashboard...',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Getting your appointments and doctors ready',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey.shade500,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Show full dashboard when data is loaded
           return Container(
+            // Gradient background with green variants - darker on right, lighter on left
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
                 colors: [
-                  AppColors.teal,
-                  AppColors.teal.withOpacity(0.9),
-                  AppColors.primaryGreen,
+                  const Color(0xFF5A9C8E), // Lighter teal-green on left
+                  const Color(0xFF4A8B7E), // Medium green
+                  const Color(0xFF3A7A6E), // Darker green on right
                 ],
               ),
             ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  // Simple header during loading
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                    child: Row(
+            child: RefreshIndicator(
+              onRefresh: controller.loadAll,
+              color: Colors.white,
+              backgroundColor: AppColors.primaryGreen,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  // Fixed header with teal/green gradient (no collapsing)
+                  SliverToBoxAdapter(
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Ask It',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              'Doctor in minutes',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
                         Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: IconButton(
-                            onPressed: null, // Disabled during loading
-                            icon: const Icon(
-                              Icons.notifications_outlined,
-                              color: Colors.white,
-                              size: 22,
+                          child: SafeArea(
+                            bottom: false,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                20,
+                                16,
+                                20,
+                                60,
+                              ), // Increased bottom padding for more green area
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header with app name and search icon
+                                  Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Ask It',
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const Text(
+                                            'Doctor in minutes',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Spacer(),
+                                      _NotificationIconButton(),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+
+                                  // Full-width animated search bar
+                                  const AnimatedSearchBar(),
+                                  const SizedBox(height: 20),
+
+                                  // Quick Actions inside green area
+                                  const _OriginalQuickActions(),
+                                ],
+                              ),
                             ),
                           ),
+                        ),
+                        // Monsoon Care Tips positioned in between (overlapping edge)
+                        Positioned(
+                          left: 20,
+                          right: 20,
+                          bottom:
+                              -40, // Position so half is in green, half will be in white
+                          child: const MonsoonCareTipsCard(),
                         ),
                       ],
                     ),
                   ),
-                  
-                  // Loading content
-                  Expanded(
+
+                  // Main content with white background starting from green area
+                  SliverToBoxAdapter(
                     child: Container(
-                      width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -162,49 +321,127 @@ class _HomePageState extends State<HomePage> {
                           topRight: Radius.circular(20),
                         ),
                       ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryGreen.withOpacity(0.1),
-                                shape: BoxShape.circle,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Spacing for overlapping Monsoon card
+                          // const SizedBox(height: 50),
+
+                          // Upcoming Appointments Section (if any)
+                          Obx(() {
+                            final hasConsultationsToJoin =
+                                controller.consultationsToJoin.isNotEmpty;
+                            final hasUpcomingAppointments =
+                                controller.upcomingAppointments.isNotEmpty;
+                            final hasFollowUpChats =
+                                controller.followUpChats.isNotEmpty;
+
+                            if (!hasConsultationsToJoin &&
+                                !hasUpcomingAppointments) {
+                              return const SizedBox(height: 50);
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
                               ),
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryGreen.withOpacity(0.2),
-                                  shape: BoxShape.circle,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 60),
+                                  _SectionHeader(
+                                    title: 'Upcoming Appointments',
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Consultations to join (ready to join now)
+                                  if (hasConsultationsToJoin)
+                                    ...controller.consultationsToJoin.map(
+                                      (consultation) => ConsultationToJoinCard(
+                                        consultation: consultation,
+                                        onTap: () async {
+                                          final result = await Get.to(
+                                            () => PendingConsultationScreen(
+                                              appointmentId: consultation.id
+                                                  .toString(),
+                                            ),
+                                          );
+                                          if (result == true) {
+                                            controller.refreshDashboardData();
+                                          }
+                                        },
+                                      ),
+                                    ),
+
+                                  // Regular upcoming appointments
+                                  if (hasUpcomingAppointments)
+                                    UpcomingAppointmentsCard(
+                                      appointments:
+                                          controller.upcomingAppointments,
+                                      onTap: (appointment) async {
+                                        final result = await Get.to(
+                                          () => PendingConsultationScreen(
+                                            appointmentId: appointment.id
+                                                .toString(),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          controller.refreshDashboardData();
+                                        }
+                                      },
+                                    ),
+
+                                  const SizedBox(height: 16),
+                                ],
+                              ),
+                            );
+                          }),
+
+                          // Top Specialities with rounded white background
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _SectionHeader(
+                                  title: 'Top Specialties',
+                                  onSeeAllPressed: () {
+                                    // Navigate to full categories list
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AllCategoriesScreen(
+                                              categories: controller.categories,
+                                            ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                child: CircularProgressIndicator(
-                                  color: AppColors.primaryGreen,
-                                  strokeWidth: 3,
+                                const SizedBox(height: 16),
+                                TopSpecialitiesHorizontal(
+                                  categories: controller.categories,
                                 ),
-                              ),
+                              ],
                             ),
-                            const SizedBox(height: 24),
-                            Text(
-                              'Loading your health dashboard...',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade700,
-                              ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Top doctors
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              children: [
+                                _SectionHeader(title: 'Featured Doctors'),
+                                const SizedBox(height: 16),
+                                TopDoctors(doctors: controller.topDoctors),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Getting your appointments and doctors ready',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey.shade500,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(
+                            height: 100,
+                          ), // Extra bottom padding for floating widget
+                        ],
                       ),
                     ),
                   ),
@@ -212,259 +449,61 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           );
-        }
-        
-        // Show full dashboard when data is loaded
-        return Container(
-          // Gradient background with green variants - darker on right, lighter on left
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                const Color(0xFF5A9C8E), // Lighter teal-green on left
-                const Color(0xFF4A8B7E), // Medium green
-                const Color(0xFF3A7A6E), // Darker green on right
-              ],
-            ),
-          ),
-          child: RefreshIndicator(
-            onRefresh: controller.loadAll,
-            color: Colors.white,
-            backgroundColor: AppColors.primaryGreen,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                // Fixed header with teal/green gradient (no collapsing)
-                SliverToBoxAdapter(
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        child: SafeArea(
-                          bottom: false,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 60), // Increased bottom padding for more green area
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Header with app name and search icon
-                                Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Ask It',
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        const Text(
-                                          'Doctor in minutes',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const Spacer(),
-                                    _NotificationIconButton(),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                
-                                // Full-width animated search bar
-                                const AnimatedSearchBar(),
-                                const SizedBox(height: 20),
-                                
-                                // Quick Actions inside green area
-                                const _OriginalQuickActions(),
-                              ],
-                            ),
-                          ),
-                        ),
+        }),
+        floatingActionButton: Obx(() {
+          if (controller.followUpChats.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
+          final totalUnread = controller.followUpChats.fold<int>(
+            0,
+            (sum, chat) => sum + chat.unreadCount,
+          );
+
+          return FloatingActionButton.extended(
+            onPressed: () => _showFollowUpChatsModal(context, controller),
+            backgroundColor: AppColors.primaryBlue,
+            elevation: 8,
+            icon: totalUnread > 0
+                ? Badge(
+                    label: Text(
+                      totalUnread > 9 ? '9+' : totalUnread.toString(),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
                       ),
-                      // Monsoon Care Tips positioned in between (overlapping edge)
-                      Positioned(
-                        left: 20,
-                        right: 20,
-                        bottom: -40, // Position so half is in green, half will be in white
-                        child: const MonsoonCareTipsCard(),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Main content with white background starting from green area
-                SliverToBoxAdapter(
-                  child: Container(
-                    decoration: const BoxDecoration(
+                    ),
+                    backgroundColor: Colors.red,
+                    child: const Icon(
+                      Icons.chat_bubble_rounded,
                       color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
+                      size: 22,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Spacing for overlapping Monsoon card
-                       // const SizedBox(height: 50),
-
-                        // Upcoming Appointments Section (if any)
-                        Obx(() {
-                          final hasConsultationsToJoin = controller.consultationsToJoin.isNotEmpty;
-                          final hasUpcomingAppointments = controller.upcomingAppointments.isNotEmpty;
-                          final hasFollowUpChats = controller.followUpChats.isNotEmpty;
-                          
-                          if (!hasConsultationsToJoin && !hasUpcomingAppointments) {
-                            return const SizedBox(height: 50);
-                          }
-                          
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 60),
-                                _SectionHeader(title: 'Upcoming Appointments'),
-                                const SizedBox(height: 16),
-                                
-                                // Consultations to join (ready to join now)
-                                if (hasConsultationsToJoin)
-                                  ...controller.consultationsToJoin.map((consultation) =>
-                                    ConsultationToJoinCard(
-                                      consultation: consultation,
-                                      onTap: () async {
-                                        final result = await Get.to(() => PendingConsultationScreen(
-                                          appointmentId: consultation.id.toString(),
-                                        ));
-                                        if (result == true) {
-                                          controller.refreshDashboardData();
-                                        }
-                                      },
-                                    )
-                                  ),
-                                
-                                // Regular upcoming appointments
-                                if (hasUpcomingAppointments)
-                                  UpcomingAppointmentsCard(
-                                    appointments: controller.upcomingAppointments,
-                                    onTap: (appointment) async {
-                                      final result = await Get.to(() => PendingConsultationScreen(
-                                        appointmentId: appointment.id.toString(),
-                                      ));
-                                      if (result == true) {
-                                        controller.refreshDashboardData();
-                                      }
-                                    },
-                                  ),
-
-                                const SizedBox(height: 16),
-                              ],
-                            ),
-                          );
-                        }),
-
-                        // Top Specialities with rounded white background
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _SectionHeader(
-                                title: 'Top Specialties',
-                                onSeeAllPressed: () {
-                                  // Navigate to full categories list
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AllCategoriesScreen(categories: controller.categories),
-                                    ),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              TopSpecialitiesHorizontal(categories: controller.categories),
-                            ],
-                          ),
-                        ),
-                    const SizedBox(height: 24),
-
-                    // Top doctors
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: [
-                          _SectionHeader(title: 'Featured Doctors'),
-                          const SizedBox(height: 16),
-                          TopDoctors(doctors: controller.topDoctors),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 100), // Extra bottom padding for floating widget
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
-      floatingActionButton: Obx(() {
-        if (controller.followUpChats.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        
-        final totalUnread = controller.followUpChats.fold<int>(0, (sum, chat) => sum + chat.unreadCount);
-        
-        return FloatingActionButton.extended(
-          onPressed: () => _showFollowUpChatsModal(context, controller),
-          backgroundColor: AppColors.primaryBlue,
-          elevation: 8,
-          icon: totalUnread > 0
-              ? Badge(
-                  label: Text(
-                    totalUnread > 9 ? '9+' : totalUnread.toString(),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  backgroundColor: Colors.red,
-                  child: const Icon(
+                  )
+                : const Icon(
                     Icons.chat_bubble_rounded,
                     color: Colors.white,
                     size: 22,
                   ),
-                )
-              : const Icon(
-                  Icons.chat_bubble_rounded,
-                  color: Colors.white,
-                  size: 22,
-                ),
-          label: const Text(
-            'Messages',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+            label: const Text(
+              'Messages',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-        );
-      }),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          );
+        }),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
 
-  void _showFollowUpChatsModal(BuildContext context, HomeController controller) {
+  void _showFollowUpChatsModal(
+    BuildContext context,
+    HomeController controller,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -503,7 +542,9 @@ class _HomePageState extends State<HomePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: const Text('End Call & Exit'),
           ),
@@ -643,7 +684,10 @@ class _HeroSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primaryGreen,
                           borderRadius: BorderRadius.circular(20),
@@ -700,7 +744,7 @@ class _NotificationIconButton extends StatelessWidget {
 
       // Use Obx with manual controller retrieval
       final controller = Get.find<NotificationController>();
-      
+
       return Obx(() {
         final unreadCount = controller.notificationHistory
             .where((n) => n.status != 'clicked')
@@ -762,15 +806,9 @@ class _NotificationIconButton extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.red,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white, width: 2),
               ),
-              constraints: const BoxConstraints(
-                minWidth: 18,
-                minHeight: 18,
-              ),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
               child: Center(
                 child: Text(
                   unreadCount > 9 ? '9+' : unreadCount.toString(),
@@ -798,72 +836,68 @@ class _OriginalQuickActions extends StatelessWidget {
       children: [
         Row(
           children: [
-              // Put Instant Consult first (main focus - doctor in seconds)
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.bolt_rounded,
-                  title: 'Doctor in Sec',
-                  color: const Color(0xFFFDB68A),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFFED7AA), // Lighter orange
-                      Color(0xFFFDB68A), // Medium orange
-                      Color(0xFFFB923C), // Deeper orange
-                    ],
-                  ),
-                  type: _QuickActionType.instantConsult,
+            // Put Instant Consult first (main focus - doctor in seconds)
+            Expanded(
+              child: _QuickActionCard(
+                icon: Icons.bolt_rounded,
+                title: 'Doctor in Sec',
+                color: const Color(0xFFFDB68A),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFFED7AA), // Lighter orange
+                    Color(0xFFFDB68A), // Medium orange
+                    Color(0xFFFB923C), // Deeper orange
+                  ],
                 ),
+                type: _QuickActionType.instantConsult,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.videocam_rounded,
-                  title: 'Video Consult',
-                  color: const Color(0xFFC4B5FD),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFDDD6FE), // Lighter purple
-                      Color(0xFFC4B5FD), // Medium purple
-                      Color(0xFFA78BFA), // Deeper purple
-                    ],
-                  ),
-                  type: _QuickActionType.videoConsult,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _QuickActionCard(
+                icon: Icons.videocam_rounded,
+                title: 'Video Consult',
+                color: const Color(0xFFC4B5FD),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFDDD6FE), // Lighter purple
+                    Color(0xFFC4B5FD), // Medium purple
+                    Color(0xFFA78BFA), // Deeper purple
+                  ],
                 ),
+                type: _QuickActionType.videoConsult,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.calendar_today_rounded,
-                  title: 'Physical\nAppointment',
-                  color: const Color(0xFF7DD3FC),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF93C5FD), // Lighter blue
-                      Color(0xFF7DD3FC), // Medium blue
-                      Color(0xFF60A5FA), // Deeper blue
-                    ],
-                  ),
-                  type: _QuickActionType.hospitalAppointment,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _QuickActionCard(
+                icon: Icons.calendar_today_rounded,
+                title: 'Physical\nAppointment',
+                color: const Color(0xFF7DD3FC),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF93C5FD), // Lighter blue
+                    Color(0xFF7DD3FC), // Medium blue
+                    Color(0xFF60A5FA), // Deeper blue
+                  ],
                 ),
+                type: _QuickActionType.hospitalAppointment,
               ),
-            ],
-          ),
-        ],
-      );
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
-enum _QuickActionType {
-  hospitalAppointment,
-  videoConsult,
-  instantConsult,
-}
+enum _QuickActionType { hospitalAppointment, videoConsult, instantConsult }
 
 class _QuickActionCard extends StatelessWidget {
   final IconData icon;
@@ -896,7 +930,7 @@ class _QuickActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Special styling for instant consult (Doctor in Sec) - our main focus
     final isMainFocus = type == _QuickActionType.instantConsult;
-    
+
     return Material(
       borderRadius: BorderRadius.circular(20),
       color: Colors.transparent,
@@ -907,10 +941,12 @@ class _QuickActionCard extends StatelessWidget {
           switch (type) {
             case _QuickActionType.videoConsult:
               // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
-              final result = await Get.to(() => const CareDiscoveryScreen(
-                entry: 'Video Consultation',
-                 preSelectedAppointmentType: AppointmentType.video,
-              ));
+              final result = await Get.to(
+                () => const CareDiscoveryScreen(
+                  entry: 'Video Consultation',
+                  preSelectedAppointmentType: AppointmentType.video,
+                ),
+              );
               // Refresh if appointment was booked
               if (result == true) {
                 controller.refreshDashboardData();
@@ -920,16 +956,18 @@ class _QuickActionCard extends StatelessWidget {
               // Direct navigation to instant consultation
               final result = await Get.to(() => const InstantConsultScreen());
               // Refresh if appointment was booked
-             // if (result == true) {
-                controller.refreshDashboardData();
+              // if (result == true) {
+              controller.refreshDashboardData();
               //}
               break;
             case _QuickActionType.hospitalAppointment:
               // Direct navigation to CareDiscoveryScreen with pre-selected appointment type
-              final result = await Get.to(() => const CareDiscoveryScreen(
-                entry: 'Hospital Appointment',
-                preSelectedAppointmentType: AppointmentType.clinic,
-              ));
+              final result = await Get.to(
+                () => const CareDiscoveryScreen(
+                  entry: 'Hospital Appointment',
+                  preSelectedAppointmentType: AppointmentType.clinic,
+                ),
+              );
               // Refresh if appointment was booked
               if (result == true) {
                 controller.refreshDashboardData();
@@ -952,27 +990,26 @@ class _QuickActionCard extends StatelessWidget {
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
-                  // Enhanced shadow for main focus card
-                  if (isMainFocus)
-                    BoxShadow(
-                      color: color.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 6),
-                      spreadRadius: 2,
-                    ),
+                  // Enhanced shadow for all cards
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
+                    spreadRadius: 2,
+                  ),
                 ],
-                // Enhanced border for main focus
-                border: isMainFocus 
-                    ? Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 2,
-                      )
-                    : null,
+                // Enhanced border for all cards
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 2,
+                ),
               ),
               padding: const EdgeInsets.all(20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
-                crossAxisAlignment: CrossAxisAlignment.center, // Center content horizontally
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // Center content vertically
+                crossAxisAlignment:
+                    CrossAxisAlignment.center, // Center content horizontally
                 children: [
                   Icon(
                     outlinedIcon, // Use outlined icon
@@ -983,7 +1020,9 @@ class _QuickActionCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: isMainFocus ? 15 : 14, // Slightly bigger text for main focus
+                      fontSize: isMainFocus
+                          ? 15
+                          : 14, // Slightly bigger text for main focus
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                       height: 1.2,
@@ -995,14 +1034,17 @@ class _QuickActionCard extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Badge for main focus card
             if (isMainFocus)
               Positioned(
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.shade500,
                     borderRadius: BorderRadius.circular(12),
@@ -1032,22 +1074,11 @@ class _QuickActionCard extends StatelessWidget {
   }
 }
 
-
-
-
-
-
-
-
-
 class _FollowUpChatsModal extends StatelessWidget {
   final List<FollowUpChatSummary> chats;
   final VoidCallback? onRefresh;
 
-  const _FollowUpChatsModal({
-    required this.chats,
-    this.onRefresh,
-  });
+  const _FollowUpChatsModal({required this.chats, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -1064,7 +1095,9 @@ class _FollowUpChatsModal extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
@@ -1116,7 +1149,7 @@ class _FollowUpChatsModal extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Chat list
           Expanded(
             child: ListView.separated(
@@ -1129,9 +1162,11 @@ class _FollowUpChatsModal extends StatelessWidget {
                   chat: chat,
                   onTap: () async {
                     Navigator.pop(context);
-                    final result = await Get.to(() => FollowUpChatScreen(
-                      appointmentId: chat.appointmentId.toString(),
-                    ));
+                    final result = await Get.to(
+                      () => FollowUpChatScreen(
+                        appointmentId: chat.appointmentId.toString(),
+                      ),
+                    );
                     if (result == true && onRefresh != null) {
                       onRefresh!();
                     }
@@ -1150,10 +1185,7 @@ class _ChatListItem extends StatelessWidget {
   final FollowUpChatSummary chat;
   final VoidCallback onTap;
 
-  const _ChatListItem({
-    required this.chat,
-    required this.onTap,
-  });
+  const _ChatListItem({required this.chat, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1165,7 +1197,7 @@ class _ChatListItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: chat.unreadCount > 0 
+            color: chat.unreadCount > 0
                 ? AppColors.primaryBlue.withValues(alpha: 0.05)
                 : Colors.grey.shade50,
             borderRadius: BorderRadius.circular(12),
@@ -1191,11 +1223,12 @@ class _ChatListItem extends StatelessWidget {
                 ),
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundImage: (chat.doctorImage != null && chat.doctorImage!.isNotEmpty)
+                  backgroundImage:
+                      (chat.doctorImage != null && chat.doctorImage!.isNotEmpty)
                       ? NetworkImage(
                           chat.doctorImage!.startsWith('http')
                               ? chat.doctorImage!
-                              : '${NetworkConfig.baseUrl_Public}/storage/${chat.doctorImage!}'
+                              : '${NetworkConfig.baseUrl_Public}/storage/${chat.doctorImage!}',
                         )
                       : null,
                   backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
@@ -1209,7 +1242,7 @@ class _ChatListItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // Chat details
               Expanded(
                 child: Column(
@@ -1219,7 +1252,9 @@ class _ChatListItem extends StatelessWidget {
                       'Dr. ${chat.doctorName}',
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: chat.unreadCount > 0 ? FontWeight.w700 : FontWeight.w600,
+                        fontWeight: chat.unreadCount > 0
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                         color: Colors.black87,
                         letterSpacing: -0.2,
                       ),
@@ -1231,7 +1266,9 @@ class _ChatListItem extends StatelessWidget {
                       chat.latestMessage,
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: chat.unreadCount > 0 ? FontWeight.w500 : FontWeight.w400,
+                        fontWeight: chat.unreadCount > 0
+                            ? FontWeight.w500
+                            : FontWeight.w400,
                         color: Colors.grey.shade600,
                       ),
                       maxLines: 1,
@@ -1241,11 +1278,14 @@ class _ChatListItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              
+
               // Unread badge or arrow
               if (chat.unreadCount > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(12),
