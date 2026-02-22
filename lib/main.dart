@@ -175,7 +175,15 @@ class ArogyamApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: AppColors.infoBlue),
           useMaterial3: true,
           textTheme: GoogleFonts.poppinsTextTheme(),
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
+          ),
         ),
+        defaultTransition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 300),
         home: showOnboarding ? const OnboardingScreen() : const RequestOtpScreen(),
         getPages: AppRoutes.getPages,
       ),

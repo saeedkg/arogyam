@@ -122,10 +122,11 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> w
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
                   AppColors.teal,
+                  AppColors.teal.withOpacity(0.9),
                   AppColors.primaryGreen,
                 ],
               ),
