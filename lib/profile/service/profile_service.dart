@@ -81,4 +81,36 @@ class ProfileService {
       }
     }
   }
+
+  Future<UserProfile> updateProfilePhoto(String base64Image) async {
+    final url = '${NetworkConfig.baseUrl}/patient/profile/photo';
+    final apiRequest = APIRequest(url);
+    
+    apiRequest.addParameters({
+      'profile_image': base64Image,
+    });
+
+    try {
+      final response = await _networkAdapter.put(apiRequest);
+      final map = response.data as Map<String, dynamic>;
+      final data = map['data'] as Map<String, dynamic>;
+      return UserProfile.fromJson(data);
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to update profile photo', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
 }

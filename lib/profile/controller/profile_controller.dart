@@ -29,6 +29,19 @@ class ProfileController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<bool> updateProfilePhoto(String base64Image) async {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      final result = await _service.updateProfilePhoto(base64Image);
+      profile.value = result;
+      return true;
+    } catch (e) {
+      error.value = e.toString();
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
-
-
