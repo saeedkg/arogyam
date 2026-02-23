@@ -64,6 +64,29 @@ class FamilyMemberService {
       }
     }
   }
+
+  Future<void> deleteFamilyMember(String familyMemberId) async {
+    final apiRequest = APIRequest(FamilyMemberUrls.deleteFamilyMemberUrl(familyMemberId));
+    try {
+      await _networkAdapter.delete(apiRequest);
+    } on NetworkFailureException {
+      throw NetworkFailureException();
+    } on APIException catch (exception) {
+      if (exception is HTTPException) {
+        if (exception.responseData != null &&
+            exception.responseData is Map<String, dynamic> &&
+            (exception.responseData as Map<String, dynamic>)["message"] != null) {
+          final responseMap = exception.responseData as Map<String, dynamic>;
+          final message = responseMap["message"] as String;
+          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
+          throw ServerSentException(message, errorCode);
+        }
+        throw ServerSentException('Failed to delete family member', exception.httpCode);
+      } else {
+        rethrow;
+      }
+    }
+  }
 }
 
 

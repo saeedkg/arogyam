@@ -15,6 +15,12 @@ import '../../notification/controller/notification_controller.dart';
 import '../../notification/entities/requests/device_registration_request.dart';
 import '../../notification/utils/retry_policy.dart';
 import '../../network/services/arogyam_api.dart';
+import '../../profile/controller/profile_controller.dart';
+import '../../_shared/patient/current_patient_controller.dart';
+import '../../landing/controller/home_controller.dart';
+import '../../family_member/controller/family_member_controller.dart';
+import '../../health_records/controller/health_records_controller.dart';
+import '../../appointment/controler/appointments_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -202,6 +208,39 @@ class AuthProvider extends ChangeNotifier {
         print('✅ NotificationController deleted on logout');
       }
       
+      // Delete ProfileController to clear cached profile data
+      if (Get.isRegistered<ProfileController>()) {
+        Get.delete<ProfileController>();
+        print('✅ ProfileController deleted on logout');
+      }
+      
+      // Delete CurrentPatientController to clear patient selection
+      if (Get.isRegistered<CurrentPatientController>()) {
+        Get.delete<CurrentPatientController>();
+        print('✅ CurrentPatientController deleted on logout');
+      }
+      
+      // Delete other user-specific controllers
+      if (Get.isRegistered<HomeController>()) {
+        Get.delete<HomeController>();
+        print('✅ HomeController deleted on logout');
+      }
+      
+      if (Get.isRegistered<FamilyMemberController>()) {
+        Get.delete<FamilyMemberController>();
+        print('✅ FamilyMemberController deleted on logout');
+      }
+      
+      if (Get.isRegistered<HealthRecordsController>()) {
+        Get.delete<HealthRecordsController>();
+        print('✅ HealthRecordsController deleted on logout');
+      }
+      
+      if (Get.isRegistered<AppointmentsController>()) {
+        Get.delete<AppointmentsController>();
+        print('✅ AppointmentsController deleted on logout');
+      }
+      
       // Clear all local user data regardless of API response
       // This ensures user data is cleared even if API call fails
       await LogoutService().clearAllUserData();
@@ -219,6 +258,11 @@ class AuthProvider extends ChangeNotifier {
       // Delete NotificationController
       if (Get.isRegistered<NotificationController>()) {
         Get.delete<NotificationController>();
+      }
+      
+      // Delete ProfileController
+      if (Get.isRegistered<ProfileController>()) {
+        Get.delete<ProfileController>();
       }
       
       await LogoutService().clearAllUserData();

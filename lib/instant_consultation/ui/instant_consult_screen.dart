@@ -15,6 +15,10 @@ class InstantConsultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(InstantConsultController());
+    // Delete and recreate CurrentPatientController to ensure fresh data
+    if (Get.isRegistered<CurrentPatientController>()) {
+      Get.delete<CurrentPatientController>(force: true);
+    }
     final currentPatientController = Get.put(CurrentPatientController());
     final controller = Get.find<InstantConsultController>();
     return Scaffold(

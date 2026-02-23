@@ -17,7 +17,13 @@ class FamilyMembersBottomSheet extends StatefulWidget {
 
 class _FamilyMembersBottomSheetState extends State<FamilyMembersBottomSheet> {
   final c = Get.put(FamilyMemberController());
-  final currentPatientController = Get.put(CurrentPatientController());
+  // Delete and recreate CurrentPatientController to ensure fresh data
+  late final CurrentPatientController currentPatientController = () {
+    if (Get.isRegistered<CurrentPatientController>()) {
+      Get.delete<CurrentPatientController>(force: true);
+    }
+    return Get.put(CurrentPatientController());
+  }();
   FamilyMember? selectedMember;
 
   @override

@@ -25,8 +25,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Ensure controller is available
+    // Delete any existing ProfileController from previous session
+    if (Get.isRegistered<ProfileController>()) {
+      Get.delete<ProfileController>(force: true);
+      print('🔄 Deleted existing ProfileController');
+    }
+    // Create fresh ProfileController for current user
     Get.put(ProfileController());
+    print('✅ Created fresh ProfileController');
     _checkGuestMode();
   }
 
@@ -89,10 +95,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             _buildHeaderSection(),
             const SizedBox(height: 24),
 
-            // Professional Personal Info
-            //_buildPersonalInfo(),
-            const SizedBox(height: 20),
-
             // Health Insights
             _buildHealthInsights(),
             const SizedBox(height: 20),
@@ -110,84 +112,134 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final controller = Get.find<ProfileController>();
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 60, bottom: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.teal,
+            AppColors.teal.withValues(alpha: 0.9),
+            AppColors.primaryGreen,
+          ],
+        ),
       ),
-      child: Column(
-        children: [
-          // Professional Avatar with Status
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                width: 88,
-                height: 88,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.deepPurple.withOpacity(0.8), width: 2.5),
-                ),
-                child: ClipOval(
-                  child: Image.network(
-                    'https://i.pravatar.cc/300?img=25',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: AppColors.sageGreen.withOpacity(0.1),
-                      child: Icon(Icons.person, color: AppColors.deepPurple, size: 36),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // Top bar with edit button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Profile',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
+                  ),
+                  // Modern Edit Button
+                  Material(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      onTap: () async {
+                        final result = await AppNavigation.toEditProfileScreen();
+                        if (result != null) {
+                          controller.fetchProfile();
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.edit_rounded, size: 18, color: Colors.white),
+                            const SizedBox(width: 6),
+                            const Text(
+                              'Edit',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 20),
+            
+            // Avatar and Info
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.network(
+                  'https://i.pravatar.cc/300?img=25',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.white,
+                    child: Icon(Icons.person, color: AppColors.primaryGreen, size: 40),
                   ),
                 ),
               ),
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: AppColors.sageGreen,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+            ),
+            
+            const SizedBox(height: 16),
+
+            // Name
+            Obx(() {
+              final name = controller.profile.value?.name;
+              return Text(
+                name ?? '—',
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
                 ),
-                child: Icon(Icons.check, color: Colors.white, size: 12),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+              );
+            }),
 
-          // Name with Professional Typography (from profile)
-          Obx(() {
-            final name = controller.profile.value?.name;
-            return Text(
-              name ?? '—',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-                letterSpacing: -0.5,
-              ),
-            );
-          }),
+            const SizedBox(height: 6),
 
-          const SizedBox(height: 4),
-
-          // Subtitle: show phone from profile
-          Obx(() {
-            final phone = controller.profile.value?.mobile;
-            return Text(
-              phone ?? '',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-            );
-          }),
-        ],
+            // Phone
+            Obx(() {
+              final phone = controller.profile.value?.phone;
+              return Text(
+                phone ?? '',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w500,
+                ),
+              );
+            }),
+            
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -372,15 +424,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         ),
         child: Column(
           children: [
-            _buildActionTile(context, 'Medical Records', Icons.medical_services_rounded, AppColors.teal),
-            _buildDivider(),
-            _buildActionTile(context, 'Health Profile', Icons.favorite_rounded, AppColors.roseDust),
-            _buildDivider(),
-            _buildActionTile(context, 'Appointments', Icons.calendar_today_rounded, AppColors.mediumSkyBlue),
-            _buildDivider(),
-            _buildActionTile(context, 'Payment & Insurance', Icons.payment_rounded, AppColors.sageGreen),
-            _buildDivider(),
-            _buildActionTile(context, 'Settings', Icons.settings_rounded, AppColors.peach),
+            _buildActionTile(context, 'Family Members', Icons.family_restroom_rounded, AppColors.deepPurple),
             _buildDivider(),
             _buildActionTile(context, 'Help Center', Icons.help_rounded, AppColors.blueBell),
             _buildDivider(),
@@ -419,9 +463,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         ),
         child: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey.shade500),
       ),
-      onTap: () {
+      onTap: () async {
         if (title == 'Sign Out') {
           _showSignOutDialog(context);
+        } else if (title == 'Family Members') {
+          AppNavigation.toFamilyMembersListScreen();
         }
       },
     );

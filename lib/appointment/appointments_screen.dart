@@ -33,6 +33,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   void initState() {
     super.initState();
     c = Get.put(AppointmentsController());
+    // Delete and recreate CurrentPatientController to ensure fresh data
+    if (Get.isRegistered<CurrentPatientController>()) {
+      Get.delete<CurrentPatientController>(force: true);
+    }
     currentPatientController = Get.put(CurrentPatientController());
     _scrollController = ScrollController();
     

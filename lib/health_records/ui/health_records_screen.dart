@@ -29,6 +29,10 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
   void initState() {
     super.initState();
     controller = Get.put(HealthRecordsController());
+    // Delete and recreate CurrentPatientController to ensure fresh data
+    if (Get.isRegistered<CurrentPatientController>()) {
+      Get.delete<CurrentPatientController>(force: true);
+    }
     currentPatientController = Get.put(CurrentPatientController());
     
     // Check if user is in guest mode

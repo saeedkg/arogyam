@@ -16,6 +16,7 @@ import '../../consultation/entities/video_call_config.dart';
 import '../../hospital/ui/hospital_detail_screen.dart';
 import '../../clinic/ui/clinic_detail_screen.dart';
 import '../../notification/ui/notification_history_screen.dart';
+import '../../profile/ui/family_members_list_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -37,6 +38,7 @@ class AppRoutes {
   static const String hospitalDetail = '/hospital_detail';
   static const String clinicDetail = '/clinic_detail';
   static const String notificationHistory = '/notification_history';
+  static const String familyMembersList = '/familyMembersList';
 
 
   static const String videoCall = '/video_call';
@@ -132,6 +134,10 @@ class AppRoutes {
     GetPage(
       name: notificationHistory,
       page: () => const NotificationHistoryScreen(),
+    ),
+    GetPage(
+      name: familyMembersList,
+      page: () => const FamilyMembersListScreen(),
     ),
     GetPage(
       name: videoCall,

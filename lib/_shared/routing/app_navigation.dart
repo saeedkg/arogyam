@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../family_member/ui/family_member_screen.dart';
+import '../../profile/ui/edit_profile_sheet.dart';
 import 'app_routes.dart';
 import '../../auth/request_otp_screen.dart';
 import '../../booking/ui/doctor_booking_screen.dart';
@@ -97,6 +98,22 @@ class AppNavigation {
   // Navigate to Clinic Detail
   static void toClinicDetail(String clinicId) {
     Get.toNamed(AppRoutes.clinicDetail, arguments: clinicId);
+  }
+
+  // Navigate to Edit Profile Screen as Bottom Sheet
+  static Future<dynamic> toEditProfileScreen() async {
+    return await Get.bottomSheet(
+      const EditProfileSheet(),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+    );
+  }
+
+  // Navigate to Family Members List Screen
+  static void toFamilyMembersListScreen() {
+    Get.toNamed(AppRoutes.familyMembersList);
   }
 
   // Navigate and clear all previous routes
