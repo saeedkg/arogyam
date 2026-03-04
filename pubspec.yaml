@@ -122,7 +122,5 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 # Suppress dependency warnings for desktop platforms
-dependency_overrides:
-  realtimekit_core_ios:
-    path: fake_plugins/realtimekit_core_ios
+
 
