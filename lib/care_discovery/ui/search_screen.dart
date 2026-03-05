@@ -56,159 +56,198 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+      body: SafeArea(
+        child: Obx(() => Column(
+              children: [
+                // Professional Search Header
+                _buildSearchHeader(),
+
+                // Main Content with Autocomplete
+                Expanded(
+                  child: Stack(
+                    children: [
+                      // Main Content
+                      _buildMainContent(),
+
+                      // Autocomplete Dropdown (Overlay)
+                      if (_controller.showAutocomplete)
+                        Positioned(
+                          top: 16,
+                          left: 0,
+                          right: 0,
+                          child: SingleChildScrollView(
+                            child: AutocompleteDropdown(
+                              suggestions: _controller.autocompleteSuggestions,
+                              onSuggestionTapped: _handleSuggestionTap,
+                              isLoading:
+                                  _controller.isLoadingAutocomplete.value,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            )),
+      ),
+    );
+  }
+
+  Widget _buildSearchHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Top Bar with Back Button and Title
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Row(
+              children: [
+                // Back Button
+                Material(
+                  color: AppColors.grey100,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    onTap: Get.back,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Icon(
+                        Icons.arrow_back_ios_rounded,
+                        size: 20,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Title
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Find Your Doctor',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Search by symptoms, specialties or names',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.grey600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.arrow_back_ios_rounded,
-              size: 18,
-              color: Colors.black87,
+          ),
+
+          // Search Field
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.grey50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.grey200,
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                onChanged: _controller.onSearchTextChanged,
+                decoration: InputDecoration(
+                  hintText: 'Search doctors, symptoms...',
+                  hintStyle: TextStyle(
+                    color: AppColors.grey400,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  prefixIcon: Container(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      Icons.search_rounded,
+                      color: AppColors.primaryGreen,
+                      size: 24,
+                    ),
+                  ),
+                  suffixIcon: _controller.searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey200,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              color: AppColors.grey600,
+                              size: 16,
+                            ),
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            _controller.clearSearch();
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: AppColors.grey50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: AppColors.primaryGreen,
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                ),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                onSubmitted: (query) {
+                  if (query.isNotEmpty) {
+                    _controller.performSearch(query);
+                  }
+                },
+              ),
             ),
           ),
-          onPressed: Get.back,
-        ),
-        title: const Text(
-          'Search',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: Colors.black87,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: AppColors.backgroundLight,
-        surfaceTintColor: Colors.transparent,
+        ],
       ),
-      body: Obx(() => Column(
-            children: [
-              // Search Header
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-                  child: TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    onChanged: _controller.onSearchTextChanged,
-                    decoration: InputDecoration(
-                      hintText: 'Search doctors, symptoms or specialties',
-                      hintStyle: TextStyle(
-                        color: AppColors.grey500,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        color: AppColors.grey600,
-                        size: 22,
-                      ),
-                      suffixIcon: _controller.searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.clear_rounded,
-                                color: AppColors.grey600,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                _searchController.clear();
-                                _controller.clearSearch();
-                              },
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: AppColors.grey50,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: AppColors.grey200,
-                          width: 1,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: AppColors.primaryGreen,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 18,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    onSubmitted: (query) {
-                      if (query.isNotEmpty) {
-                        _controller.performSearch(query);
-                      }
-                    },
-                  ),
-                ),
-              ),
-
-              // Main Content with Autocomplete
-              Expanded(
-                child: Stack(
-                  children: [
-                    // Main Content
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24),
-                      child: _buildMainContent(),
-                    ),
-
-                    // Autocomplete Dropdown (Overlay)
-                    if (_controller.showAutocomplete)
-                      Positioned(
-                        top: 16,
-                        left: 0,
-                        right: 0,
-                        child: SingleChildScrollView(
-                          child: AutocompleteDropdown(
-                            suggestions: _controller.autocompleteSuggestions,
-                            onSuggestionTapped: _handleSuggestionTap,
-                            isLoading: _controller.isLoadingAutocomplete.value,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          )),
     );
   }
 
