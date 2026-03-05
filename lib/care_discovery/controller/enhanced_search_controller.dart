@@ -5,12 +5,17 @@ import '../entities/popular_searches.dart';
 import '../entities/search_result_item.dart';
 import '../entities/fuzzy_suggestions.dart';
 import '../service/enhanced_search_service.dart';
+import '../service/location_service.dart';
 
 class EnhancedSearchController extends GetxController {
   final EnhancedSearchService _searchService;
+  final LocationService _locationService;
 
-  EnhancedSearchController({EnhancedSearchService? searchService})
-      : _searchService = searchService ?? EnhancedSearchService();
+  EnhancedSearchController({
+    EnhancedSearchService? searchService,
+    LocationService? locationService,
+  })  : _searchService = searchService ?? EnhancedSearchService(),
+        _locationService = locationService ?? LocationService();
 
   // Observable State
   final RxBool isLoading = false.obs;
@@ -25,6 +30,10 @@ class EnhancedSearchController extends GetxController {
   final RxBool hasSearched = false.obs;
   final RxString errorMessage = ''.obs;
 
+  // Location State
+  final Rx<Map<String, double>?> userLocation = Rx<Map<String, double>?>(null);
+  final RxBool isLocationEnabled = false.obs;
+
   // Debouncing
   Timer? _debounceTimer;
   static const _debounceDuration = Duration(milliseconds: 300);
@@ -33,6 +42,39 @@ class EnhancedSearchController extends GetxController {
   void onInit() {
     super.onInit();
     loadPopularSearches();
+    _tryGetUserLocation();
+  }
+
+  /// Try to get user's current location (non-blocking)
+  Future<void> _tryGetUserLocation() async {
+    try {
+      final location = await _locationService.getCurrentLocation();
+      if (location != null) {
+        userLocation.value = location;
+        isLocationEnabled.value = true;
+      }
+    } catch (e) {
+      // Silently fail - location is optional
+      isLocationEnabled.value = false;
+    }
+  }
+
+  /// Request location permission and get location
+  Future<bool> requestLocation() async {
+    try {
+      final hasPermission = await _locationService.requestLocationPermission();
+      if (hasPermission) {
+        final location = await _locationService.getCurrentLocation();
+        if (location != null) {
+          userLocation.value = location;
+          isLocationEnabled.value = true;
+          return true;
+        }
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
   }
 
   @override
@@ -115,23 +157,30 @@ class EnhancedSearchController extends GetxController {
     autocompleteSuggestions.clear();
 
     try {
+      // Include user location if available
+      final searchFilters = filters ?? {};
+      if (userLocation.value != null && !searchFilters.containsKey('latitude')) {
+        searchFilters['latitude'] = userLocation.value!['latitude'];
+        searchFilters['longitude'] = userLocation.value!['longitude'];
+      }
+
       final result = await _searchService.universalSearch(
         query: query,
-        entityType: filters?['entityType'] ?? 'doctor',
-        specializationId: filters?['specializationId'],
-        city: filters?['city'],
-        state: filters?['state'],
-        country: filters?['country'],
-        latitude: filters?['latitude'],
-        longitude: filters?['longitude'],
-        consultationTypes: filters?['consultationTypes'],
-        availableNow: filters?['availableNow'],
-        minRating: filters?['minRating'],
-        minFee: filters?['minFee'],
-        maxFee: filters?['maxFee'],
-        sortBy: filters?['sortBy'] ?? 'relevance',
-        page: filters?['page'] ?? 1,
-        perPage: filters?['perPage'] ?? 20,
+        entityType: searchFilters['entityType'] ?? 'doctor',
+        specializationId: searchFilters['specializationId'],
+        city: searchFilters['city'],
+        state: searchFilters['state'],
+        country: searchFilters['country'],
+        latitude: searchFilters['latitude'],
+        longitude: searchFilters['longitude'],
+        consultationTypes: searchFilters['consultationTypes'],
+        availableNow: searchFilters['availableNow'],
+        minRating: searchFilters['minRating'],
+        minFee: searchFilters['minFee'],
+        maxFee: searchFilters['maxFee'],
+        sortBy: searchFilters['sortBy'] ?? 'relevance',
+        page: searchFilters['page'] ?? 1,
+        perPage: searchFilters['perPage'] ?? 20,
       );
 
       searchResults.assignAll(result.results);

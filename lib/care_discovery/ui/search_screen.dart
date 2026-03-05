@@ -10,6 +10,7 @@ import 'components/autocomplete_dropdown.dart';
 import 'components/popular_searches_widget.dart';
 import 'components/fuzzy_suggestions_widget.dart';
 import 'components/search_result_card.dart';
+import 'components/no_results_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -212,7 +213,12 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildMainContent() {
-    // Loading state
+    // Loading state (initial load)
+    if (_controller.isLoading.value && !_controller.hasSearched.value) {
+      return _buildInitialLoadingState();
+    }
+
+    // Searching state
     if (_controller.isSearching.value) {
       return _buildLoadingState();
     }
@@ -222,7 +228,7 @@ class _SearchScreenState extends State<SearchScreen> {
       return _buildErrorState();
     }
 
-    // Popular searches (empty state)
+    // Popular searches (empty state with data)
     if (_controller.showPopularSearches) {
       return PopularSearchesWidget(
         popularSearches: _controller.popularSearches.value!,
@@ -249,7 +255,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
     // No results (without suggestions)
     if (_controller.showNoResults) {
-      return _buildNoResultsState();
+      return NoResultsWidget(
+        searchQuery: _controller.searchQuery.value,
+      );
     }
 
     // Search results
@@ -257,44 +265,52 @@ class _SearchScreenState extends State<SearchScreen> {
       return _buildSearchResults();
     }
 
-    // Default empty state
+    // Default empty state (only when no popular searches loaded)
+    if (_controller.showEmptyState) {
+      return _buildEmptyState();
+    }
+
+    // Fallback
     return _buildEmptyState();
+  }
+
+  Widget _buildInitialLoadingState() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
   }
 
   Widget _buildLoadingState() {
     return Center(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 48,
+            height: 48,
+            child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
-              strokeWidth: 3,
+              strokeWidth: 4,
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Searching...',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.grey600,
-              ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Searching for doctors...',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.grey700,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Please wait',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.grey500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -370,92 +386,41 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildEmptyState() {
     return Center(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_rounded,
-              size: 64,
-              color: AppColors.grey400,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Search for doctors',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey700,
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search_rounded,
+                size: 60,
+                color: AppColors.primaryGreen,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 24),
             Text(
-              'Type symptoms, specialties, or doctor names',
+              'Find Your Doctor',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Search by symptoms, specialties, or doctor names to find the right healthcare professional for you',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
-                color: AppColors.grey500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoResultsState() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.search_off_rounded,
-              size: 64,
-              color: AppColors.grey400,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No results found',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Try different keywords or browse all doctors',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.grey500,
+                fontSize: 15,
+                color: AppColors.grey600,
+                height: 1.5,
               ),
             ),
           ],
