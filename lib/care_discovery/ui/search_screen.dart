@@ -731,17 +731,43 @@ class _SearchScreenState extends State<SearchScreen> {
   void _navigateToSymptomSearch(String symptomText) {
     if (!mounted) return;
 
-    // Navigate to SpecialityDoctorsScreen with symptom as search query
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SpecialityDoctorsScreen(
-          category: 'General Medicine', // Default category for symptoms
-          appointmentType: widget.preSelectedAppointmentType,
-          symptomQuery: symptomText, // Pass symptom text
+    if (widget.preSelectedAppointmentType != null) {
+      // Appointment type already selected, go directly to doctors
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpecialityDoctorsScreen(
+            category: null, // No specific category for symptom search
+            appointmentType: widget.preSelectedAppointmentType,
+            symptomQuery: symptomText,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      // Need to select consultation type first
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConsultationTypeSelectionScreen(
+            speciality: null, // No specific speciality for symptom
+          ),
+        ),
+      ).then((result) {
+        if (!mounted) return;
+        if (result != null && result is AppointmentType) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SpecialityDoctorsScreen(
+                category: null, // No specific category for symptom search
+                appointmentType: result,
+                symptomQuery: symptomText,
+              ),
+            ),
+          );
+        }
+      });
+    }
   }
 
   void _handleResultTap(result) {

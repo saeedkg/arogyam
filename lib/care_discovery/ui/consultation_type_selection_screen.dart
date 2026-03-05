@@ -4,11 +4,11 @@ import '../../_shared/consultation/consultation_type.dart';
 import '../../_shared/ui/app_colors.dart';
 
 class ConsultationTypeSelectionScreen extends StatelessWidget {
-  final String speciality;
+  final String? speciality;
 
   const ConsultationTypeSelectionScreen({
     super.key,
-    required this.speciality,
+    this.speciality,
   });
 
   void _onConsultationTypeSelected(AppointmentType appointmentType) {
@@ -70,7 +70,7 @@ class ConsultationTypeSelectionScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                speciality,
+                                speciality ?? 'All Specialties',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.white.withOpacity(0.8),
@@ -123,13 +123,13 @@ class ConsultationTypeSelectionScreen extends StatelessWidget {
                         
                         _ConsultationTypeCard(
                           appointmentType: AppointmentType.clinic,
-                          speciality: speciality,
+                          speciality: speciality ?? 'All Specialties',
                           onSelected: _onConsultationTypeSelected,
                         ),
                         const SizedBox(height: 20),
                         _ConsultationTypeCard(
                           appointmentType: AppointmentType.video,
-                          speciality: speciality,
+                          speciality: speciality ?? 'All Specialties',
                           onSelected: _onConsultationTypeSelected,
                         ),
                       ],

@@ -9,13 +9,13 @@ import '../entities/doctor_filter.dart';
 import 'components/doctor_card.dart';
 
 class SpecialityDoctorsScreen extends StatefulWidget {
-  final String category;
+  final String? category;
   final AppointmentType? appointmentType;
   final String? symptomQuery;
   
   const SpecialityDoctorsScreen({
     super.key,
-    required this.category,
+    this.category,
     this.appointmentType,
     this.symptomQuery,
   });
@@ -70,7 +70,9 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     }
     
     // Set the specialization filter but don't trigger fetch yet
-    c.activeFilter.value = widget.category;
+    if (widget.category != null) {
+      c.activeFilter.value = widget.category!;
+    }
     
     // Apply all filters together in a single post-frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -85,18 +87,23 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
       await Future.delayed(const Duration(milliseconds: 50));
     }
     
+    // Determine specialization value (null if not provided or 'All')
+    final specializationValue = (widget.category != null && widget.category != 'All') 
+        ? widget.category 
+        : null;
+    
     // Now apply all filters at once
     if (widget.appointmentType != null) {
       switch (widget.appointmentType!) {
         case AppointmentType.video:
           c.currentFilter.value = c.currentFilter.value.copyWith(
-            specialization: widget.category != 'All' ? widget.category : null,
+            specialization: specializationValue,
             quickFilters: {DoctorQuickFilter.videoConsult},
           );
           break;
         case AppointmentType.clinic:
           c.currentFilter.value = c.currentFilter.value.copyWith(
-            specialization: widget.category != 'All' ? widget.category : null,
+            specialization: specializationValue,
             quickFilters: {DoctorQuickFilter.physicalConsult},
           );
           break;
@@ -104,7 +111,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     } else {
       // No appointment type, just set specialization
       c.currentFilter.value = c.currentFilter.value.copyWith(
-        specialization: widget.category != 'All' ? widget.category : null,
+        specialization: specializationValue,
       );
     }
     
@@ -350,7 +357,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.category,
+              widget.category ?? 'All Doctors',
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
