@@ -179,21 +179,32 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
 
-              // Autocomplete Dropdown
-              if (_controller.showAutocomplete) ...[
-                const SizedBox(height: 16),
-                AutocompleteDropdown(
-                  suggestions: _controller.autocompleteSuggestions,
-                  onSuggestionTapped: _handleSuggestionTap,
-                  isLoading: _controller.isLoadingAutocomplete.value,
-                ),
-              ],
-
-              const SizedBox(height: 24),
-
-              // Main Content
+              // Main Content with Autocomplete
               Expanded(
-                child: _buildMainContent(),
+                child: Stack(
+                  children: [
+                    // Main Content
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: _buildMainContent(),
+                    ),
+
+                    // Autocomplete Dropdown (Overlay)
+                    if (_controller.showAutocomplete)
+                      Positioned(
+                        top: 16,
+                        left: 0,
+                        right: 0,
+                        child: SingleChildScrollView(
+                          child: AutocompleteDropdown(
+                            suggestions: _controller.autocompleteSuggestions,
+                            onSuggestionTapped: _handleSuggestionTap,
+                            isLoading: _controller.isLoadingAutocomplete.value,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           )),
