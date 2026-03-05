@@ -50,13 +50,14 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     c.api.reset();
     c.doctors.clear();
     
+    // IMPORTANT: Reset the currentFilter to clear any old search queries
+    c.currentFilter.value = const DoctorFilter();
+    
     // Only set symptom query if provided AND not already cleared
     // Check if we're returning from a previous state where query was cleared
     final shouldUseSymptomQuery = widget.symptomQuery != null && 
                                    widget.symptomQuery!.isNotEmpty &&
                                    c.query.value.isEmpty;
-    print("-------------------------ss--");
-    print(shouldUseSymptomQuery);
     
     if (shouldUseSymptomQuery) {
       _searchController.text = widget.symptomQuery!;
