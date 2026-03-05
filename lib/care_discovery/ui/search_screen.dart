@@ -718,11 +718,30 @@ class _SearchScreenState extends State<SearchScreen> {
     } else if (suggestion.type == 'specialization') {
       // Navigate to specialization
       _navigateToSpecialization(suggestion.text);
+    } else if (suggestion.type == 'symptom') {
+      // Navigate to doctors with symptom search
+      _navigateToSymptomSearch(suggestion.text);
     } else {
-      // Perform search for symptom or other types
+      // Perform search for other types
       _searchController.text = suggestion.text;
       _controller.onSuggestionTapped(suggestion);
     }
+  }
+
+  void _navigateToSymptomSearch(String symptomText) {
+    if (!mounted) return;
+
+    // Navigate to SpecialityDoctorsScreen with symptom as search query
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SpecialityDoctorsScreen(
+          category: 'General Medicine', // Default category for symptoms
+          appointmentType: widget.preSelectedAppointmentType,
+          symptomQuery: symptomText, // Pass symptom text
+        ),
+      ),
+    );
   }
 
   void _handleResultTap(result) {

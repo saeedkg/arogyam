@@ -11,11 +11,13 @@ import 'components/doctor_card.dart';
 class SpecialityDoctorsScreen extends StatefulWidget {
   final String category;
   final AppointmentType? appointmentType;
+  final String? symptomQuery;
   
   const SpecialityDoctorsScreen({
     super.key,
     required this.category,
     this.appointmentType,
+    this.symptomQuery,
   });
 
   @override
@@ -48,6 +50,12 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     c.api.reset();
     c.doctors.clear();
     c.query.value = ''; // Clear any previous search query
+    
+    // Set symptom query if provided
+    if (widget.symptomQuery != null && widget.symptomQuery!.isNotEmpty) {
+      _searchController.text = widget.symptomQuery!;
+      c.query.value = widget.symptomQuery!;
+    }
     
     // Auto-select filter based on appointmentType parameter
     if (widget.appointmentType != null) {
