@@ -6,7 +6,6 @@ import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../controller/enhanced_search_controller.dart';
 import '../../find_doctor/ui/doctor_detail_info_screen.dart';
 import 'consultation_type_selection_screen.dart';
-import 'components/autocomplete_dropdown.dart';
 import 'components/popular_searches_widget.dart';
 import 'components/fuzzy_suggestions_widget.dart';
 import 'components/search_result_card.dart';
@@ -64,28 +63,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 // Main Content with Autocomplete
                 Expanded(
-                  child: Stack(
-                    children: [
-                      // Main Content
-                      _buildMainContent(),
-
-                      // Autocomplete Dropdown (Overlay)
-                      if (_controller.showAutocomplete)
-                        Positioned(
-                          top: 16,
-                          left: 0,
-                          right: 0,
-                          child: SingleChildScrollView(
-                            child: AutocompleteDropdown(
-                              suggestions: _controller.autocompleteSuggestions,
-                              onSuggestionTapped: _handleSuggestionTap,
-                              isLoading:
-                                  _controller.isLoadingAutocomplete.value,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                  child: _controller.showAutocomplete
+                      ? _buildAutocompleteView()
+                      : _buildMainContent(),
                 ),
               ],
             )),
@@ -311,6 +291,204 @@ class _SearchScreenState extends State<SearchScreen> {
 
     // Fallback
     return _buildEmptyState();
+  }
+
+  Widget _buildAutocompleteView() {
+    if (_controller.isLoadingAutocomplete.value) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+          ),
+        ),
+      );
+    }
+
+    if (_controller.autocompleteSuggestions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Group suggestions by category
+    final groupedSuggestions = <String, List<dynamic>>{};
+    for (final suggestion in _controller.autocompleteSuggestions) {
+      if (!groupedSuggestions.containsKey(suggestion.category)) {
+        groupedSuggestions[suggestion.category] = [];
+      }
+      groupedSuggestions[suggestion.category]!.add(suggestion);
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      itemCount: _getTotalAutocompleteCount(groupedSuggestions),
+      itemBuilder: (context, index) {
+        return _buildAutocompleteItem(context, index, groupedSuggestions);
+      },
+    );
+  }
+
+  int _getTotalAutocompleteCount(Map<String, List<dynamic>> grouped) {
+    int count = 0;
+    for (final entry in grouped.entries) {
+      count += 1; // Header
+      count += entry.value.length; // Items
+    }
+    return count;
+  }
+
+  Widget _buildAutocompleteItem(
+      BuildContext context, int index, Map<String, List<dynamic>> grouped) {
+    int currentIndex = 0;
+
+    for (final entry in grouped.entries) {
+      // Check if this is a header
+      if (currentIndex == index) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 16, bottom: 8),
+          child: Text(
+            entry.key,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.grey600,
+              letterSpacing: 0.5,
+            ),
+          ),
+        );
+      }
+      currentIndex++;
+
+      // Check if this is one of the items
+      for (final suggestion in entry.value) {
+        if (currentIndex == index) {
+          return _buildSuggestionCard(suggestion);
+        }
+        currentIndex++;
+      }
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSuggestionCard(dynamic suggestion) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.grey200,
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _handleSuggestionTap(suggestion),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                // Icon
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _getIconBackgroundColor(suggestion.type),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    _getIconForType(suggestion.type),
+                    size: 20,
+                    color: _getIconColor(suggestion.type),
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // Text content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        suggestion.text,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (suggestion.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          suggestion.subtitle!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey600,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                // Arrow icon
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: AppColors.grey400,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'specialization':
+        return Icons.local_hospital_rounded;
+      case 'symptom':
+        return Icons.healing_rounded;
+      case 'doctor':
+        return Icons.person_rounded;
+      default:
+        return Icons.search_rounded;
+    }
+  }
+
+  Color _getIconBackgroundColor(String type) {
+    switch (type) {
+      case 'specialization':
+        return AppColors.primaryGreen.withValues(alpha: 0.1);
+      case 'symptom':
+        return AppColors.warningOrange.withValues(alpha: 0.1);
+      case 'doctor':
+        return AppColors.primaryBlue.withValues(alpha: 0.1);
+      default:
+        return AppColors.grey200;
+    }
+  }
+
+  Color _getIconColor(String type) {
+    switch (type) {
+      case 'specialization':
+        return AppColors.primaryGreen;
+      case 'symptom':
+        return AppColors.warningOrange;
+      case 'doctor':
+        return AppColors.primaryBlue;
+      default:
+        return AppColors.grey600;
+    }
   }
 
   Widget _buildInitialLoadingState() {
