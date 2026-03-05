@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../_shared/ui/app_colors.dart';
+import '../../../../_shared/ui/app_colors.dart';
 
 class NoResultsWidget extends StatelessWidget {
   final String searchQuery;

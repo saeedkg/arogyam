@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../_shared/routing/routing.dart';
 import '../../_shared/consultation/consultation_type.dart';
 import '../../_shared/ui/app_colors.dart';
 import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../controller/care_discovery_controller.dart';
-import 'components/specialization_grid.dart';
-import 'search_screen.dart';
+import 'components/enhanced_search_bar.dart';
+import 'components/popular_specialties_section.dart';
+import 'components/common_symptoms_section.dart';
+import 'components/health_concerns_section.dart';
+import 'components/all_specialties_section.dart';
 import 'consultation_type_selection_screen.dart';
+import '../entities/common_symptom.dart';
+import '../entities/health_concern.dart';
 
 class CareDiscoveryScreen extends StatefulWidget {
   final String entry;
@@ -24,6 +28,25 @@ class CareDiscoveryScreen extends StatefulWidget {
 }
 
 class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _allSpecialtiesKey = GlobalKey();
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+  
+  void _scrollToAllSpecialties() {
+    final context = _allSpecialtiesKey.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
   
   void _onSpecializationSelected(String specialization) {
     // Navigate forward to next screen instead of popping
@@ -63,6 +86,19 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
       });
     }
   }
+  
+  void _onSymptomSelected(CommonSymptom symptom) {
+    // Navigate to the first related specialty
+    if (symptom.relatedSpecialties.isNotEmpty) {
+      _onSpecializationSelected(symptom.relatedSpecialties.first);
+    }
+  }
+  
+  void _onHealthConcernSelected(HealthConcern concern) {
+    // Navigate to the related specialty
+    _onSpecializationSelected(concern.relatedSpecialty);
+  }
+  
   @override
   Widget build(BuildContext context) {
     final c = Get.put(CareDiscoveryController());
@@ -130,7 +166,7 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Loading specializations...',
+                    'Loading...',
                     style: TextStyle(
                       color: AppColors.grey600,
                       fontSize: 14,
@@ -144,129 +180,65 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
         }
         
         return SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             children: [
-              // Modern Search Section
+              // Enhanced Search Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: GestureDetector(
-                  onTap: () => Get.to(() => SearchScreen(
-                    preSelectedAppointmentType: widget.preSelectedAppointmentType,
-                  )),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.white,
-                          AppColors.primaryGreen.withValues(alpha: 0.02),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.primaryGreen.withValues(alpha: 0.1),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryGreen.withValues(alpha: 0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Search Icon with Gradient Background
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.primaryGreen,
-                                AppColors.primaryGreen.withValues(alpha: 0.8),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primaryGreen.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.search_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        
-                        // Search Content
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Search Healthcare',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black87,
-                                  letterSpacing: -0.3,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Doctors, specialties & symptoms',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.grey600,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Modern Arrow
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 16,
-                            color: AppColors.primaryGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                child: EnhancedSearchBar(
+                  preSelectedAppointmentType: widget.preSelectedAppointmentType,
                 ),
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               
-              // Specializations Section
+              // Popular Specialties Section
+              if (c.popularSpecialties.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: PopularSpecialtiesSection(
+                    specialties: c.popularSpecialties,
+                    preSelectedAppointmentType: widget.preSelectedAppointmentType,
+                    onSpecializationSelected: _onSpecializationSelected,
+                    onViewAllTapped: _scrollToAllSpecialties,
+                  ),
+                ),
+              
+              const SizedBox(height: 24),
+              
+              // Common Symptoms Section
+              if (c.commonSymptoms.isNotEmpty)
+                CommonSymptomsSection(
+                  symptoms: c.commonSymptoms,
+                  onSymptomSelected: _onSymptomSelected,
+                ),
+              
+              const SizedBox(height: 24),
+              
+              // Health Concerns Section
+              if (c.healthConcerns.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: HealthConcernsSection(
+                    healthConcerns: c.healthConcerns,
+                    onConcernSelected: _onHealthConcernSelected,
+                  ),
+                ),
+              
+              const SizedBox(height: 24),
+              
+              // All Specialties Section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SpecializationGrid(
-                  specializations: c.specializations,
-                  preSelectedAppointmentType: widget.preSelectedAppointmentType,
-                  onSpecializationSelected: _onSpecializationSelected,
-                ),
+                child: c.specializations.isEmpty && !c.isLoading.value
+                    ? _buildErrorState(c)
+                    : AllSpecialtiesSection(
+                        specializations: c.specializations,
+                        preSelectedAppointmentType: widget.preSelectedAppointmentType,
+                        onSpecializationSelected: _onSpecializationSelected,
+                        sectionKey: _allSpecialtiesKey,
+                      ),
               ),
               
               const SizedBox(height: 32),
@@ -274,6 +246,60 @@ class _CareDiscoveryScreenState extends State<CareDiscoveryScreen> {
           ),
         );
       }),
+    );
+  }
+  
+  Widget _buildErrorState(CareDiscoveryController c) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.errorRed.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            size: 48,
+            color: AppColors.errorRed,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load specialties',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Please check your connection and try again',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.grey600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => c.retryLoadSpecializations(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryGreen,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
     );
   }
 }

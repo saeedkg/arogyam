@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../_shared/ui/app_colors.dart';
-import '../../entities/popular_searches.dart';
-import '../../entities/trending_specialization.dart';
+import '../../../../_shared/ui/app_colors.dart';
+import '../../../entities/popular_searches.dart';
+import '../../../entities/trending_specialization.dart';
 
 class PopularSearchesWidget extends StatelessWidget {
   final PopularSearches popularSearches;

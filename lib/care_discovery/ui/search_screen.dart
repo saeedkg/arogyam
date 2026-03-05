@@ -6,10 +6,10 @@ import '../../find_doctor/ui/speciality_doctors_screen.dart';
 import '../controller/enhanced_search_controller.dart';
 import '../../find_doctor/ui/doctor_detail_info_screen.dart';
 import 'consultation_type_selection_screen.dart';
-import 'components/popular_searches_widget.dart';
-import 'components/fuzzy_suggestions_widget.dart';
-import 'components/search_result_card.dart';
-import 'components/no_results_widget.dart';
+import 'components/search/popular_searches_widget.dart';
+import 'components/search/fuzzy_suggestions_widget.dart';
+import 'components/search/search_result_card.dart';
+import 'components/search/no_results_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;

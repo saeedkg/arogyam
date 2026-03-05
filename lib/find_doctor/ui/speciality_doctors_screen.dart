@@ -49,12 +49,22 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     // Reset the controller to clear any previous state
     c.api.reset();
     c.doctors.clear();
-    c.query.value = ''; // Clear any previous search query
     
-    // Set symptom query if provided
-    if (widget.symptomQuery != null && widget.symptomQuery!.isNotEmpty) {
+    // Only set symptom query if provided AND not already cleared
+    // Check if we're returning from a previous state where query was cleared
+    final shouldUseSymptomQuery = widget.symptomQuery != null && 
+                                   widget.symptomQuery!.isNotEmpty &&
+                                   c.query.value.isEmpty;
+    print("-------------------------ss--");
+    print(shouldUseSymptomQuery);
+    
+    if (shouldUseSymptomQuery) {
       _searchController.text = widget.symptomQuery!;
       c.query.value = widget.symptomQuery!;
+    } else {
+      // Ensure query is cleared
+      _searchController.clear();
+      c.query.value = '';
     }
     
     // Auto-select filter based on appointmentType parameter
@@ -413,7 +423,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                       ),
                     ],
                   ),
-                  child: TextField(
+                  child: Obx(() => TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
                     textInputAction: TextInputAction.search,
@@ -423,13 +433,15 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                       TextStyle(color: Colors.grey.shade500, fontSize: 14),
                       prefixIcon:
                       const Icon(Icons.search_rounded, color: Colors.grey),
-                      suffixIcon: _searchController.text.isNotEmpty
+                      suffixIcon: c.query.value.isNotEmpty
                           ? IconButton(
                         icon: const Icon(Icons.close_rounded,
                             color: Colors.grey, size: 20),
                         onPressed: () {
-                          _searchController.clear();
-                          c.query.value = '';
+                          setState(() {
+                            _searchController.clear();
+                            c.query.value = '';
+                          });
                           c.fetchInitialDoctors();
                         },
                       )
@@ -443,7 +455,7 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                           vertical: 14, horizontal: 16),
                     ),
-                  ),
+                  )),
                 ),
 
                 const SizedBox(height: 14),
