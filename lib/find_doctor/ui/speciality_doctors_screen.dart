@@ -46,30 +46,21 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   @override
   void initState() {
     super.initState();
-    print('🔥 SpecialityDoctorsScreen initState - symptomQuery: ${widget.symptomQuery}');
-    print('🔥 Controller query before reset: ${c.query.value}');
     
-    // Reset the controller to clear any previous state
+    // 1. Clear controller state from previous navigation
     c.api.reset();
     c.doctors.clear();
-    
-    // IMPORTANT: Reset the currentFilter to clear any old search queries
     c.currentFilter.value = const DoctorFilter();
     
-    // ALWAYS clear the query first to ensure clean state
+    // 2. Initialize search query (clear first, then set symptom if provided)
     c.query.value = '';
     _searchController.clear();
-    
-    // Then set symptom query if provided
     if (widget.symptomQuery != null && widget.symptomQuery!.isNotEmpty) {
-      print('🔥 Setting symptom query: ${widget.symptomQuery}');
       _searchController.text = widget.symptomQuery!;
       c.query.value = widget.symptomQuery!;
     }
     
-    print('🔥 Controller query after setup: ${c.query.value}');
-    
-    // Auto-select filter based on appointmentType parameter
+    // 3. Set appointment type filter (video/physical) based on parameter
     if (widget.appointmentType != null) {
       switch (widget.appointmentType!) {
         case AppointmentType.video:
@@ -81,14 +72,13 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
       }
     }
     
-    // Set the specialization filter but don't trigger fetch yet
+    // 4. Set specialization category filter
     if (widget.category != null) {
       c.activeFilter.value = widget.category!;
     }
     
-    // Apply all filters together in a single post-frame callback
+    // 5. Schedule filter application after widget build completes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Wait for specializations to load if needed
       _waitForSpecializationsAndApplyFilters();
     });
   }
