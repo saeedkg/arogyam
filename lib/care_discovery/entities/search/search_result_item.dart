@@ -1,4 +1,4 @@
-import '../../common_services/entities/specialization.dart';
+import '../../../common_services/entities/specialization.dart';
 import 'nearest_location.dart';
 
 class SearchResultItem {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../_shared/ui/app_colors.dart';
-import '../../../entities/fuzzy_suggestions.dart';
-import '../../../entities/search_suggestion.dart';
+import '../../../entities/search/fuzzy_suggestions.dart';
+import '../../../entities/search/search_suggestion.dart';
 
 class FuzzySuggestionsWidget extends StatelessWidget {
   final FuzzySuggestions suggestions;

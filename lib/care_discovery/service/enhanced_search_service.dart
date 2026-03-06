@@ -3,9 +3,9 @@ import '../../network/exceptions/api_exception.dart';
 import '../../network/services/arogyam_api.dart';
 import '../../network/services/network_adapter.dart';
 import '../../common_services/constants/common_urls.dart';
-import '../entities/search_suggestion.dart';
+import '../entities/search/search_suggestion.dart';
 import '../entities/popular_searches.dart';
-import '../entities/search_result.dart';
+import '../entities/search/search_result.dart';
 
 class EnhancedSearchService {
   final NetworkAdapter _networkAdapter;

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import '../entities/search_suggestion.dart';
+import '../entities/search/search_suggestion.dart';
 import '../entities/popular_searches.dart';
-import '../entities/search_result_item.dart';
-import '../entities/fuzzy_suggestions.dart';
+import '../entities/search/search_result_item.dart';
+import '../entities/search/fuzzy_suggestions.dart';
 import '../service/enhanced_search_service.dart';
 import '../service/location_service.dart';
 

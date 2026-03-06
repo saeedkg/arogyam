@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../_shared/ui/app_colors.dart';
-import '../../../entities/search_result_item.dart';
+import '../../../entities/search/search_result_item.dart';
 
 class SearchResultCard extends StatelessWidget {
   final SearchResultItem result;

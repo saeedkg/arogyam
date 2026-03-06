@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../_shared/ui/app_colors.dart';
-import '../../../entities/search_suggestion.dart';
+import '../../../entities/search/search_suggestion.dart';
 
 class AutocompleteDropdown extends StatelessWidget {
   final List<SearchSuggestion> suggestions;
