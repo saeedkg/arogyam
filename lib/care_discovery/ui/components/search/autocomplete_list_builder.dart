@@ -76,8 +76,8 @@ class AutocompleteListBuilder extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.grey200,
-          width: 1,
+          color: AppColors.grey300.withValues(alpha: 0.5),
+          width: 0.8,
         ),
       ),
       child: Material(
@@ -156,7 +156,7 @@ class AutocompleteListBuilder extends StatelessWidget {
       case 'specialization':
         return Icons.local_hospital_rounded;
       case 'symptom':
-        return Icons.healing_rounded;
+        return Icons.medical_services_rounded;
       case 'doctor':
         return Icons.person_rounded;
       default:
@@ -167,11 +167,11 @@ class AutocompleteListBuilder extends StatelessWidget {
   Color _getIconBackgroundColor(String type) {
     switch (type) {
       case 'specialization':
-        return AppColors.primaryGreen.withValues(alpha: 0.1);
+        return AppColors.primaryGreen.withValues(alpha: 0.12);
       case 'symptom':
-        return AppColors.warningOrange.withValues(alpha: 0.1);
+        return AppColors.primaryGreen.withValues(alpha: 0.12);
       case 'doctor':
-        return AppColors.primaryBlue.withValues(alpha: 0.1);
+        return AppColors.primaryBlue.withValues(alpha: 0.12);
       default:
         return AppColors.grey200;
     }
@@ -182,7 +182,7 @@ class AutocompleteListBuilder extends StatelessWidget {
       case 'specialization':
         return AppColors.primaryGreen;
       case 'symptom':
-        return AppColors.warningOrange;
+        return AppColors.primaryGreen;
       case 'doctor':
         return AppColors.primaryBlue;
       default:
