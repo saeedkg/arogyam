@@ -56,15 +56,28 @@ class AutocompleteListBuilder extends StatelessWidget {
 
   Widget _buildCategoryHeader(String category) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: Text(
-        category,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: AppColors.grey600,
-          letterSpacing: 0.5,
-        ),
+      padding: const EdgeInsets.only(top: 16, bottom: 8, left: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 3,
+            height: 14,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            category,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primaryGreen,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }
