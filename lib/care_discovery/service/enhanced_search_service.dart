@@ -5,7 +5,7 @@ import '../../network/services/network_adapter.dart';
 import '../../common_services/constants/common_urls.dart';
 import '../entities/search/search_suggestion.dart';
 import '../entities/popular_searches.dart';
-import '../entities/search/search_result.dart';
+
 
 class EnhancedSearchService {
   final NetworkAdapter _networkAdapter;
@@ -74,69 +74,6 @@ class EnhancedSearchService {
     }
   }
 
-  /// Universal search across all entities
-  Future<SearchResult> universalSearch({
-    required String query,
-    String entityType = 'all',
-    int? specializationId,
-    String? city,
-    String? state,
-    String? country,
-    double? latitude,
-    double? longitude,
-    List<String>? consultationTypes,
-    bool? availableNow,
-    double? minRating,
-    int? minFee,
-    int? maxFee,
-    String sortBy = 'relevance',
-    int page = 1,
-    int perPage = 20,
-  }) async {
-    final url = CommonUrls.getUniversalSearchUrl(
-      query: query,
-      entityType: entityType,
-      specializationId: specializationId,
-      city: city,
-      state: state,
-      country: country,
-      latitude: latitude,
-      longitude: longitude,
-      consultationTypes: consultationTypes,
-      availableNow: availableNow,
-      minRating: minRating,
-      minFee: minFee,
-      maxFee: maxFee,
-      sortBy: sortBy,
-      page: page,
-      perPage: perPage,
-    );
-
-    final apiRequest = APIRequest(url);
-
-    try {
-      final res = await _networkAdapter.get(apiRequest);
-      return _parseSearchResponse(res.data);
-    } on NetworkFailureException {
-      throw NetworkFailureException();
-    } on APIException catch (exception) {
-      if (exception is HTTPException) {
-        if (exception.responseData != null &&
-            exception.responseData is Map<String, dynamic> &&
-            (exception.responseData as Map<String, dynamic>)["message"] !=
-                null) {
-          final responseMap = exception.responseData as Map<String, dynamic>;
-          final message = responseMap["message"] as String;
-          final errorCode = responseMap["errorCode"] ?? exception.httpCode;
-          throw ServerSentException(message, errorCode);
-        }
-        throw ServerSentException('Failed to search', exception.httpCode);
-      } else {
-        rethrow;
-      }
-    }
-  }
-
   // Response Parsing Methods
 
   List<SearchSuggestion> _parseAutocompleteResponse(dynamic data) {
@@ -195,21 +132,5 @@ class EnhancedSearchService {
     }
 
     throw Exception('Invalid popular searches response format');
-  }
-
-  SearchResult _parseSearchResponse(dynamic data) {
-    if (data is! Map<String, dynamic>) {
-      throw Exception('Invalid search response format');
-    }
-
-    final map = data;
-
-    // Handle success response structure
-    if (map['success'] == true && map['data'] != null) {
-      final dataMap = map['data'] as Map<String, dynamic>;
-      return SearchResult.fromJson(dataMap);
-    }
-
-    throw Exception('Invalid search response format');
   }
 }

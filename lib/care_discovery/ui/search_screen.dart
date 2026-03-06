@@ -7,9 +7,6 @@ import '../controller/enhanced_search_controller.dart';
 import '../../find_doctor/ui/doctor_detail_info_screen.dart';
 import 'consultation_type_selection_screen.dart';
 import 'components/search/popular_searches_widget.dart';
-import 'components/search/fuzzy_suggestions_widget.dart';
-import 'components/search/search_result_card.dart';
-import 'components/search/no_results_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -40,7 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _searchController.text = widget.initialQuery!;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.performSearch(widget.initialQuery!);
+        _controller.onSearchTextChanged(widget.initialQuery!);
       });
     }
   }
@@ -218,11 +215,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
                 ),
-                onSubmitted: (query) {
-                  if (query.isNotEmpty) {
-                    _controller.performSearch(query);
-                  }
-                },
               ),
             ),
           ),
@@ -237,16 +229,6 @@ class _SearchScreenState extends State<SearchScreen> {
       return _buildInitialLoadingState();
     }
 
-    // Searching state
-    if (_controller.isSearching.value) {
-      return _buildLoadingState();
-    }
-
-    // Error state
-    if (_controller.showError) {
-      return _buildErrorState();
-    }
-
     // Popular searches (empty state with data)
     if (_controller.showPopularSearches) {
       return PopularSearchesWidget(
@@ -259,29 +241,6 @@ class _SearchScreenState extends State<SearchScreen> {
           _navigateToSpecialization(spec.name);
         },
       );
-    }
-
-    // Fuzzy suggestions (no results with suggestions)
-    if (_controller.showFuzzySuggestions) {
-      return FuzzySuggestionsWidget(
-        suggestions: _controller.fuzzySuggestions.value!,
-        onSuggestionTapped: (suggestion) {
-          _searchController.text = suggestion.text;
-          _controller.onDidYouMeanTapped(suggestion);
-        },
-      );
-    }
-
-    // No results (without suggestions)
-    if (_controller.showNoResults) {
-      return NoResultsWidget(
-        searchQuery: _controller.searchQuery.value,
-      );
-    }
-
-    // Search results
-    if (_controller.showSearchResults) {
-      return _buildSearchResults();
     }
 
     // Default empty state (only when no popular searches loaded)
@@ -497,110 +456,6 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 48,
-            height: 48,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
-              strokeWidth: 4,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Searching for doctors...',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.grey700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Please wait',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.grey500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 64,
-              color: AppColors.errorRed,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Oops!',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.grey700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _controller.errorMessage.value,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.grey600,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _controller.retrySearch,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryGreen,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Retry',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildEmptyState() {
     return Center(
       child: SingleChildScrollView(
@@ -643,71 +498,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSearchResults() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Results header
-          _buildResultsHeader(),
-          const SizedBox(height: 16),
-
-          // Search result cards
-          ..._controller.searchResults.map((result) {
-            return SearchResultCard(
-              result: result,
-              onTap: () => _handleResultTap(result),
-            );
-          }),
-
-          const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultsHeader() {
-    final count = _controller.searchResults.length;
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 24,
-          decoration: BoxDecoration(
-            color: AppColors.primaryGreen,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 12),
-        const Text(
-          'Results',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.primaryGreen.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryGreen,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -767,12 +557,6 @@ class _SearchScreenState extends State<SearchScreen> {
           );
         }
       });
-    }
-  }
-
-  void _handleResultTap(result) {
-    if (result.entityType == 'doctor') {
-      Get.to(() => DoctorDetailInfoScreen(doctorId: result.id));
     }
   }
 

@@ -10,6 +10,10 @@
     <!-- FCM Notification Permission for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     
+    <!-- Location permissions for finding nearby doctors -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
     <!-- Note: SMS auto-fill uses SMS Retriever API on Android 8.0+ which doesn't require 
          explicit SMS permissions. For older Android versions, you may need to add:
          <uses-permission android:name="android.permission.RECEIVE_SMS" />

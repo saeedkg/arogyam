@@ -119,6 +119,9 @@
 
 
 
+
+
+
   - Add location permission request logic
   - Integrate device location service
   - Pass latitude/longitude to search API when available
@@ -216,3 +219,24 @@
   - Optimize image loading with cached network images
   - Profile and optimize any performance bottlenecks
   - _Requirements: 5.5, 7.1, 7.5_
+
+- [x] 21. Refactor EnhancedSearchController location handling
+
+
+  - Remove _tryGetUserLocation() method from EnhancedSearchController
+  - Location should be requested only when needed, not on initialization
+  - Keep requestLocation() method for explicit location requests
+  - Update onInit() to remove _tryGetUserLocation() call
+  - _Requirements: 6.1, 6.4_
+
+- [x] 22. Enhance AutocompleteDropdown professional design
+
+
+  - Improve visual hierarchy with better spacing and typography
+  - Add subtle hover effects for better interactivity
+  - Enhance category headers with refined styling
+  - Improve icon containers with better visual balance
+  - Add smooth transitions and animations
+  - Refine color scheme for more professional appearance
+  - Optimize shadow and elevation for depth perception
+  - _Requirements: 1.2, 1.3_
