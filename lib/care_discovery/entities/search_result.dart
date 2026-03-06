@@ -16,6 +16,26 @@ class SearchResult {
   });
 
   factory SearchResult.fromJson(Map<String, dynamic> json) {
+    // Build FuzzySuggestions from root-level fields if they exist
+    FuzzySuggestions? suggestions;
+    
+    // Check if did_you_mean or related_searches exist at root level
+    final hasDidYouMean = json['did_you_mean'] != null && 
+                          (json['did_you_mean'] is List ? (json['did_you_mean'] as List).isNotEmpty : true);
+    final hasRelatedSearches = json['related_searches'] != null && 
+                               (json['related_searches'] is List ? (json['related_searches'] as List).isNotEmpty : true);
+    
+    if (hasDidYouMean || hasRelatedSearches) {
+      suggestions = FuzzySuggestions.fromJson({
+        'did_you_mean': json['did_you_mean'],
+        'related_searches': json['related_searches'],
+        'message': json['message'] ?? 'No results found',
+      });
+    } else if (json['suggestions'] != null && json['suggestions'] is Map) {
+      // Only parse nested suggestions if it's a Map (not an empty array)
+      suggestions = FuzzySuggestions.fromJson(json['suggestions']);
+    }
+    
     return SearchResult(
       results: json['results'] != null
           ? (json['results'] as List)
@@ -33,9 +53,7 @@ class SearchResult {
       metadata: json['search_metadata'] != null
           ? SearchMetadata.fromJson(json['search_metadata'])
           : null,
-      suggestions: json['suggestions'] != null
-          ? FuzzySuggestions.fromJson(json['suggestions'])
-          : null,
+      suggestions: suggestions,
     );
   }
 

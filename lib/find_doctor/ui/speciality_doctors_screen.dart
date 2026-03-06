@@ -46,6 +46,9 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
   @override
   void initState() {
     super.initState();
+    print('🔥 SpecialityDoctorsScreen initState - symptomQuery: ${widget.symptomQuery}');
+    print('🔥 Controller query before reset: ${c.query.value}');
+    
     // Reset the controller to clear any previous state
     c.api.reset();
     c.doctors.clear();
@@ -53,20 +56,18 @@ class _SpecialityDoctorsScreenState extends State<SpecialityDoctorsScreen> {
     // IMPORTANT: Reset the currentFilter to clear any old search queries
     c.currentFilter.value = const DoctorFilter();
     
-    // Only set symptom query if provided AND not already cleared
-    // Check if we're returning from a previous state where query was cleared
-    final shouldUseSymptomQuery = widget.symptomQuery != null && 
-                                   widget.symptomQuery!.isNotEmpty &&
-                                   c.query.value.isEmpty;
+    // ALWAYS clear the query first to ensure clean state
+    c.query.value = '';
+    _searchController.clear();
     
-    if (shouldUseSymptomQuery) {
+    // Then set symptom query if provided
+    if (widget.symptomQuery != null && widget.symptomQuery!.isNotEmpty) {
+      print('🔥 Setting symptom query: ${widget.symptomQuery}');
       _searchController.text = widget.symptomQuery!;
       c.query.value = widget.symptomQuery!;
-    } else {
-      // Ensure query is cleared
-      _searchController.clear();
-      c.query.value = '';
     }
+    
+    print('🔥 Controller query after setup: ${c.query.value}');
     
     // Auto-select filter based on appointmentType parameter
     if (widget.appointmentType != null) {

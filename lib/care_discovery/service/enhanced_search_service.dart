@@ -149,12 +149,33 @@ class EnhancedSearchService {
     // Handle success response structure
     if (map['success'] == true && map['data'] != null) {
       final dataMap = map['data'] as Map<String, dynamic>;
+      final List<SearchSuggestion> allSuggestions = [];
+      
+      // Parse regular suggestions
       if (dataMap['suggestions'] is List) {
         final list = dataMap['suggestions'] as List<dynamic>;
-        return list
-            .map((e) => SearchSuggestion.fromJson(e as Map<String, dynamic>))
-            .toList();
+        allSuggestions.addAll(
+          list.map((e) => SearchSuggestion.fromJson(e as Map<String, dynamic>))
+        );
       }
+      
+      // Parse did_you_mean suggestions
+      if (dataMap['did_you_mean'] != null) {
+        final didYouMeanData = dataMap['did_you_mean'];
+        if (didYouMeanData is List) {
+          // If it's an array
+          allSuggestions.addAll(
+            didYouMeanData.map((e) => SearchSuggestion.fromJson(e as Map<String, dynamic>))
+          );
+        } else if (didYouMeanData is Map) {
+          // If it's an object with numbered keys
+          allSuggestions.addAll(
+            didYouMeanData.values.map((e) => SearchSuggestion.fromJson(e as Map<String, dynamic>))
+          );
+        }
+      }
+      
+      return allSuggestions;
     }
 
     return [];
