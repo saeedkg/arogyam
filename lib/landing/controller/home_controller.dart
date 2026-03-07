@@ -13,6 +13,7 @@ import '../../notification/service/fcm_service.dart';
 import '../../notification/service/device_service.dart';
 import '../../notification/service/notification_service.dart';
 import '../../notification/controller/notification_controller.dart';
+import '../../location/controller/location_controller.dart';
 import '../entities/banner_item.dart';
 import '../entities/category_item.dart';
 import '../entities/doctor.dart';
@@ -25,16 +26,19 @@ class HomeController extends GetxController {
   final DoctorService doctorService;
   final SpecializationService specializationService;
   final DashboardService dashboardService;
+  final LocationController locationController;
 
   HomeController({
     MockApiService? api,
     DoctorService? doctorService,
     SpecializationService? specializationService,
     DashboardService? dashboardService,
+    LocationController? locationController,
   })  : api = api ?? MockApiService(),
         doctorService = doctorService ?? DoctorService(),
         specializationService = specializationService ?? SpecializationService(),
-        dashboardService = dashboardService ?? DashboardService();
+        dashboardService = dashboardService ?? DashboardService(),
+        locationController = locationController ?? Get.put(LocationController());
 
   final Rxn<Appointment> nextAppointment = Rxn<Appointment>();
   final RxList<CategoryItem> categories = <CategoryItem>[].obs;
@@ -51,6 +55,12 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     loadAll();
+    _loadUserLocation();
+  }
+  
+  /// Load user location in background
+  Future<void> _loadUserLocation() async {
+    await locationController.getCurrentLocation();
   }
 
   Future<void> loadAll() async {

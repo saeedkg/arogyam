@@ -260,29 +260,64 @@ class _HomePageState extends State<HomePage> {
                                   // Header with app name and search icon
                                   Row(
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            'Ask It',
-                                            style: TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.white,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Ask It',
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                          const Text(
-                                            'Doctor in minutes',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
+                                            const Text(
+                                              'Doctor in minutes',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 4),
+                                            // Location display
+                                            Obx(() {
+                                              final city = controller.locationController.city.value;
+                                              
+                                              if (city != null && city.isNotEmpty) {
+                                                return Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.location_on,
+                                                      size: 14,
+                                                      color: Colors.white70,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Flexible(
+                                                      child: Text(
+                                                        city,
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.w400,
+                                                          color: Colors.white70,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }
+                                              
+                                              return const SizedBox.shrink();
+                                            }),
+                                          ],
+                                        ),
                                       ),
-                                      const Spacer(),
+                                      const SizedBox(width: 12),
                                       _NotificationIconButton(),
                                     ],
                                   ),

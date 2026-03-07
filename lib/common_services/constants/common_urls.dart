@@ -60,6 +60,11 @@ class CommonUrls {
     return '${NetworkConfig.baseUrl}/search/popular';
   }
 
+  /// Reverse geocode coordinates to get location details
+  static String getReverseGeocodeUrl(double latitude, double longitude) {
+    return '${NetworkConfig.baseUrl}/reverse-geocode?lat=$latitude&lng=$longitude';
+  }
+
   /// Build URL parameters from filter
   static String _buildFilterParams(DoctorFilter filter) {
     final params = StringBuffer();

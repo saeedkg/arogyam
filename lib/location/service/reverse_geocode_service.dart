@@ -1,43 +1,40 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../_shared/constants/network_config.dart';
+import '../../network/entities/api_request.dart';
+import '../../network/exceptions/api_exception.dart';
+import '../../network/services/arogyam_api.dart';
+import '../../network/services/network_adapter.dart';
+import '../../common_services/constants/common_urls.dart';
 import 'dart:developer' as developer;
 
 class ReverseGeocodeService {
-  /// Reverse geocode coordinates to get city name
-  /// Returns city name or null if failed
-  Future<String?> getCityFromCoordinates(double latitude, double longitude) async {
+  final NetworkAdapter _networkAdapter;
+
+  ReverseGeocodeService({NetworkAdapter? networkAdapter})
+      : _networkAdapter = networkAdapter ?? AROGYAMAPI();
+
+  /// Reverse geocode coordinates to get full address
+  /// Returns full address string or null if failed
+  Future<String?> getCityFromCoordinates(
+      double latitude, double longitude) async {
     try {
       developer.log(
-        '🌍 ReverseGeocodeService: Fetching city for lat=$latitude, lng=$longitude',
+        '🌍 ReverseGeocodeService: Fetching address for lat=$latitude, lng=$longitude',
         name: 'ReverseGeocodeService',
       );
 
-      final url = '${NetworkConfig.baseUrl}/reverse-geocode?lat=$latitude&lng=$longitude';
-      
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
+      final url = CommonUrls.getReverseGeocodeUrl(latitude, longitude);
+      final apiRequest = APIRequest(url);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        
-        if (data['success'] == true && data['data'] != null) {
-          final city = data['data']['city'] as String?;
-          
-          if (city != null && city.isNotEmpty) {
-            developer.log(
-              '✅ ReverseGeocodeService: City found: $city',
-              name: 'ReverseGeocodeService',
-            );
-            return city;
-          }
-        }
-      }
-
+      final res = await _networkAdapter.get(apiRequest);
+      return _parseReverseGeocodeResponse(res.data);
+    } on NetworkFailureException {
       developer.log(
-        '⚠️ ReverseGeocodeService: Failed to get city (status: ${response.statusCode})',
+        '❌ ReverseGeocodeService: Network failure',
+        name: 'ReverseGeocodeService',
+      );
+      return null;
+    } on APIException catch (exception) {
+      developer.log(
+        '❌ ReverseGeocodeService: API Exception: $exception',
         name: 'ReverseGeocodeService',
       );
       return null;
@@ -48,5 +45,44 @@ class ReverseGeocodeService {
       );
       return null;
     }
+  }
+
+  /// Parse reverse geocode response
+  /// Expected response structure:
+  /// {
+  ///   "success": true,
+  ///   "message": "Coordinates reverse geocoded successfully",
+  ///   "address": "Anganwadi, Airport Road, Kozhikode, Kerala, 673645, India",
+  ///   "coordinates": { "latitude": 11.2620648, "longitude": 76.0069567 }
+  /// }
+  String? _parseReverseGeocodeResponse(dynamic data) {
+    if (data is! Map<String, dynamic>) {
+      developer.log(
+        '⚠️ ReverseGeocodeService: Invalid response format',
+        name: 'ReverseGeocodeService',
+      );
+      return null;
+    }
+
+    final map = data;
+
+    // Handle success response structure with address field
+    if (map['success'] == true && map['address'] != null) {
+      final address = map['address'] as String?;
+
+      if (address != null && address.isNotEmpty) {
+        developer.log(
+          '✅ ReverseGeocodeService: Address found: $address',
+          name: 'ReverseGeocodeService',
+        );
+        return address;
+      }
+    }
+
+    developer.log(
+      '⚠️ ReverseGeocodeService: Failed to get address from response',
+      name: 'ReverseGeocodeService',
+    );
+    return null;
   }
 }

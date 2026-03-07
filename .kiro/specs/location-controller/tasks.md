@@ -72,7 +72,18 @@
   - Update dashboard_screen.dart to observe locationController.city instead of homeController.userCity
   - _Requirements: 1.1, 1.3_
 
-- [ ]* 7. Write unit tests for LocationController
+- [x] 7. Update ReverseGeocodeService to parse address field
+
+
+
+  - Update `_parseReverseGeocodeResponse` method to extract `address` field instead of `data.city`
+  - Handle the response structure: `{ "success": true, "address": "...", "coordinates": {...} }`
+  - Return the full address string from the `address` field
+  - Update method documentation to reflect that it returns full address, not just city
+  - Keep all error handling and logging intact
+  - _Requirements: 3.1, 3.2, 4.1, 4.2_
+
+- [ ]* 8. Write unit tests for LocationController
   - Create test file `test/location/controller/location_controller_test.dart`
   - Write tests for controller initialization and observable initial values
   - Mock LocationService and ReverseGeocodeService

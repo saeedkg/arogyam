@@ -31,25 +31,25 @@ This feature implements a centralized location controller that manages location 
 
 ### Requirement 3
 
-**User Story:** As a developer, I want to automatically get the city name when location is fetched, so that I can display location information to users without additional API calls.
+**User Story:** As a developer, I want to automatically get the address when location is fetched, so that I can display location information to users without additional API calls.
 
 #### Acceptance Criteria
 
-1. WHEN `getCurrentLocation()` successfully retrieves coordinates THEN the system SHALL automatically call ReverseGeocodeService to get the city name
-2. WHEN the city name is successfully retrieved THEN the system SHALL update the city observable property
+1. WHEN `getCurrentLocation()` successfully retrieves coordinates THEN the system SHALL automatically call ReverseGeocodeService to get the address
+2. WHEN the address is successfully retrieved THEN the system SHALL update the city observable property with the full address
 3. WHEN reverse geocoding fails THEN the system SHALL set city to null but keep the coordinates
 4. WHEN reverse geocoding fails THEN the system SHALL log the error for debugging
 5. WHEN coordinates are null THEN the system SHALL NOT attempt reverse geocoding
 
 ### Requirement 4
 
-**User Story:** As a developer, I want to manually fetch just the city name from coordinates, so that I can update location display when needed without fetching GPS again.
+**User Story:** As a developer, I want to manually fetch just the address from coordinates, so that I can update location display when needed without fetching GPS again.
 
 #### Acceptance Criteria
 
-1. WHEN `getCityFromCoordinates(lat, lng)` is called with valid coordinates THEN the system SHALL use ReverseGeocodeService to fetch the city name
-2. WHEN the city name is successfully retrieved THEN the system SHALL update the city observable property and return the city name
-3. WHEN the city name is successfully retrieved THEN the system SHALL NOT update latitude or longitude properties
+1. WHEN `getCityFromCoordinates(lat, lng)` is called with valid coordinates THEN the system SHALL use ReverseGeocodeService to fetch the address
+2. WHEN the address is successfully retrieved THEN the system SHALL update the city observable property with the full address and return it
+3. WHEN the address is successfully retrieved THEN the system SHALL NOT update latitude or longitude properties
 4. WHEN reverse geocoding fails THEN the system SHALL return null and log the error
 5. WHEN invalid coordinates are provided THEN the system SHALL handle gracefully and return null
 
