@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../service/realtimekit_service.dart';
 import '../entities/connection_state.dart' as app;
 import '../entities/video_call_config.dart';
+import '../utils/video_call_logger.dart';
 
 class RealtimeKitVideoCallController extends GetxController {
   // Observable states
@@ -35,18 +36,18 @@ class RealtimeKitVideoCallController extends GetxController {
   /// Initialize with video call config
   Future<void> initialize(VideoCallConfig config) async {
     try {
-      print('🔴 [CONTROLLER-INIT] Starting controller initialization...');
+      VideoCallLogger.info('Controller: Starting initialization');
       isLoading.value = true;
       error.value = null;
 
       // Validate config
-      print('🔴 [CONTROLLER-INIT] Validating config...');
+      VideoCallLogger.debug('Controller: Validating config');
       final validationError = config.getValidationError();
       if (validationError != null) {
-        print('❌ [CONTROLLER-INIT] Config validation failed: $validationError');
+        VideoCallLogger.error('Controller: Config validation failed', validationError);
         throw Exception(validationError);
       }
-      print('✅ [CONTROLLER-INIT] Config validated');
+      VideoCallLogger.debug('Controller: Config validated');
 
       // Store config data
       authToken = config.authToken;
@@ -56,35 +57,30 @@ class RealtimeKitVideoCallController extends GetxController {
       specialization = config.specialization;
       doctorImageUrl = config.doctorImageUrl;
       consultationId = config.consultationId;
-      print('✅ [CONTROLLER-INIT] Config data stored');
+      VideoCallLogger.debug('Controller: Config data stored');
 
       // Initialize service
-      print('🔴 [CONTROLLER-INIT] Creating new RealtimeKitService...');
+      VideoCallLogger.debug('Controller: Creating RealtimeKitService');
       _service = RealtimeKitService();
-      print('✅ [CONTROLLER-INIT] Service created');
 
-      // Set up connection state listener
-      print('🔴 [CONTROLLER-INIT] Setting up connection state listener...');
-      _setupConnectionStateListener();
-      print('✅ [CONTROLLER-INIT] Listener setup complete');
-
-      // Initialize meeting (join will be called automatically in onMeetingInitCompleted callback)
-      print('🔴 [CONTROLLER-INIT] Calling service.initializeMeeting()...');
+      // Initialize meeting FIRST (this ensures stream controllers are ready)
+      VideoCallLogger.info('Controller: Calling service.initializeMeeting()');
       await _service!.initializeMeeting(
         authToken: authToken,
         roomName: roomName,
         participantId: participantId,
       );
-      print('✅ [CONTROLLER-INIT] Service initialization called, waiting for SDK callbacks...');
+      VideoCallLogger.info('Controller: Service initialization complete');
 
-      // Don't call joinMeeting here - it will be called in the onMeetingInitCompleted callback
-      // The loading state will be updated when we receive onMeetingRoomJoinCompleted
+      // Set up connection state listener AFTER initialization
+      // This ensures we're listening to the correct (possibly recreated) streams
+      VideoCallLogger.debug('Controller: Setting up connection state listener');
+      _setupConnectionStateListener();
 
-      isLoading.value = false;
-      print('✅ [CONTROLLER-INIT] Controller initialization complete');
+      // Loading state will be updated by connection state listener
 
-    } catch (e) {
-      print('❌ [CONTROLLER-INIT] FAILED: $e');
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Controller: Initialization failed', e, stackTrace);
       isLoading.value = false;
       handleError('Failed to join consultation: ${e.toString()}');
     }
@@ -142,8 +138,7 @@ class RealtimeKitVideoCallController extends GetxController {
   /// Handle errors and update error state
   void handleError(String errorMessage) {
     error.value = errorMessage;
-    // Log error for debugging
-    print('VideoCallController Error: $errorMessage');
+    VideoCallLogger.error('Controller error: $errorMessage');
   }
 
   /// Clear error
@@ -158,40 +153,50 @@ class RealtimeKitVideoCallController extends GetxController {
 
     service.connectionStateStream.listen((state) {
       connectionState.value = state;
+      
+      // Update loading and connected states based on connection state
       if (state == app.ConnectionState.connected) {
         isConnected.value = true;
+        isLoading.value = false;
+        VideoCallLogger.info('Controller: Connected to meeting');
+      } else if (state == app.ConnectionState.connecting) {
+        isLoading.value = true;
+        VideoCallLogger.debug('Controller: Connecting...');
       } else if (state == app.ConnectionState.disconnected || state == app.ConnectionState.failed) {
         isConnected.value = false;
+        isLoading.value = false;
+        if (state == app.ConnectionState.failed) {
+          VideoCallLogger.warning('Controller: Connection failed');
+        }
       }
     });
 
     // Listen for participant events to trigger UI updates
     service.participantEventStream.listen((event) {
-      print('VideoCallController: Participant event - ${event.type} for ${event.participantId}');
-      // Force UI update by updating a dummy observable
+      VideoCallLogger.logParticipantEvent(event.type.toString(), event.participantId);
+      // Force UI update
       connectionState.refresh();
     });
   }
 
   @override
   void onClose() {
-    print('🔴 [CONTROLLER-CLOSE] onClose() called');
-    print('🔴 [CONTROLLER-CLOSE] isMinimized: ${isMinimized.value}');
+    VideoCallLogger.debug('Controller: onClose() called');
+    VideoCallLogger.debug('Controller: isMinimized = ${isMinimized.value}');
     
     // Only dispose service if call is not minimized
     if (!isMinimized.value) {
       if (_service != null) {
-        print('🔴 [CONTROLLER-CLOSE] Disposing service...');
+        VideoCallLogger.info('Controller: Disposing service');
         _service!.dispose();
-        print('✅ [CONTROLLER-CLOSE] Service disposed');
       } else {
-        print('⚠️ [CONTROLLER-CLOSE] Service is null, nothing to dispose');
+        VideoCallLogger.debug('Controller: Service is null, nothing to dispose');
       }
     } else {
-      print('⚠️ [CONTROLLER-CLOSE] Call is minimized, skipping disposal');
+      VideoCallLogger.debug('Controller: Call is minimized, skipping disposal');
     }
     
-    print('✅ [CONTROLLER-CLOSE] onClose() complete');
+    VideoCallLogger.debug('Controller: onClose() complete');
     super.onClose();
   }
 }

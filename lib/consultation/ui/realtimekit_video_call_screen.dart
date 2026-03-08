@@ -4,6 +4,7 @@ import 'package:realtimekit_core/realtimekit_core.dart';
 import '../controller/realtimekit_video_call_controller.dart';
 import '../controller/minimized_call_manager.dart';
 import '../entities/video_call_config.dart';
+import '../utils/video_call_logger.dart';
 import '../../_shared/ui/app_colors.dart';
 
 class RealtimeKitVideoCallScreen extends StatefulWidget {
@@ -19,101 +20,105 @@ class RealtimeKitVideoCallScreen extends StatefulWidget {
 }
 
 class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen> {
-  late RealtimeKitVideoCallController controller;
+  RealtimeKitVideoCallController? controller;
+  bool _isInitializing = true;
 
   @override
   void initState() {
     super.initState();
-    print('🔴 [SCREEN-INIT] ========================================');
-    print('🔴 [SCREEN-INIT] RealtimeKitVideoCallScreen initState()');
-    print('🔴 [SCREEN-INIT] ========================================');
-    
     _initializeController();
   }
 
   Future<void> _initializeController() async {
-    // Check if controller already exists (from minimized state)
-    print('🔴 [SCREEN-INIT] Checking if controller is registered...');
-    if (Get.isRegistered<RealtimeKitVideoCallController>()) {
-      print('⚠️ [SCREEN-INIT] Controller IS registered');
-      final existingController = Get.find<RealtimeKitVideoCallController>();
-      print('🔴 [SCREEN-INIT] Found existing controller, isMinimized: ${existingController.isMinimized.value}');
+    setState(() {
+      _isInitializing = true;
+    });
 
-      // If controller exists but is NOT minimized, it's a stale controller from previous call
-      // Delete it and create a new one
-      if (!existingController.isMinimized.value) {
-        print('⚠️ [SCREEN-INIT] Found STALE controller (not minimized), cleaning up...');
-        
-        // CRITICAL FIX: Dispose service FIRST before deleting controller
-        if (existingController.service != null) {
-          print('🔴 [SCREEN-INIT] Disposing old service...');
-          existingController.service!.dispose();
-          print('✅ [SCREEN-INIT] Old service disposed');
-        }
-        
-        // Wait for disposal to complete
-        print('🔴 [SCREEN-INIT] Waiting 500ms for cleanup to complete...');
-        await Future.delayed(const Duration(milliseconds: 500));
-        print('✅ [SCREEN-INIT] Wait complete');
-        
-        // Delete controller
-        print('🔴 [SCREEN-INIT] Deleting stale controller...');
-        try {
-          final deleted = Get.delete<RealtimeKitVideoCallController>(force: true);
-          print('✅ [SCREEN-INIT] Controller deleted: $deleted');
-          
-          // Verify deletion
-          final stillRegistered = Get.isRegistered<RealtimeKitVideoCallController>();
-          print('🔴 [SCREEN-INIT] Still registered after deletion: $stillRegistered');
-          
-          if (stillRegistered) {
-            print('⚠️ [SCREEN-INIT] WARNING: Controller still registered after force delete!');
+    try {
+      // Check if controller already exists (from minimized state)
+      if (Get.isRegistered<RealtimeKitVideoCallController>()) {
+        final existingController = Get.find<RealtimeKitVideoCallController>();
+
+        // If controller exists but is NOT minimized, it's a stale controller from previous call
+        if (!existingController.isMinimized.value) {
+          // Dispose service FIRST before deleting controller
+          if (existingController.service != null) {
+            await existingController.service!.dispose();
           }
-        } catch (e) {
-          print('❌ [SCREEN-INIT] Error deleting stale controller: $e');
-        }
+          
+          // Wait for disposal to complete
+          await Future.delayed(const Duration(milliseconds: 500));
+          
+          // Delete controller
+          Get.delete<RealtimeKitVideoCallController>(force: true);
 
-        // Create new controller
-        print('🔴 [SCREEN-INIT] Creating NEW controller...');
-        controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
-        print('✅ [SCREEN-INIT] New controller created');
-        
-        print('🔴 [SCREEN-INIT] Initializing new controller...');
-        await controller.initialize(widget.config);
-        print('✅ [SCREEN-INIT] Controller initialized');
+          // Create new controller
+          controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
+          await controller!.initialize(widget.config);
+        } else {
+          // Controller is minimized, reuse it
+          controller = existingController;
+        }
       } else {
-        // Controller is minimized, reuse it
-        print('✅ [SCREEN-INIT] Reusing MINIMIZED controller');
-        controller = existingController;
+        // Create new controller
+        controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
+        await controller!.initialize(widget.config);
       }
-    } else {
-      print('✅ [SCREEN-INIT] No existing controller found');
-      // Create new controller with permanent flag to prevent auto-disposal
-      print('🔴 [SCREEN-INIT] Creating NEW controller...');
-      controller = Get.put(RealtimeKitVideoCallController(), permanent: true);
-      print('✅ [SCREEN-INIT] New controller created');
-      
-      print('🔴 [SCREEN-INIT] Initializing controller...');
-      await controller.initialize(widget.config);
-      print('✅ [SCREEN-INIT] Controller initialized');
+    } catch (e) {
+      VideoCallLogger.error('Screen: Failed to initialize controller', e);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
     }
-    
-    print('✅ [SCREEN-INIT] ========================================');
-    print('✅ [SCREEN-INIT] Screen initialization complete');
-    print('✅ [SCREEN-INIT] ========================================');
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show loading while controller is initializing
+    if (_isInitializing || controller == null) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: NetworkImage(widget.config.doctorImageUrl),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Connecting to ${widget.config.doctorName}...',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        if (controller.isConnected.value) {
+        if (controller!.isConnected.value) {
           // Minimize the call instead of showing end call dialog
           final minimizedCallManager = Get.put(MinimizedCallManager(), permanent: true);
-          await minimizedCallManager.minimizeCall(context, controller);
+          await minimizedCallManager.minimizeCall(context, controller!);
         } else {
           Navigator.of(context).pop();
         }
@@ -122,11 +127,11 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
         backgroundColor: Colors.black,
         body: SafeArea(
           child: Obx(() {
-            if (controller.isLoading.value) {
+            if (controller!.isLoading.value) {
               return _buildLoadingState();
             }
 
-            if (controller.error.value != null) {
+            if (controller!.error.value != null) {
               return _buildErrorState();
             }
 
@@ -195,7 +200,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              controller.error.value ?? 'Unable to connect to the consultation',
+              controller!.error.value ?? 'Unable to connect to the consultation',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey.shade400,
@@ -208,8 +213,8 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    controller.clearError();
-                    controller.initialize(widget.config);
+                    controller!.clearError();
+                    controller!.initialize(widget.config);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
@@ -251,7 +256,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   Widget _buildVideoCallUI() {
     return Obx(() {
       // Force rebuild when connection state changes (which includes participant events)
-      final _ = controller.connectionState.value;
+      final _ = controller!.connectionState.value;
 
       return Stack(
         children: [
@@ -286,9 +291,9 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   }
 
   Widget _buildRemoteVideo() {
-    final service = controller.service;
+    final service = controller!.service;
     final participants = service?.participants;
-    final isConnected = controller.isConnected.value;
+    final isConnected = controller!.isConnected.value;
 
     // Debug logs
     print('RealtimeKit: Building remote video - connected: $isConnected, service: ${service != null}, participants: ${participants != null}');
@@ -340,11 +345,11 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
           children: [
             CircleAvatar(
               radius: 60,
-              backgroundImage: NetworkImage(controller.doctorImageUrl),
+              backgroundImage: NetworkImage(controller!.doctorImageUrl),
             ),
             const SizedBox(height: 16),
             Text(
-              controller.doctorName,
+              controller!.doctorName,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -353,7 +358,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              controller.specialization,
+              controller!.specialization,
               style: TextStyle(
                 color: Colors.grey.shade400,
                 fontSize: 16,
@@ -376,8 +381,8 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
   Widget _buildLocalVideo() {
     return Obx(() {
       // Access observable to trigger rebuild
-      final isVideoEnabled = controller.isVideoEnabled.value;
-      final isConnected = controller.isConnected.value;
+      final isVideoEnabled = controller!.isVideoEnabled.value;
+      final isConnected = controller!.isConnected.value;
 
       // Debug log
       print('RealtimeKit: Local video enabled: $isVideoEnabled, connected: $isConnected');
@@ -440,10 +445,10 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
           // Back button
           GestureDetector(
             onTap: () async {
-              if (controller.isConnected.value) {
+              if (controller!.isConnected.value) {
                 // Minimize the call
                 final minimizedCallManager = Get.put(MinimizedCallManager(), permanent: true);
-                await minimizedCallManager.minimizeCall(context, controller);
+                await minimizedCallManager.minimizeCall(context, controller!);
               } else {
                 Navigator.of(context).pop();
               }
@@ -470,7 +475,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  controller.doctorName,
+                  controller!.doctorName,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -479,7 +484,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  controller.specialization,
+                  controller!.specialization,
                   style: TextStyle(
                     color: Colors.grey.shade300,
                     fontSize: 14,
@@ -490,7 +495,7 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
           ),
           // Connection indicator
           Obx(() {
-            if (controller.isConnected.value) {
+            if (controller!.isConnected.value) {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -539,36 +544,36 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
           // Microphone toggle
           _buildControlButton(
             icon: Obx(() => Icon(
-              controller.isAudioEnabled.value ? Icons.mic : Icons.mic_off,
+              controller!.isAudioEnabled.value ? Icons.mic : Icons.mic_off,
               color: Colors.white,
               size: 28,
             )),
-            onTap: controller.toggleAudio,
-            isActive: controller.isAudioEnabled,
+            onTap: controller!.toggleAudio,
+            isActive: controller!.isAudioEnabled,
           ),
 
           // Camera toggle
           _buildControlButton(
             icon: Obx(() => Icon(
-              controller.isVideoEnabled.value ? Icons.videocam : Icons.videocam_off,
+              controller!.isVideoEnabled.value ? Icons.videocam : Icons.videocam_off,
               color: Colors.white,
               size: 28,
             )),
-            onTap: controller.toggleVideo,
-            isActive: controller.isVideoEnabled,
+            onTap: controller!.toggleVideo,
+            isActive: controller!.isVideoEnabled,
           ),
 
           // Camera switch button
           Obx(() {
             // Only show switch button when video is enabled
-            if (controller.isVideoEnabled.value) {
+            if (controller!.isVideoEnabled.value) {
               return _buildControlButton(
                 icon: const Icon(
                   Icons.flip_camera_ios,
                   color: Colors.white,
                   size: 28,
                 ),
-                onTap: controller.switchCamera,
+                onTap: controller!.switchCamera,
                 isActive: true.obs, // Always active when visible
               );
             }
@@ -663,15 +668,15 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
               
               // Unmark as minimized so service can be disposed
               print('🔴 [SCREEN-END] Setting isMinimized to false...');
-              controller.isMinimized.value = false;
+              controller!.isMinimized.value = false;
               print('✅ [SCREEN-END] isMinimized set to false');
               
-              print('🔴 [SCREEN-END] Calling controller.endCall()...');
-              await controller.endCall();
-              print('✅ [SCREEN-END] controller.endCall() complete');
+              print('🔴 [SCREEN-END] Calling controller!.endCall()...');
+              await controller!.endCall();
+              print('✅ [SCREEN-END] controller!.endCall() complete');
 
               // Force delete the controller from GetX to prevent stale controller on next call
-              print('🔴 [SCREEN-END] Force deleting controller...');
+              print('🔴 [SCREEN-END] Force deleting controller!...');
               try {
                 final deleted = Get.delete<RealtimeKitVideoCallController>(force: true);
                 print('✅ [SCREEN-END] Controller deleted: $deleted');
@@ -699,3 +704,4 @@ class _RealtimeKitVideoCallScreenState extends State<RealtimeKitVideoCallScreen>
     );
   }
 }
+

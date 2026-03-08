@@ -3,89 +3,164 @@ import 'package:realtimekit_core/realtimekit_core.dart';
 import '../entities/connection_state.dart' as app;
 import '../entities/video_call_error.dart';
 import '../entities/participant_event.dart';
+import '../utils/video_call_logger.dart';
 
+/// RealtimeKit service for managing video call connections
+/// 
+/// This service handles the complete lifecycle of RealtimeKit video calls:
+/// - Initialization and connection to Cloudflare servers
+/// - Meeting join/leave operations
+/// - Audio/video controls
+/// - Event handling and state management
+/// - Complete resource cleanup between calls
 class RealtimeKitService extends RtkMeetingRoomEventListener
     implements RtkParticipantsEventListener {
   RealtimekitClient? _client;
 
-  // State properties
+  // State flags
   bool _isAudioEnabled = true;
   bool _isVideoEnabled = true;
+  bool _isDisposed = false;
+  bool _isLeaving = false;
   app.ConnectionState _connectionState = app.ConnectionState.disconnected;
 
-  // Stream controllers
-  final _connectionStateController = StreamController<app.ConnectionState>.broadcast();
-  final _participantEventController = StreamController<ParticipantEvent>.broadcast();
+  // Stream controllers - will be recreated if closed
+  late StreamController<app.ConnectionState> _connectionStateController;
+  late StreamController<ParticipantEvent> _participantEventController;
 
   // Getters
   bool get isAudioEnabled => _isAudioEnabled;
   bool get isVideoEnabled => _isVideoEnabled;
   app.ConnectionState get connectionState => _connectionState;
-  Stream<app.ConnectionState> get connectionStateStream => _connectionStateController.stream;
-  Stream<ParticipantEvent> get participantEventStream => _participantEventController.stream;
+  Stream<app.ConnectionState> get connectionStateStream {
+    _ensureStreamControllersOpen();
+    return _connectionStateController.stream;
+  }
+  Stream<ParticipantEvent> get participantEventStream {
+    _ensureStreamControllersOpen();
+    return _participantEventController.stream;
+  }
   RealtimekitClient? get client => _client;
+  RtkSelfParticipant? get localUser => _client?.localUser;
+  RtkParticipants? get participants => _client?.participants;
 
-  RealtimeKitService();
+  RealtimeKitService() {
+    _initializeStreamControllers();
+  }
+
+  /// Initialize or reinitialize stream controllers
+  void _initializeStreamControllers() {
+    _connectionStateController = StreamController<app.ConnectionState>.broadcast();
+    _participantEventController = StreamController<ParticipantEvent>.broadcast();
+  }
+
+  /// Ensure stream controllers are open, recreate if closed
+  void _ensureStreamControllersOpen() {
+    if (_connectionStateController.isClosed) {
+      VideoCallLogger.debug('Recreating closed connection state controller');
+      _connectionStateController = StreamController<app.ConnectionState>.broadcast();
+    }
+    if (_participantEventController.isClosed) {
+      VideoCallLogger.debug('Recreating closed participant event controller');
+      _participantEventController = StreamController<ParticipantEvent>.broadcast();
+    }
+  }
 
   /// Initialize meeting with credentials
+  /// 
+  /// This method:
+  /// 1. Verifies no previous client exists (disposes if found)
+  /// 2. Recreates stream controllers if needed
+  /// 3. Creates a fresh RealtimekitClient instance
+  /// 4. Adds event listeners before initialization
+  /// 5. Calls SDK init() and waits for callbacks
+  /// 
+  /// According to RealtimeKit documentation:
+  /// https://pub.dev/documentation/realtimekit_core/latest/
+  /// The proper flow is: create client -> add listeners -> init() -> wait for callbacks
   Future<void> initializeMeeting({
     required String authToken,
     required String roomName,
     required String participantId,
   }) async {
+    VideoCallLogger.info('=== Starting Meeting Initialization ===');
+    
     try {
-      print('🔴 [SERVICE-INIT] Starting SDK initialization...');
-      print('🔴 [SERVICE-INIT] Auth token: ${authToken.substring(0, 10)}...');
-      print('🔴 [SERVICE-INIT] Room: $roomName');
-      print('🔴 [SERVICE-INIT] Participant: $participantId');
+      // CRITICAL: Ensure stream controllers are open FIRST
+      // This must happen before any listeners are set up
+      _ensureStreamControllersOpen();
+      VideoCallLogger.debug('Stream controllers verified/recreated');
       
+      // CRITICAL: Verify clean state before initialization
+      // This prevents cached state from blocking Cloudflare dashboard sessions
+      if (_client != null) {
+        VideoCallLogger.warning('⚠️ Client already exists! Disposing before re-init...');
+        await dispose();
+        
+        // Recreate stream controllers after disposal
+        _ensureStreamControllersOpen();
+        VideoCallLogger.debug('Stream controllers recreated after disposal');
+        
+        // Give SDK time to fully clean up native resources
+        // This is critical for ensuring the next connection appears in Cloudflare dashboard
+        await Future.delayed(const Duration(milliseconds: 500));
+        VideoCallLogger.info('Previous client disposed, proceeding with fresh init');
+      }
+      
+      // Verify we're starting from clean state
+      if (_isDisposed) {
+        VideoCallLogger.debug('Resetting disposed flag');
+        _isDisposed = false;
+      }
+      
+      if (_isLeaving) {
+        VideoCallLogger.warning('Still in leaving state, resetting');
+        _isLeaving = false;
+      }
+      
+      // Reset all state to defaults
+      _connectionState = app.ConnectionState.disconnected;
+      _isAudioEnabled = true;
+      _isVideoEnabled = true;
+      
+      VideoCallLogger.info('State verified clean, creating new client');
+      
+      // Update state to connecting
       _updateConnectionState(app.ConnectionState.connecting);
-
-      print('🔴 [SERVICE-INIT] Creating RealtimekitClient...');
+      
+      // Step 1: Create fresh client instance
       _client = RealtimekitClient();
-      print('✅ [SERVICE-INIT] RealtimekitClient created');
-
-      // Subscribe to meeting room events BEFORE init
-      print('🔴 [SERVICE-INIT] Adding meeting room event listener...');
+      VideoCallLogger.info('✅ New RealtimekitClient created');
+      
+      // Step 2: Add event listeners BEFORE init (per SDK documentation)
       _client!.addMeetingRoomEventListener(this);
-      print('✅ [SERVICE-INIT] Meeting room event listener added');
-
-      // Subscribe to participants events BEFORE init
-      print('🔴 [SERVICE-INIT] Adding participants event listener...');
       _client!.addParticipantsEventListener(this);
-      print('✅ [SERVICE-INIT] Participants event listener added');
-
-      // Step 3: Set the meeting properties
+      VideoCallLogger.debug('Event listeners added');
+      VideoCallLogger.debug('This service instance: ${this.hashCode}');
+      VideoCallLogger.debug('Client instance: ${_client.hashCode}');
+      
+      // Step 3: Create meeting info with credentials
       final meetingInfo = RtkMeetingInfo(
         authToken: authToken,
         enableAudio: true,
         enableVideo: true,
       );
-      print('🔴 [SERVICE-INIT] Meeting info configured');
-
-      // Step 4: Initialize the connection request
-      print('🔴 [SERVICE-INIT] Calling client.init()...');
+      
+      VideoCallLogger.logMeetingInit(authToken, roomName, participantId);
+      
+      // Step 4: Initialize - SDK callbacks will handle the rest
+      // Per documentation: init() is async and triggers callbacks
+      // - onMeetingInitStarted() - init begins
+      // - onMeetingInitCompleted() - init done, ready to join
+      // - onMeetingInitFailed() - init failed
       _client!.init(meetingInfo);
-      print('✅ [SERVICE-INIT] client.init() called');
-
-      print('✅ [SERVICE-INIT] SDK initialization complete, waiting for callbacks...');
+      VideoCallLogger.info('SDK init() called - waiting for callbacks');
       
-      // WORKAROUND: Manually call joinRoom since callbacks aren't firing
-      print('⚠️ [SERVICE-INIT] WORKAROUND: Manually calling joinRoom()...');
-      await joinMeeting();
-      print('✅ [SERVICE-INIT] joinRoom() called manually');
+      // NO WORKAROUNDS - Let SDK callbacks handle everything
+      // The onMeetingInitCompleted callback will automatically call joinRoom()
       
-      // WORKAROUND: Since callbacks don't fire, manually update state after delay
-      print('⚠️ [SERVICE-INIT] WORKAROUND: Waiting for SDK to connect...');
-      await Future.delayed(const Duration(seconds: 3));
-      
-      // Force update connection state
-      print('⚠️ [SERVICE-INIT] WORKAROUND: Forcing connection state to connected');
-      _updateConnectionState(app.ConnectionState.connected);
-      print('✅ [SERVICE-INIT] Connection state forced to connected');
-
-    } catch (e) {
-      print('❌ [SERVICE-INIT] FAILED: $e');
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Failed to initialize meeting', e, stackTrace);
       _updateConnectionState(app.ConnectionState.failed);
       throw VideoCallError.authentication(
         'Failed to initialize meeting',
@@ -94,80 +169,90 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     }
   }
 
+  // ============================================================================
   // RtkMeetingRoomEventListener implementations
+  // These callbacks are triggered by the SDK during meeting lifecycle
+  // ============================================================================
+
   @override
   void onMeetingInitStarted() {
-    print('✅ [SDK-CALLBACK] onMeetingInitStarted - SDK init started');
+    VideoCallLogger.info('SDK Callback: onMeetingInitStarted - Init started');
     _updateConnectionState(app.ConnectionState.connecting);
   }
 
   @override
   void onMeetingInitCompleted() {
-    print('✅ [SDK-CALLBACK] onMeetingInitCompleted - SDK init completed');
-    print('🔴 [SDK-CALLBACK] Auto-joining meeting...');
+    VideoCallLogger.info('SDK Callback: onMeetingInitCompleted - Init completed');
+    VideoCallLogger.info('Auto-joining meeting room...');
+    
     // Automatically join the room after initialization completes
+    // This is the proper flow per RealtimeKit documentation
     joinMeeting();
   }
 
   @override
   void onMeetingInitFailed(MeetingError error) {
-    print('❌ [SDK-CALLBACK] onMeetingInitFailed - ${error.message}');
+    VideoCallLogger.error('SDK Callback: onMeetingInitFailed', error);
+    VideoCallLogger.error('Error message: ${error.message}');
     _updateConnectionState(app.ConnectionState.failed);
   }
 
   @override
   void onMeetingRoomJoinStarted() {
-    print('✅ [SDK-CALLBACK] onMeetingRoomJoinStarted - Join started');
+    VideoCallLogger.info('SDK Callback: onMeetingRoomJoinStarted - Join started');
     _updateConnectionState(app.ConnectionState.connecting);
   }
 
   @override
   void onMeetingRoomJoinCompleted() {
-    print('✅ [SDK-CALLBACK] onMeetingRoomJoinCompleted - Successfully joined room');
+    VideoCallLogger.info('SDK Callback: onMeetingRoomJoinCompleted - Successfully joined!');
+    VideoCallLogger.info('✅ Session should now appear in Cloudflare dashboard');
     _updateConnectionState(app.ConnectionState.connected);
 
-    // Debug: Check participants after joining
-    Future.delayed(const Duration(seconds: 1), () {
+    // Log participant info for debugging
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (_client != null) {
-        print('RealtimeKit: === PARTICIPANTS DEBUG ===');
-        print('RealtimeKit: Active count: ${_client!.participants.active.length}');
-        print('RealtimeKit: Joined count: ${_client!.participants.joined.length}');
-
-        print('RealtimeKit: Active participants:');
+        final activeCount = _client!.participants.active.length;
+        final joinedCount = _client!.participants.joined.length;
+        VideoCallLogger.debug('Participants - Active: $activeCount, Joined: $joinedCount');
+        
         for (var p in _client!.participants.active) {
-          print('  - ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled})');
+          VideoCallLogger.debug('Active: ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled})');
         }
-
-        print('RealtimeKit: Joined participants:');
-        for (var p in _client!.participants.joined) {
-          print('  - ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled}, Audio: ${p.audioEnabled})');
-        }
-        print('RealtimeKit: === END DEBUG ===');
       }
     });
   }
 
   @override
   void onMeetingRoomJoinFailed(MeetingError error) {
-    print('❌ [SDK-CALLBACK] onMeetingRoomJoinFailed - ${error.message}');
+    VideoCallLogger.error('SDK Callback: onMeetingRoomJoinFailed', error);
+    VideoCallLogger.error('Error message: ${error.message}');
     _updateConnectionState(app.ConnectionState.failed);
   }
 
   @override
   void onMeetingRoomLeaveStarted() {
-    print('✅ [SDK-CALLBACK] onMeetingRoomLeaveStarted - Leave started');
+    VideoCallLogger.info('SDK Callback: onMeetingRoomLeaveStarted - Leave started');
+    _updateConnectionState(app.ConnectionState.disconnected);
   }
 
   @override
   void onMeetingRoomLeaveCompleted() {
-    print('✅ [SDK-CALLBACK] onMeetingRoomLeaveCompleted - Left room');
+    VideoCallLogger.info('SDK Callback: onMeetingRoomLeaveCompleted - Left room');
+    VideoCallLogger.info('Session closed in Cloudflare dashboard');
     _updateConnectionState(app.ConnectionState.disconnected);
   }
 
-  // RtkParticipantsEventListener methods
+  // ============================================================================
+  // RtkParticipantsEventListener implementations
+  // These callbacks are triggered when participants join/leave or change state
+  // ============================================================================
+
   @override
   void onParticipantJoin(RtkMeetingParticipant participant) {
-    print('RealtimeKit: Participant joined - ${participant.name}, ID: ${participant.id}, Video: ${participant.videoEnabled}');
+    VideoCallLogger.logParticipantEvent('joined', participant.id);
+    VideoCallLogger.debug('Participant: ${participant.name}, Video: ${participant.videoEnabled}');
+    
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
@@ -178,7 +263,8 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
 
   @override
   void onParticipantLeave(RtkMeetingParticipant participant) {
-    print('RealtimeKit: Participant left - ${participant.name}');
+    VideoCallLogger.logParticipantEvent('left', participant.id);
+    
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
@@ -189,11 +275,11 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
 
   @override
   void onVideoUpdate(RtkRemoteParticipant participant, bool videoEnabled) {
-    print('RealtimeKit: Video update - ${participant.name}, enabled: $videoEnabled');
+    VideoCallLogger.debug('Video update: ${participant.name} = $videoEnabled');
+    
     // Force UI update when video state changes
     _connectionStateController.add(_connectionState);
-
-    // Also emit participant event
+    
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
@@ -204,11 +290,11 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
 
   @override
   void onAudioUpdate(RtkRemoteParticipant participant, bool audioEnabled) {
-    print('RealtimeKit: Audio update - ${participant.name}, enabled: $audioEnabled');
+    VideoCallLogger.debug('Audio update: ${participant.name} = $audioEnabled');
+    
     // Force UI update when audio state changes
     _connectionStateController.add(_connectionState);
-
-    // Also emit participant event
+    
     _participantEventController.add(
       ParticipantEvent(
         participantId: participant.id,
@@ -217,55 +303,51 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     );
   }
 
-
-
   @override
   void onActiveParticipantsChanged(List<RtkMeetingParticipant> active) {
-    print('RealtimeKit: Active participants changed - count: ${active.length}');
-    for (var p in active) {
-      print('  - ${p.name} (ID: ${p.id}, Video: ${p.videoEnabled})');
-    }
+    VideoCallLogger.debug('Active participants changed: ${active.length}');
   }
 
   @override
   void onActiveSpeakerChanged(RtkRemoteParticipant? participant) {
-    print('RealtimeKit: Active speaker - ${participant?.name ?? "none"}');
+    VideoCallLogger.debug('Active speaker: ${participant?.name ?? "none"}');
   }
 
   @override
   void onNewBroadcastMessage(String message, Map<String, dynamic> data) {
-    print('RealtimeKit: Broadcast message - $message');
+    VideoCallLogger.debug('Broadcast message: $message');
   }
 
   @override
   void onScreenShareUpdate(RtkRemoteParticipant participant, bool screenShareEnabled) {
-    print('RealtimeKit: Screen share update - ${participant.name}, enabled: $screenShareEnabled');
+    VideoCallLogger.debug('Screen share: ${participant.name} = $screenShareEnabled');
   }
 
   @override
   void onUpdate(RtkParticipants participants) {
-    print('RealtimeKit: Participants updated - Active: ${participants.active.length}');
+    VideoCallLogger.debug('Participants updated: ${participants.active.length} active');
     // Force UI update
     _connectionStateController.add(_connectionState);
   }
 
   @override
   void onParticipantPinned(RtkMeetingParticipant participant) {
-    print('RealtimeKit: Participant pinned - ${participant.name}');
+    VideoCallLogger.debug('Participant pinned: ${participant.name}');
   }
 
   @override
   void onParticipantUnpinned(RtkMeetingParticipant participant) {
-    print('RealtimeKit: Participant unpinned - ${participant.name}');
+    VideoCallLogger.debug('Participant unpinned: ${participant.name}');
   }
 
-  /// Update connection state and notify listeners
-  void _updateConnectionState(app.ConnectionState newState) {
-    _connectionState = newState;
-    _connectionStateController.add(newState);
-  }
+  // ============================================================================
+  // Meeting control methods
+  // ============================================================================
 
   /// Join the meeting room
+  /// 
+  /// This is called automatically by onMeetingInitCompleted callback
+  /// Per SDK documentation, joinRoom() should only be called after init completes
   Future<void> joinMeeting() async {
     if (_client == null) {
       throw VideoCallError.runtime(
@@ -275,21 +357,20 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     }
 
     try {
-      print('RealtimeKit: Attempting to join meeting...');
-
-      // Step 5: Join the room
+      VideoCallLogger.logMeetingJoin('meeting');
+      
+      // Join the room - callbacks will handle state updates
       _client!.joinRoom(
         onSuccess: () {
-          print('RealtimeKit: Join success callback');
+          VideoCallLogger.debug('joinRoom() success callback');
         },
         onError: (error) {
-          print('RealtimeKit: Join error callback - $error');
+          VideoCallLogger.error('joinRoom() error callback', error);
           _updateConnectionState(app.ConnectionState.failed);
         },
       );
-
-    } catch (e) {
-      print('RealtimeKit: Failed to join - $e');
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Failed to join meeting', e, stackTrace);
       _updateConnectionState(app.ConnectionState.failed);
       throw VideoCallError.connection(
         'Failed to join meeting',
@@ -298,24 +379,30 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     }
   }
 
-  /// Leave the meeting and cleanup
+  /// Leave the meeting
+  /// 
+  /// This properly closes the session on Cloudflare servers
   Future<void> leaveMeeting() async {
-    if (_client == null) return;
+    if (_client == null) {
+      VideoCallLogger.warning('leaveMeeting() called but client is null');
+      return;
+    }
 
     try {
-      print('RealtimeKit: Leaving meeting...');
-
-      // Leave the room
+      VideoCallLogger.logMeetingLeave('meeting');
+      _isLeaving = true;
+      
+      // Leave the room - callbacks will handle state updates
       _client!.leaveRoom(
         onSuccess: () {
-          print('RealtimeKit: Leave success');
+          VideoCallLogger.debug('leaveRoom() success callback');
         },
         onError: (error) {
-          print('RealtimeKit: Leave error - $error');
+          VideoCallLogger.warning('leaveRoom() error callback', error);
         },
       );
-
-    } catch (e) {
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Failed to leave meeting', e, stackTrace);
       throw VideoCallError.runtime(
         'Failed to leave meeting',
         details: e.toString(),
@@ -333,13 +420,13 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
       if (_isAudioEnabled) {
         _client!.localUser.disableAudio();
         _isAudioEnabled = false;
-        print('RealtimeKit: Audio disabled');
       } else {
         _client!.localUser.enableAudio();
         _isAudioEnabled = true;
-        print('RealtimeKit: Audio enabled');
       }
-    } catch (e) {
+      VideoCallLogger.logMediaControl('audio', _isAudioEnabled);
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Failed to toggle audio', e, stackTrace);
       throw VideoCallError.runtime(
         'Failed to toggle audio',
         details: e.toString(),
@@ -357,13 +444,13 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
       if (_isVideoEnabled) {
         _client!.localUser.disableVideo();
         _isVideoEnabled = false;
-        print('RealtimeKit: Video disabled');
       } else {
         _client!.localUser.enableVideo();
         _isVideoEnabled = true;
-        print('RealtimeKit: Video enabled');
       }
-    } catch (e) {
+      VideoCallLogger.logMediaControl('video', _isVideoEnabled);
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Failed to toggle video', e, stackTrace);
       throw VideoCallError.runtime(
         'Failed to toggle video',
         details: e.toString(),
@@ -379,8 +466,9 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
 
     try {
       _client!.localUser.switchCamera();
-      print('RealtimeKit: Camera switched');
-    } catch (e) {
+      VideoCallLogger.info('Camera switched');
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Failed to switch camera', e, stackTrace);
       throw VideoCallError.runtime(
         'Failed to switch camera',
         details: e.toString(),
@@ -388,50 +476,131 @@ class RealtimeKitService extends RtkMeetingRoomEventListener
     }
   }
 
-  /// Get local user for video rendering
-  RtkSelfParticipant? get localUser => _client?.localUser;
+  // ============================================================================
+  // Resource cleanup
+  // ============================================================================
 
-  /// Get remote participants for video rendering
-  RtkParticipants? get participants => _client?.participants;
+  /// Wait for disconnection with timeout
+  /// 
+  /// This ensures we properly wait for the leave operation to complete
+  /// before disposing resources
+  Future<void> _waitForDisconnection({Duration timeout = const Duration(seconds: 5)}) async {
+    if (_connectionState == app.ConnectionState.disconnected) {
+      VideoCallLogger.debug('Already disconnected');
+      return;
+    }
+    
+    VideoCallLogger.debug('Waiting for disconnection...');
+    final completer = Completer<void>();
+    Timer? timeoutTimer;
+    StreamSubscription<app.ConnectionState>? subscription;
+    
+    subscription = connectionStateStream.listen((state) {
+      if (state == app.ConnectionState.disconnected) {
+        VideoCallLogger.debug('Disconnection detected');
+        timeoutTimer?.cancel();
+        subscription?.cancel();
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      }
+    });
+    
+    timeoutTimer = Timer(timeout, () {
+      VideoCallLogger.warning('Disconnect timeout - forcing completion');
+      subscription?.cancel();
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    });
+    
+    await completer.future;
+  }
+
+  /// Update connection state and notify listeners
+  void _updateConnectionState(app.ConnectionState newState) {
+    if (_connectionState != newState) {
+      _connectionState = newState;
+      VideoCallLogger.logConnectionState(newState.toString());
+      _connectionStateController.add(newState);
+    }
+  }
 
   /// Dispose and cleanup all resources
-  void dispose() {
-    print('🔴 [SERVICE-DISPOSE] Starting service disposal...');
+  /// 
+  /// This is CRITICAL for fixing the Cloudflare dashboard issue.
+  /// Complete disposal ensures:
+  /// 1. Session is properly closed on Cloudflare servers
+  /// 2. Native SDK state is cleared (cleanAllNativeListeners)
+  /// 3. Client reference is nullified (prevents cached connections)
+  /// 4. All state is reset for next call
+  Future<void> dispose() async {
+    if (_isDisposed || _isLeaving) {
+      VideoCallLogger.warning('Dispose called but already disposing/disposed');
+      return;
+    }
     
-    // Leave meeting if still connected
-    if (_client != null && _connectionState == app.ConnectionState.connected) {
-      print('🔴 [SERVICE-DISPOSE] Leaving meeting...');
-      leaveMeeting();
-    }
-
-    // Remove event listeners and clean up
-    if (_client != null) {
-      print('🔴 [SERVICE-DISPOSE] Removing event listeners...');
-      _client!.removeMeetingRoomEventListener(this);
-      _client!.removeParticipantsEventListener(this);
-      print('✅ [SERVICE-DISPOSE] Event listeners removed');
+    _isDisposed = true;
+    VideoCallLogger.info('=== Starting Complete Client Disposal ===');
+    
+    try {
+      // Step 1: Leave meeting if connected
+      if (_client != null && _connectionState == app.ConnectionState.connected) {
+        VideoCallLogger.info('Leaving meeting before disposal');
+        _isLeaving = true;
+        
+        await leaveMeeting();
+        
+        // Wait for leave to complete (with timeout)
+        await _waitForDisconnection(timeout: const Duration(seconds: 5));
+        
+        _isLeaving = false;
+        VideoCallLogger.info('Leave completed');
+      }
       
-      print('🔴 [SERVICE-DISPOSE] Cleaning native listeners...');
-      _client!.cleanAllNativeListeners();
-      print('✅ [SERVICE-DISPOSE] Native listeners cleaned');
+      // Step 2: Remove all event listeners
+      if (_client != null) {
+        VideoCallLogger.logCleanup('event listeners');
+        _client!.removeMeetingRoomEventListener(this);
+        _client!.removeParticipantsEventListener(this);
+      }
+      
+      // Step 3: Clean native listeners
+      // This is CRITICAL - it clears native SDK state that prevents new connections
+      if (_client != null) {
+        VideoCallLogger.logCleanup('native listeners');
+        _client!.cleanAllNativeListeners();
+      }
+      
+      // Step 4: Close stream controllers (but don't dispose them permanently)
+      VideoCallLogger.logCleanup('stream controllers');
+      if (!_connectionStateController.isClosed) {
+        await _connectionStateController.close();
+      }
+      if (!_participantEventController.isClosed) {
+        await _participantEventController.close();
+      }
+      
+      // Step 5: Nullify client reference
+      // This is CRITICAL - prevents cached state from blocking new connections
+      VideoCallLogger.logCleanup('client reference');
+      _client = null;
+      
+      // Step 6: Reset all state
+      _connectionState = app.ConnectionState.disconnected;
+      _isAudioEnabled = true;
+      _isVideoEnabled = true;
+      
+      VideoCallLogger.info('✅ Complete disposal finished - ready for new connection');
+      
+    } catch (e, stackTrace) {
+      VideoCallLogger.error('Error during disposal', e, stackTrace);
+      // Force cleanup even on error
+      _client = null;
+      _isLeaving = false;
+    } finally {
+      // Reset disposed flag so service can be reused
+      _isDisposed = false;
     }
-
-    // Close stream controllers
-    print('🔴 [SERVICE-DISPOSE] Closing stream controllers...');
-    _connectionStateController.close();
-    _participantEventController.close();
-    print('✅ [SERVICE-DISPOSE] Stream controllers closed');
-
-    // Clear client reference
-    _client = null;
-    print('✅ [SERVICE-DISPOSE] Client reference cleared');
-
-    // Reset state
-    _isAudioEnabled = true;
-    _isVideoEnabled = true;
-    _connectionState = app.ConnectionState.disconnected;
-    print('✅ [SERVICE-DISPOSE] State reset');
-
-    print('✅ [SERVICE-DISPOSE] Service disposal complete');
   }
 }
